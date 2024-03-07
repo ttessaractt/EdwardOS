@@ -57,4 +57,5 @@ int idt_test(){
 void launch_tests(){
 	TEST_OUTPUT("idt_test", idt_test());
 	// launch your tests here
+	// COMMENT HERE
 }
