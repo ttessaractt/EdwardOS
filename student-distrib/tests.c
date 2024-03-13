@@ -7,7 +7,6 @@
 
 //test :3
 
-
 /* format these macros as you see fit */
 #define TEST_HEADER 	\
 	printf("[TEST %s] Running %s at %s:%d\n", __FUNCTION__, __FUNCTION__, __FILE__, __LINE__)
@@ -40,6 +39,7 @@ int idt_test(){
 	for (i = 0; i < 10; ++i){
 		if ((idt[i].offset_15_00 == NULL) && 
 			(idt[i].offset_31_16 == NULL)){
+				printf("fail\n");
 			assertion_failure();
 			result = FAIL;
 		}

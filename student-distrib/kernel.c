@@ -27,8 +27,12 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Am I booted by a Multiboot-compliant boot loader? */
     if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
         printf("Invalid magic number: 0x%#x\n", (unsigned)magic);
+        printf("Should be: 0x%#x\n", (unsigned)MULTIBOOT_BOOTLOADER_MAGIC);
         return;
     }
+    //else{
+    //    printf("Valid magic number: 0x%#x\n", (unsigned)magic);
+    //}
 
     /* Set MBI to the address of the Multiboot information structure. */
     mbi = (multiboot_info_t *) addr;
@@ -39,7 +43,9 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Are mem_* valid? */
     if (CHECK_FLAG(mbi->flags, 0))
         printf("mem_lower = %uKB, mem_upper = %uKB\n", (unsigned)mbi->mem_lower, (unsigned)mbi->mem_upper);
-
+    //else{
+    //    printf("bad mem_*\n");
+    //}
     /* Is boot_device valid? */
     if (CHECK_FLAG(mbi->flags, 1))
         printf("boot_device = 0x%#x\n", (unsigned)mbi->boot_device);
@@ -69,6 +75,9 @@ void entry(unsigned long magic, unsigned long addr) {
         printf("Both bits 4 and 5 are set.\n");
         return;
     }
+    //else{
+    //    printf("bits 4 & 5 not mutually exclusive\n");
+    //}
 
     /* Is the section header table of ELF valid? */
     if (CHECK_FLAG(mbi->flags, 5)) {
@@ -77,6 +86,9 @@ void entry(unsigned long magic, unsigned long addr) {
                 (unsigned)elf_sec->num, (unsigned)elf_sec->size,
                 (unsigned)elf_sec->addr, (unsigned)elf_sec->shndx);
     }
+    //else{
+     //   printf("issue with section header table of ELF\n");
+   // }
 
     /* Are mmap_* valid? */
     if (CHECK_FLAG(mbi->flags, 6)) {
@@ -94,7 +106,11 @@ void entry(unsigned long magic, unsigned long addr) {
                     (unsigned)mmap->length_high,
                     (unsigned)mmap->length_low);
     }
+    //else{
+    //    printf("mmap issue\n");
+    //}
 
+    //printf("start LDT construct\n");
     /* Construct an LDT entry in the GDT */
     {
         seg_desc_t the_ldt_desc;
@@ -111,7 +127,9 @@ void entry(unsigned long magic, unsigned long addr) {
         ldt_desc_ptr = the_ldt_desc;
         lldt(KERNEL_LDT);
     }
+    //printf("end LDT construct\n");
 
+    //printf("start TSS construct\n");
     /* Construct a TSS entry in the GDT */
     {
         seg_desc_t the_tss_desc;
@@ -135,8 +153,10 @@ void entry(unsigned long magic, unsigned long addr) {
         tss.esp0 = 0x800000;
         ltr(KERNEL_TSS);
     }
+    //printf("end TSS construct\n");
 
     /* Init the PIC */
+    //printf("init PIC\n");
     i8259_init();
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
@@ -151,6 +171,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
+    //printf("start running test\n");
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */

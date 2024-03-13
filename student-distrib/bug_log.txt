@@ -1,0 +1,15 @@
+MP3 bug_log
+
+CP3.1
+1.  issue:
+    - GDT does not work, boot loops
+    fix:
+    - had to comment out launch_tests() in kernal.c
+2.  issue:
+    - stuck in boot loop, this is because IDT is not working
+    fix:
+    - I was never actually initilizing my IDT in boot.S, just loading the register
+3.  issue:
+    - invalid magic number error, magic number is 0x004025F9, should be 0x2BADB002
+    fix:
+    - i forgot to preserve the caller saved registers, once I did that it worked

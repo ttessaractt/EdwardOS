@@ -26,6 +26,23 @@ _start:
 continue:
     # Load the GDT
 
+    # LGDT [(32 bit linear base addr)(16 bit limit)]
+    # load GDT register (GDTR)
+    LGDT gdt_desc_ptr       
+    
+    # load IDT register (IDTR)
+    LIDT idt_desc_ptr    
+
+    # save caller saved regs
+    push %eax
+    push %ecx
+    push %edx
+    call idt_init       # initilize IDT
+    # restore caller saved regs
+    pop %edx
+    pop %ecx
+    pop %eax
+
     # Load CS with the new descriptor value
     ljmp    $KERNEL_CS, $keep_going
 
