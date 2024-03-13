@@ -1,6 +1,7 @@
 #include "tests.h"
 #include "x86_desc.h"
 #include "lib.h"
+#include "idt.h"
 
 #define PASS 1
 #define FAIL 0
@@ -39,13 +40,32 @@ int idt_test(){
 	for (i = 0; i < 10; ++i){
 		if ((idt[i].offset_15_00 == NULL) && 
 			(idt[i].offset_31_16 == NULL)){
-				printf("fail\n");
+				//printf("fail\n");
 			assertion_failure();
 			result = FAIL;
 		}
 	}
 
 	return result;
+}
+
+/* 
+ * idt_div0_test
+ * Raises the Divide Error Exception (#DE) (aka divide by 0) exception  
+ * Inputs: None
+ * Outputs: print the divide error text from the handler
+ * Side Effects: None
+ * Coverage: divide error exception handler
+ * Files: idt.c
+ */
+void idt_div0_test(){
+
+	int i = 1;
+	int j = 0;
+	int k;
+
+	k = i/j;
+	//asm volatile("int $0");
 }
 
 // add more tests here
@@ -58,6 +78,7 @@ int idt_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-	TEST_OUTPUT("idt_test", idt_test());
+	//TEST_OUTPUT("idt_test", idt_test());
+	idt_div0_test();
 	// launch your tests here
 }

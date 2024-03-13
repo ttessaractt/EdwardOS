@@ -6,4 +6,4 @@ kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
   tests.h
 keyboard.o: keyboard.c keyboard.h i8259.h types.h lib.h
 lib.o: lib.c lib.h types.h
-tests.o: tests.c tests.h x86_desc.h types.h lib.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h idt.h

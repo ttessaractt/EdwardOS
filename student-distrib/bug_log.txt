@@ -13,3 +13,7 @@ CP3.1
     - invalid magic number error, magic number is 0x004025F9, should be 0x2BADB002
     fix:
     - i forgot to preserve the caller saved registers, once I did that it worked
+4.  issue:
+    - my divide error/divide by 0 test causes the OS to boot loop
+    fix:
+    - i had the order of the reserved bits reveresed so my trap gate was not actually a trap gate

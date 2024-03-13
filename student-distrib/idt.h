@@ -1,8 +1,10 @@
 //header file for IDT
 
-#define ONE     0x1       //one (for present & reserved bits)
-#define ZERO    0x0       //0 (for reserved bits)
-#define DPL_ZERO 0x00
+#define ONE         0x1       //one (for present & reserved bits)
+#define ZERO        0x0       //0 (for reserved bits)
+#define DPL_ZERO    0x00
+#define EIGHTBIT        0x00000000
+
 /*#define MAKE_EXCEPTION      (name, num) \
 void name(){    \
 
