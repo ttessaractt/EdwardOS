@@ -68,6 +68,10 @@ void idt_div0_test(){
 	//asm volatile("int $0");
 }
 
+void NMI_test(){
+	asm volatile("int $2");
+
+};
 // add more tests here
 
 /* Checkpoint 2 tests */
@@ -79,6 +83,7 @@ void idt_div0_test(){
 /* Test suite entry point */
 void launch_tests(){
 	//TEST_OUTPUT("idt_test", idt_test());
-	idt_div0_test();
+	//idt_div0_test();
+	NMI_test();
 	// launch your tests here
 }

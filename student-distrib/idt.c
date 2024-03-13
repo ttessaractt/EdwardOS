@@ -190,14 +190,6 @@ void idt_init(){
     set_trap_gate(18, (uint32_t)&machine_check);
     set_trap_gate(19, (uint32_t)&SIMD_FP);   
 
-
-    /*for (i = 20; i<32; i++){
-        set_trap_gate(i, (uint32_t)&no_handler);
-    }
-    for (i = 32; i <256; i++){
-        set_trap_gate(i, (uint32_t)&no_handler);
-    }*/
-
     set_interrupt_gate(33, (uint32_t)&no_handler);
     set_interrupt_gate(40, (uint32_t)&no_handler);
     //set_interrupt_gate(33, (uint32_t)&keyboard_handler);
@@ -208,7 +200,6 @@ void idt_init(){
 void divide_error(){
     cli();      //prevent further interrupts from occuring
     printf("Divide Error Exception (#DE) \n");
-    //halt(0xF);
     while(1);
 };     
 void debug(){
@@ -218,7 +209,7 @@ void debug(){
 };            
 void NMI(){
     cli();      //prevent further interrupts from occuring
-    printf("Nonmaskable Interrupt (NMI) Interrupt \n");
+    printf("Nonmaskable Interrupt (NMI) \n");
     while(1);
 };              
 void breakpoint(){

@@ -17,3 +17,7 @@ CP3.1
     - my divide error/divide by 0 test causes the OS to boot loop
     fix:
     - i had the order of the reserved bits reveresed so my trap gate was not actually a trap gate
+5.  issue:
+    - 
+    fix:
+    - 
