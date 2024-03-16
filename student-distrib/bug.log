@@ -1,0 +1,59 @@
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2024.3.12.
+Creator:
+    Tessa Samuels
+Description:
+    GDT does not work, boot loops
+Solution:
+    had to comment out launch_tests() in kernal.c
+
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2024.3.13.
+Creator:
+    Tessa Samuels
+Description:
+    stuck in boot loop, this is because IDT is not working
+Solution:
+    I was never actually initilizing my IDT in boot.S, just loading the register
+
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2024.3.13.
+Creator:
+    Tessa Samuels
+Description:
+    invalid magic number error, magic number is 0x004025F9, should be 0x2BADB002
+Solution:
+    i forgot to preserve the caller saved registers, once I did that it worked
+
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2024.3.13.
+Creator:
+    Tessa Samuels
+Description:
+    my divide error/divide by 0 test causes the OS to boot loop
+Solution:
+    i had the order of the reserved bits reveresed so my trap gate was not actually a trap gate
+
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2024.3.??.
+Creator:
+    Tessa Samuels
+Description:
+    
+Solution:
+    
