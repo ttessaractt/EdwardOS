@@ -9,7 +9,7 @@
 .globl ldt_size, tss_size
 .globl gdt_desc, ldt_desc, tss_desc
 .globl tss, tss_desc_ptr, ldt, ldt_desc_ptr
-.globl gdt_ptr
+.globl gdt_ptr, gdt_desc_ptr # added gdt_desc_ptr
 .globl idt_desc_ptr, idt
 
 .align 4
@@ -85,6 +85,12 @@ ldt_desc_ptr:
 gdt_bottom:
 
     .align 16
+
+gdt_desc_ptr:
+    .word gdt_bottom - gdt - 1  # limit
+    .long gdt                   # base 
+    .align 16                   # align on 16-bit boundaries
+
 ldt:
     .rept 4
     .quad 0
@@ -106,3 +112,20 @@ _idt:
     .endr
 
 idt_bottom:
+
+# 16 mb of physical memory
+
+# first 4 mB
+# .align 4096 # align 4 kb pages 
+
+# start_virt_mem:
+ #    .rept 4194304 # 4 kB * 1024 = 4,194,304 bytes
+#     .quad 0
+#     .endr
+
+# .align 4194304 # align 4 mB page
+# four_mb_kernel:
+    # .rept 4194304
+    # .quad 0
+   #  .endr
+

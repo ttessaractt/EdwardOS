@@ -38,8 +38,8 @@ typedef struct elf_section_header_table {
 /* The Multiboot information. */
 typedef struct multiboot_info {
     uint32_t flags;
-    uint32_t mem_lower;
-    uint32_t mem_upper;
+    uint32_t mem_lower; // amount of lower memory in kB
+    uint32_t mem_upper; // amount of upper memory in kB
     uint32_t boot_device;
     uint32_t cmdline;
     uint32_t mods_count;
@@ -59,8 +59,8 @@ typedef struct module {
 /* The memory map. Be careful that the offset 0 is base_addr_low
    but no size. */
 typedef struct memory_map {
-    uint32_t size;
-    uint32_t base_addr_low;
+    uint32_t size;            // -4
+    uint32_t base_addr_low;  // 0
     uint32_t base_addr_high;
     uint32_t length_low;
     uint32_t length_high;

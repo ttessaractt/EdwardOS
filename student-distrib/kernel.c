@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "paging.h"
 
 #define RUN_TESTS
 
@@ -141,6 +142,12 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
+    blank_page_dir();
+    set_page_table();
+    enable_4mb_pages();
+    load_page_dir(page_directory);
+    // enable_paging(); making boot loop
+    
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
@@ -151,7 +158,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    launch_tests();
+    // launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
 
