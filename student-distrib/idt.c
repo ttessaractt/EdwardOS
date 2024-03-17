@@ -6,6 +6,7 @@
 //syscall support
 #include "idt.h"
 #include "keyboard.h"
+#include "rtc.h"
 
 /*
  An interrupt descriptor entry (goes into the IDT) 
@@ -190,9 +191,10 @@ void idt_init(){
     set_trap_gate(18, (uint32_t)&machine_check);
     set_trap_gate(19, (uint32_t)&SIMD_FP);   
 
-    set_interrupt_gate(33, (uint32_t)&no_handler);
-    set_interrupt_gate(40, (uint32_t)&no_handler);
-    //set_interrupt_gate(33, (uint32_t)&keyboard_handler);
+    //set_interrupt_gate(33, (uint32_t)&no_handler);
+    //set_interrupt_gate(40, (uint32_t)&no_handler);
+    set_interrupt_gate(33, (uint32_t)&keyboard_handler);
+    set_interrupt_gate(40, (uint32_t)&RTC_handler);
     set_interrupt_gate(128, (uint32_t)&system_call);
 };
 

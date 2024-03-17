@@ -1,6 +1,4 @@
+#define KEYBOARD_VECTOR     33  //keyboard interrupt number
 
-
-#define KEYBOARD_VECTOR     33
-
-
+extern void keyboard_init();
 extern void keyboard_handler();

@@ -8,6 +8,8 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "keyboard.h"
+#include "rtc.h"
 
 #define RUN_TESTS
 
@@ -155,12 +157,23 @@ void entry(unsigned long magic, unsigned long addr) {
     }
     //printf("end TSS construct\n");
 
+    //mask out interrupts on PIC
+    int i = 0;
+    for (i = 0; i < 16; i++){
+        disable_irq(i);
+    }
+
     /* Init the PIC */
-    //printf("init PIC\n");
+    printf("init PIC\n");
     i8259_init();
+
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
+    //init keyboard
+    //keyboard_init();
+    //init rtc
+    RTC_init();
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
@@ -168,6 +181,8 @@ void entry(unsigned long magic, unsigned long addr) {
      * without showing you any output */
     /*printf("Enabling Interrupts\n");
     sti();*/
+    //printf("Enabling Interrupts\n");
+    //sti();
 
 #ifdef RUN_TESTS
     /* Run tests */
