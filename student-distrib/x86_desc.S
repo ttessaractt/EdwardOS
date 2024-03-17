@@ -35,14 +35,7 @@ _tss:
 tss_bottom:
 
     .align  16
-# begin modify
-gdt_desc_ptr:
-    .word gdt_bottom - gdt - 1
-    .long gdt
 
-
-    # .align 16    
-# end modify
 gdt:
 _gdt:
 
@@ -99,9 +92,16 @@ ldt:
     .endr
 ldt_bottom:
 
-    .align 4
+.align 4
     .word 0 # Padding
+# begin modify
+gdt_desc_ptr:
+    .word gdt_bottom - gdt - 1
+    .long gdt
 
+
+    # .align 16    
+# end modify
 idt_desc_ptr:
     .word idt_bottom - idt - 1
     .long idt

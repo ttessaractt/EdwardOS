@@ -28,6 +28,50 @@ void keyboard_handler(){
 
     //itoa(key, buf, hex);
 
-    printf("key: %x\n", key);
+    //printf("key: %x\n", key);
+
+    const char key_num[10] = {
+        '1', '2', '3', '4', '5',    
+        '6', '7', '8', '9', '0'     
+    };
+
+    const char key_QP[10] = {
+        'q', 'w', 'e', 'r', 't',    
+        'y', 'u', 'i', 'o', 'p'     
+    };
+
+    const char key_AL[9] = {
+        'a', 's', 'd', 'f', 'g',
+        'h', 'j', 'k', 'l'     
+    };
+
+    const char key_ZM[7] = {
+        'z', 'x', 'c', 'v', 'b',    
+        'n', 'm'     
+    };
+
+    char p;
+
+    if ((2 <= key) && (key<= 11)){
+        p = key_num[key-2];
+        printf("%c", p);
+    }
+    else if ((16 <= key) && (key <= 25)){
+        p = key_QP[key-16];
+        printf("%c", p);
+    }
+    else if ((30 <= key) && (key <= 38)){
+        p = key_AL[key-30];
+        printf("%c", p);
+    }
+    else if ((44 <= key) && (key <= 50)){
+        p = key_ZM[key-44];
+        printf("%c", p);
+    }
+    else{
+        printf("hi");
+    }
+
+
     send_eoi(KEYBOARD_VECTOR);
 };
