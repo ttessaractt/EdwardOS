@@ -2,6 +2,8 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "idt.h"
+#include "rtc.h"
+#include "i8259.h"
 
 #define PASS 1
 #define FAIL 0
@@ -77,6 +79,17 @@ void key_test(){
 	asm volatile("int $33");
 }
 
+void RTC_test(){
+	asm volatile("int $40");
+}
+
+void irq_enable_test(){
+	enable_irq(0x02);
+}
+
+void irq_disable_test(){
+	enable_irq(0x02);
+}
 
 // add more tests here
 
@@ -88,10 +101,14 @@ void key_test(){
 
 /* Test suite entry point */
 void launch_tests(){
-	TEST_OUTPUT("idt_test", idt_test());
+	//TEST_OUTPUT("idt_test", idt_test());
 	//idt_div0_test();
 	//NMI_test();
 	//key_test();
+	
+	while(1){
+		RTC_test();
+	}
 	
 	// launch your tests here
 }

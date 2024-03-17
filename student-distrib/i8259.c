@@ -14,32 +14,36 @@ uint8_t slave_mask;  /* IRQs 8-15 */
 https://wiki.osdev.org/8259_PIC
 */
 void i8259_init(void) {
-    uint8_t a1, a2;
+    outb(0xFF, MASTER_DATA);
+    outb(0xFF, SLAVE_DATA);
 
-    //save masks
-    a1 = inb(MASTER_DATA);
-    a2 = inb(SLAVE_DATA);
+    // starts the initialization sequence
+    outb(ICW1, MASTER_8259_PORT);
+    outb(ICW2_MASTER, MASTER_DATA);
+    outb(ICW3_MASTER, MASTER_DATA);
+    outb(ICW4, MASTER_DATA);
 
-    // starts the initialization sequence (in cascade mode)
-    outb(MASTER_8259_PORT, ICW1 | ICW4);
-    outb(SLAVE_8259_PORT, ICW1 | ICW4);
+    outb(ICW1, SLAVE_8259_PORT);
 
     // ICW2: Master PIC vector offset
-    outb(MASTER_DATA, ICW2_MASTER);
-    outb(SLAVE_DATA, ICW2_SLAVE);
+    //outb(ICW2_MASTER, MASTER_DATA);
+    outb(ICW2_SLAVE, SLAVE_DATA);
 
     // ICW3: tell Master PIC that there is a slave PIC at IRQ2 (0000 0100) 
-    outb(MASTER_DATA, 4);
+    //outb(ICW3_MASTER, MASTER_DATA);
     // ICW3: tell Slave PIC its cascade identity (0000 0010)
-    outb(SLAVE_DATA, 2);
+    outb(ICW3_SLAVE, SLAVE_DATA);
 
     // ICW4: have the PICs use 8086 mode (and not 8080 mode)
-    outb(MASTER_DATA, 0x01);
-    outb(SLAVE_DATA, 0x01);
+    //outb(ICW4, MASTER_DATA);
+    outb(ICW4, SLAVE_DATA);
 
     //restore saved masks
-    outb(MASTER_DATA, a1);
-    outb(SLAVE_DATA, a2);
+    outb(0xFF, MASTER_DATA);
+    outb(0xFF, SLAVE_DATA);
+
+
+    enable_irq(0x02);
 }
 
 
@@ -60,10 +64,10 @@ void enable_irq(uint32_t irq_num) {
         port = SLAVE_DATA;
         irq_num -= 8;
     }
-    //set bit at irq_num to 1
-    value = inb(port) | (1 << irq_num);
+    //set bit at irq_num to 0
+    value = inb(port) & ~(1 << irq_num);
     //send value to IMR
-    outb(port, value);
+    outb(value, port);
 }
 
 /* Disable (mask) the specified IRQ */
@@ -83,10 +87,10 @@ void disable_irq(uint32_t irq_num) {
         port = SLAVE_DATA;
         irq_num -= 8;
     }
-    //set bit at irq_num to 0
-    value = inb(port) & ~(1 << irq_num);
+    //set bit at irq_num to 1
+    value = inb(port) | (1 << irq_num);
     //send value to IMR
-    outb(port, value);
+    outb(value, port);
 }
 
 /* Send end-of-interrupt signal for the specified IRQ */
@@ -102,8 +106,8 @@ if irq >= 8 it is a slave PIC
 */
 void send_eoi(uint32_t irq_num) {
     if(irq_num >= 8){   //checks if IRQ is SLAVE
-        outb(MASTER_8259_PORT, EOI); //issue command to SLAVE
+        outb(EOI, SLAVE_8259_PORT); //issue command to SLAVE
     }
     //command is always send to MASTER
-    outb(SLAVE_8259_PORT, EOI); //issue command to MASTER
+    outb(EOI, MASTER_8259_PORT); //issue command to MASTER
 }

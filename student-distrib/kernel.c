@@ -174,7 +174,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //keyboard_init();
     //init rtc
     RTC_init();
-
+    
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -182,7 +182,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /*printf("Enabling Interrupts\n");
     sti();*/
     //printf("Enabling Interrupts\n");
-    //sti();
+    sti();
 
 #ifdef RUN_TESTS
     /* Run tests */

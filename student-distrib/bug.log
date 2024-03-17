@@ -50,10 +50,25 @@ Solution:
                           BUG 5                          
 <--------------------------------------------------------->
 Time:
-    2024.3.??.
+    2024.3.17.
 Creator:
     Tessa Samuels
 Description:
-    
+    when testing RTC test_debug just quits out, the print I have in my RTC handler only prints when there
+    is a gdb breakpoint set for my RTC handler, but stepping through with GDB does not reveal any issues
 Solution:
+    i didn't have assembly linkage for my RTC header, once I had that it worked
     
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2022.3.17.
+Creator:
+    Tessa Samuels
+Description:
+    my ASM wrapper for linkage of RTC is not compiling, it says the name of linker is undefined even though it is globa
+Solution:
+    my linker.S file has a lowercase s and changing it to uppercase fixed it
+
+

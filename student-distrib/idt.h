@@ -42,3 +42,6 @@ extern void SIMD_FP();          //interrupt 19
 
 extern void system_call();      //system call (interrupt 128, 0x80)
 extern void no_handler();       //no handler
+
+void rtc_handler_linkage();
+
