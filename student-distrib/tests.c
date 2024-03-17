@@ -83,14 +83,6 @@ void RTC_test(){
 	asm volatile("int $40");
 }
 
-void irq_enable_test(){
-	enable_irq(0x02);
-}
-
-void irq_disable_test(){
-	enable_irq(0x02);
-}
-
 // add more tests here
 
 /* Checkpoint 2 tests */
