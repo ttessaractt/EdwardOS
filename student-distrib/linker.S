@@ -1,6 +1,6 @@
 #define ASM 1
 
-#define INTR_LINK(name, func)    \
+#define LINK(name, func)    \
     .global name        ;\
     name:               ;\
         pushal          ;\
@@ -10,4 +10,5 @@
         popal           ;\
         iret
 
-INTR_LINK(rtc_handler_linkage, RTC_handler);
+LINK(rtc_handler_linkage, RTC_handler);
+LINK(key_handler_linkage, keyboard_handler);

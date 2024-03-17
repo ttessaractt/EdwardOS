@@ -105,10 +105,10 @@ void launch_tests(){
 	//idt_div0_test();
 	//NMI_test();
 	//key_test();
-	
-	while(1){
-		RTC_test();
-	}
+
+	//while(1){
+	//	RTC_test();
+	//}
 	
 	// launch your tests here
 }

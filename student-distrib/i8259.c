@@ -14,7 +14,7 @@ uint8_t slave_mask;  /* IRQs 8-15 */
 https://wiki.osdev.org/8259_PIC
 */
 void i8259_init(void) {
-    outb(0xFF, MASTER_DATA);
+    outb(0xFB, MASTER_DATA);
     outb(0xFF, SLAVE_DATA);
 
     // starts the initialization sequence
@@ -39,7 +39,7 @@ void i8259_init(void) {
     outb(ICW4, SLAVE_DATA);
 
     //restore saved masks
-    outb(0xFF, MASTER_DATA);
+    outb(0xFB, MASTER_DATA);
     outb(0xFF, SLAVE_DATA);
 
 
@@ -106,8 +106,9 @@ if irq >= 8 it is a slave PIC
 */
 void send_eoi(uint32_t irq_num) {
     if(irq_num >= 8){   //checks if IRQ is SLAVE
-        outb(EOI, SLAVE_8259_PORT); //issue command to SLAVE
+        outb(EOI | irq_num, SLAVE_8259_PORT); //issue command to SLAVE
     }
     //command is always send to MASTER
-    outb(EOI, MASTER_8259_PORT); //issue command to MASTER
+    outb(EOI | irq_num, MASTER_8259_PORT); //issue command to MASTER
+    sti();
 }

@@ -157,12 +157,6 @@ void entry(unsigned long magic, unsigned long addr) {
     }
     //printf("end TSS construct\n");
 
-    //mask out interrupts on PIC
-    int i = 0;
-    for (i = 0; i < 16; i++){
-        disable_irq(i);
-    }
-
     /* Init the PIC */
     printf("init PIC\n");
     i8259_init();
@@ -174,14 +168,15 @@ void entry(unsigned long magic, unsigned long addr) {
     //keyboard_init();
     //init rtc
     RTC_init();
-    
+    keyboard_init();
+
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
     /*printf("Enabling Interrupts\n");
     sti();*/
-    //printf("Enabling Interrupts\n");
+    printf("Enabling Interrupts\n");
     sti();
 
 #ifdef RUN_TESTS
