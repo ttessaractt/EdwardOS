@@ -56,7 +56,7 @@ void keyboard_handler(){
     };
 
     char p;
-
+    //while(1){
     uint32_t key = inb(0x60);
 
     if ((2 <= key) && (key<= 11)){
@@ -76,9 +76,9 @@ void keyboard_handler(){
         printf("%c", p);
     }
     else{
-        printf("hi");
+        //printf("hi");
     }
-
+    //}
     //sti();
     send_eoi(1);
     
