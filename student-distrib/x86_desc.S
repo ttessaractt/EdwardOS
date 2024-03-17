@@ -9,7 +9,7 @@
 .globl ldt_size, tss_size
 .globl gdt_desc, ldt_desc, tss_desc
 .globl tss, tss_desc_ptr, ldt, ldt_desc_ptr
-.globl gdt_ptr
+.globl gdt_ptr, gdt_desc_ptr # added ptr
 .globl idt_desc_ptr, idt
 
 .align 4
@@ -35,6 +35,14 @@ _tss:
 tss_bottom:
 
     .align  16
+# begin modify
+gdt_desc_ptr:
+    .word gdt_bottom - gdt - 1
+    .long gdt
+
+
+    # .align 16    
+# end modify
 gdt:
 _gdt:
 
@@ -91,8 +99,9 @@ ldt:
     .endr
 ldt_bottom:
 
-.align 4
+    .align 4
     .word 0 # Padding
+
 idt_desc_ptr:
     .word idt_bottom - idt - 1
     .long idt
@@ -106,3 +115,4 @@ _idt:
     .endr
 
 idt_bottom:
+    .align NUM_VEC_B # 4096 = 256 * 16 (modified)
