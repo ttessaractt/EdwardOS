@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "keyboard.h"
 
 #define RUN_TESTS
 
@@ -137,16 +138,21 @@ void entry(unsigned long magic, unsigned long addr) {
     }
 
     // mask out intrr on pic
-    
+    /*
+    int i = 0;
+    for (i = 0; i < 16; i++){
+        disable_irq(i);
+    }*/
+
     /* Init the PIC */
+    printf("init PIC\n");
     i8259_init();
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
 
     // init keyboard and rtc here
-
-
+    keyboard_init();
     // enable intrr on pic
 
     /* Enable interrupts */
@@ -154,8 +160,8 @@ void entry(unsigned long magic, unsigned long addr) {
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
     /*printf("Enabling Interrupts\n");
-    sti();*/
-
+    */
+    sti();
 #ifdef RUN_TESTS
     /* Run tests */
     launch_tests();

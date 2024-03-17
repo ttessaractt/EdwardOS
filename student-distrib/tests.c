@@ -72,6 +72,12 @@ void NMI_test(){
 	asm volatile("int $2");
 
 };
+
+void key_test(){
+	asm volatile("int $33");
+}
+
+
 // add more tests here
 
 /* Checkpoint 2 tests */
@@ -84,6 +90,10 @@ void NMI_test(){
 void launch_tests(){
 	//TEST_OUTPUT("idt_test", idt_test());
 	//idt_div0_test();
-	NMI_test();
+	//NMI_test();
+	//while(1){
+	//key_test();
+	//}
+	
 	// launch your tests here
 }

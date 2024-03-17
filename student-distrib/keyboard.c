@@ -9,21 +9,26 @@
 // to get keyboard interrupts, enable_irq(1)
 
 void keyboard_init(){
+    //cli();
+
+    // link handler? asm linkgage should use iret
+
+    //outb(0xF0, KEYBOARD_DATA);
+    //outb(0x01, KEYBOARD_DATA); // keyboard in scan code mode 1
+
+    //outb(0xF4, KEYBOARD_DATA); // enable scanning 
 
     enable_irq(1); // enables interrupt on IRQ1 on PIC
 
-    outb(KEYBOARD_DATA, 0xF0);
-    outb(KEYBOARD_DATA, 0x01); // keyboard in scan code mode 1
-
-    outb(KEYBOARD_DATA, 0xF4); // enable scanning 
-
+    //sti();
     return;
 
 
 }
 
 void keyboard_handler(){
-    uint32_t key = inb(0x60);
+    //cli();
+    
     //int8_t* buf;
 
     //itoa(key, buf, hex);
@@ -52,6 +57,8 @@ void keyboard_handler(){
 
     char p;
 
+    uint32_t key = inb(0x60);
+
     if ((2 <= key) && (key<= 11)){
         p = key_num[key-2];
         printf("%c", p);
@@ -72,6 +79,7 @@ void keyboard_handler(){
         printf("hi");
     }
 
-
-    send_eoi(KEYBOARD_VECTOR);
+    //sti();
+    send_eoi(1);
+    
 };

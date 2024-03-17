@@ -17,6 +17,10 @@ void set_trap_gate(uint32_t num, uint32_t addr);           //add trap gate to ID
 void set_interrupt_gate(uint32_t num, uint32_t addr);      //add interrupt gate to IDT
 void set_not_present_gate(uint32_t num, uint32_t addr);
 
+
+void key_handler_linkage();
+void rtc_handler_linkage();
+
 //initilize IDT
 extern void idt_init();
 
