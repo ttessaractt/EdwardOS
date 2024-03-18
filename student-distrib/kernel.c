@@ -146,7 +146,7 @@ void entry(unsigned long magic, unsigned long addr) {
     set_page_table();
     enable_4mb_pages();
     load_page_dir(page_directory);
-    // enable_paging(); making boot loop
+    enable_paging(); // making boot loop
     
 
     /* Enable interrupts */

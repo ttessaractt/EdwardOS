@@ -18,7 +18,7 @@ enable_paging:
     movl %esp, %ebp
     pushl %eax
     movl %cr0, %eax
-    orl $0x80000000, %eax # set 32nd bit, the paging bit, to 1 in CR0 register
+    orl $0x80000001, %eax # set 32nd bit, the paging bit, to 1 in CR0 register and CR0 bit 0 to enable protected mode
     movl %eax, %cr0
     popl %eax
     leave

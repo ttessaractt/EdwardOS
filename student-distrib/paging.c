@@ -7,7 +7,16 @@ page_dir_entry_t page_directory[1024] __attribute__((aligned(4096)));
 void set_page_table(){
     unsigned int i;
     for(i = 0; i < 1024; i++) {
-        page_table[i].present = 0;         // not present
+        // b8000 is the page for video memory
+        // this is 753664 in decimal
+        // 753664 / 4096 (4096 bytes = 4 kB for one page) = 184
+        // so the 184th page is video memory and should be present
+        if(i == 184) {
+            page_table[i].present = 1;         // present
+        }
+        else {
+            page_table[i].present = 0;         // not present
+        }  
         page_table[i].readwrite = 1;       // read/write
         page_table[i].usersupervisor = 0;  // supervisor mode
         page_table[i].unused_1 = 0;
@@ -46,11 +55,11 @@ void set_page_table(){
     page_directory[0].pagesize = 0;
     page_directory[0].unused_2 = 0;
     page_directory[0].avail = 0;
-    page_directory[0].pf_addr = ((unsigned int)page_table);
+    page_directory[0].pf_addr = ((unsigned int)page_table) >> 12;  // 12 shift fixed bootloop
 
     // second 4 mB (4 - 8 mB) (kernel)
     page_directory[1].present = 1;         // present
-    page_directory[1].readwrite = 1;       // read/write
+    page_directory[1].readwrite = 1;       // read only
     page_directory[1].usersupervisor = 0;  // supervisor mode
     page_directory[1].unused_1 = 0;
     page_directory[1].accessed = 0;
@@ -58,7 +67,7 @@ void set_page_table(){
     page_directory[1].pagesize = 1;  // 4 mB size page
     page_directory[1].unused_2 = 0;
     page_directory[1].avail = 0;
-    page_directory[1].pf_addr = ((unsigned int)page_table_kernel);
+    page_directory[1].pf_addr = ((unsigned int)page_table_kernel) >> 12; // 12 shift fixed bootloop
 }
 
 void blank_page_dir(){
