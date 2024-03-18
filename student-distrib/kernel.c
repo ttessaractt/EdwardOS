@@ -10,6 +10,7 @@
 #include "tests.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "paging.h"
 
 #define RUN_TESTS
 
@@ -169,6 +170,14 @@ void entry(unsigned long magic, unsigned long addr) {
     //init rtc
     RTC_init();
     keyboard_init();
+
+    // paging
+    blank_page_dir();
+    set_page_table();
+    enable_4mb_pages();
+    load_page_dir(page_directory);
+    enable_paging(); // making boot loop
+
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
