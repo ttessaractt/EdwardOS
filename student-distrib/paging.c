@@ -20,12 +20,12 @@ void set_page_table(){
         }  
         page_table[i].readwrite = 1;       // read/write
         page_table[i].usersupervisor = 0;  // supervisor mode
-        page_table[i].unused_1 = 0;
+        page_table[i].unused_1 = 0x00;
         page_table[i].accessed = 0;
         page_table[i].dirty = 0;
         // page_table[i].pagesize = 0; // 4 kB size page
-        page_table[i].unused_2 = 0;
-        page_table[i].avail = 0;
+        page_table[i].unused_2 = 0x00;
+        page_table[i].avail = 0x000;
         page_table[i].pf_addr = (i * 4096) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
     }
 
@@ -90,17 +90,17 @@ void blank_page_dir(){
         // page_directory[i].unused_2 = 0;
         // page_directory[i].avail = 0;
         // page_directory[i].pf_addr = 0;
-        page_directory[1].present = 0;         // present
-        page_directory[1].readwrite = 1;       // read only
-        page_directory[1].usersupervisor = 0;  // supervisor mode
-        page_directory[1].unused_pwt = 0;
-        page_directory[1].unused_pcd = 0;
-        page_directory[1].accessed = 0;
-        page_directory[1].unused_dirty = 0;
-        page_directory[1].pagesize = 1;  // 4 mB size page
-        page_directory[1].unused_global = 0;
-        page_directory[1].avail = 0;
-        page_directory[1].addr_31_12_or_addr_31_22 = 0;
+        page_directory[i].present = 0;         // present
+        page_directory[i].readwrite = 1;       // read only
+        page_directory[i].usersupervisor = 0;  // supervisor mode
+        page_directory[i].unused_pwt = 0;
+        page_directory[i].unused_pcd = 0;
+        page_directory[i].accessed = 0;
+        page_directory[i].unused_dirty = 0;
+        page_directory[i].pagesize = 1;  // 4 mB size page
+        page_directory[i].unused_global = 0;
+        page_directory[i].avail = 0;
+        page_directory[i].addr_31_12_or_addr_31_22 = 0;
     }
 }
 

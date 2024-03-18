@@ -172,9 +172,10 @@ void entry(unsigned long magic, unsigned long addr) {
     keyboard_init();
 
     // paging
+    enable_4mb_pages();
     blank_page_dir();
     set_page_table();
-    enable_4mb_pages();
+    // or enable_4mb_pages here?
     load_page_dir(page_directory);
     enable_paging(); // making boot loop
 

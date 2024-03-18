@@ -83,6 +83,12 @@ void RTC_test(){
 	asm volatile("int $40");
 }
 
+void mem_test(){
+	int8_t *ptr;
+	ptr = (int8_t*)0xB8FFF;
+	*ptr = 5;
+}
+
 // add more tests here
 
 /* Checkpoint 2 tests */
@@ -97,9 +103,9 @@ void launch_tests(){
 	//idt_div0_test();
 	//NMI_test();
 	//key_test();
-
+	mem_test();
 	//while(1){
-	//	RTC_test();
+		//RTC_test();
 	//}
 	
 	// launch your tests here
