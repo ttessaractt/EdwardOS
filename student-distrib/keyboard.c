@@ -34,7 +34,7 @@ void keyboard_handler(){
     //itoa(key, buf, hex);
 
     //printf("key: %x\n", key);
-
+    /*
     const char key_num[10] = {
         '1', '2', '3', '4', '5',    
         '6', '7', '8', '9', '0'     
@@ -78,8 +78,23 @@ void keyboard_handler(){
     else{
         //printf("hi");
     }
+    */
     //}
     //sti();
+
+    static char lookup[] = "..1234567890....qwertyuiop....asdfghjkl.....zxcvbnm";
+
+    
+    char p;
+
+    uint32_t key = inb(KEYBOARD_DATA);
+
+
+    if (((2 <= key) && (key<= 11)) | ((16 <= key) && (key <= 25)) | ((30 <= key) && (key <= 38)) | ((44 <= key) && (key <= 50))){
+        p = lookup[key];
+        printf("%c", p);
+    }
+
     send_eoi(1);
     
 };
