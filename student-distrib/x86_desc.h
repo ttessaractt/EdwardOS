@@ -22,6 +22,9 @@
 /* Number of vectors in the interrupt descriptor table (IDT) */
 #define NUM_VEC     256
 
+/* bottom of IDT (4kB) */
+#define NUM_VEC_B     4096
+
 #ifndef ASM
 
 /* This structure is used to load descriptor base registers
@@ -113,6 +116,7 @@ typedef struct __attribute__((packed)) tss_t {
 
 /* Some external descriptors declared in .S files */
 extern x86_desc_t gdt_desc;
+//extern x86_desc_t gdt_desc_ptr;     //like other desc_ptr's
 
 extern uint16_t ldt_desc;
 extern uint32_t ldt_size;
