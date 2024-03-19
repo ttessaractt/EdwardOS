@@ -175,9 +175,8 @@ void entry(unsigned long magic, unsigned long addr) {
     enable_4mb_pages();
     blank_page_dir();
     set_page_table();
-    // or enable_4mb_pages here?
     load_page_dir(page_directory);
-    enable_paging(); // making boot loop
+    enable_paging(); // enable paging last
 
 
     /* Enable interrupts */
