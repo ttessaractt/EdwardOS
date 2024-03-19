@@ -72,7 +72,6 @@ void idt_div0_test(){
 
 void NMI_test(){
 	asm volatile("int $2");
-
 };
 
 void key_test(){
@@ -83,11 +82,90 @@ void RTC_test(){
 	asm volatile("int $40");
 }
 
-void mem_test(){
+/*
+	Tests for paging memory allocation:
+	A page fault exception will occur if trying to write outside of video memory or kernel memory.
+	Otherwise, no exception will be raised.
+*/
+
+void mem_test_video_inside_1(){
 	int8_t *ptr;
 	ptr = (int8_t*)0xB8FFF;
 	*ptr = 5;
 }
+
+void mem_test_video_inside_2(){
+	int8_t *ptr;
+	ptr = (int8_t*)0xB8000;
+	*ptr = 5;
+}
+
+void mem_test_video_inside_3(){
+	int8_t *ptr;
+	ptr = (int8_t*)0xB8CCC;
+	*ptr = 5;
+}
+
+void mem_test_video_outside_1(){
+	int8_t *ptr;
+	ptr = (int8_t*)0xB9000;
+	*ptr = 5;
+}
+
+void mem_test_video_outside_2(){
+	int8_t *ptr;
+	ptr = (int8_t*)0xB7FFF;
+	*ptr = 5;
+}
+
+void mem_test_video_outside_3(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x1000;
+	*ptr = 5;
+}
+
+void mem_test_video_outside_4(){
+	int8_t *ptr;
+	ptr = (int8_t*)0xC0000;
+	*ptr = 5;
+}
+
+void mem_test_kernel_inside_1(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x400000;
+	*ptr = 5;
+}
+
+void mem_test_kernel_inside_2(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x7FFFFF;
+	*ptr = 5;
+}
+
+void mem_test_kernel_inside_3(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x6CCCCC;
+	*ptr = 5;
+}
+
+void mem_test_kernel_outside_1(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x800000;
+	*ptr = 5;
+}
+
+void mem_test_kernel_outside_2(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x3FFFFF;
+	*ptr = 5;
+}
+
+void mem_test_kernel_outside_3(){
+	int8_t *ptr;
+	ptr = (int8_t*)0x900000;
+	*ptr = 5;
+}
+
 
 // add more tests here
 
@@ -103,7 +181,20 @@ void launch_tests(){
 	//idt_div0_test();
 	//NMI_test();
 	//key_test();
-	mem_test();
+	//mem_test_video_inside_1();
+	//mem_test_video_inside_1();
+	//mem_test_video_inside_2();
+	//mem_test_video_inside_3();
+	//mem_test_video_outside_1();
+	//mem_test_video_outside_2();
+	//mem_test_video_outside_3();
+	//mem_test_video_outside_4();
+	//mem_test_kernel_inside_1();
+	//mem_test_kernel_inside_2();
+	//mem_test_kernel_inside_3();
+	//mem_test_kernel_outside_1();
+	//mem_test_kernel_outside_2();
+	//mem_test_kernel_outside_3();
 	//while(1){
 		//RTC_test();
 	//}

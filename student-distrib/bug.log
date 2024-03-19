@@ -123,5 +123,55 @@ Solution:
     The IDT was using the keyboard_handler function directly
     instead of the key_handler_linkage function. 
 
+<--------------------------------------------------------->
+                          BUG 10                          
+<--------------------------------------------------------->
+Time:
+    2024.3.18.
+Creator:
+    Sairaj Shetye
+Description:
+    Enabling paging causes the OS to boot loop.
+Solution:
+    Forgot to shift the address by 12 for page directory
+    entries in order to get the top 20 bits, since only
+    the top 20 bits of the address are used in an entry's
+    structure.
+
+<--------------------------------------------------------->
+                          BUG 11                         
+<--------------------------------------------------------->
+Time:
+    2024.3.18.
+Creator:
+    Sairaj Shetye
+Description:
+    Page table entry structs and page directory entry structs
+    are incorrectly constructed for 4mB entries.
+Solution:
+    Only page directory entries have separate 4kB and 4mB
+    variants, with 4mB only having addresses take up the
+    top 10 bits of a struct. Page table entry structs were
+    changed to be the same, and page directory entry struct
+    modified to account for 4mB entries for the kernel.
+
+<--------------------------------------------------------->
+                          BUG 12                         
+<--------------------------------------------------------->
+Time:
+    2024.3.18.
+Creator:
+    Sairaj Shetye
+Description:
+    Pages have correct memory allocated when using info mem,
+    but page faults are generated when trying to access the
+    top 3 addresses of the kernel or video memory.
+Solution:
+    Used an int8_t instead of an int pointer to try 
+    to access and write memory in testing. int pointers have
+    an extra 3 bytes, unlike int8_t pointers which are a     
+    singular byte.
+
+
 
 
