@@ -111,4 +111,4 @@ _idt:
     .endr
 
 idt_bottom:
-    .align 4096     # 256*16
+    .align NUM_VEC_B     # 256*16 = 4096

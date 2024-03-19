@@ -1,3 +1,13 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP1
+CreateTime:
+    2024.3.12
+
 <--------------------------------------------------------->
                           BUG 1                          
 <--------------------------------------------------------->
@@ -63,12 +73,55 @@ Solution:
                           BUG 6                          
 <--------------------------------------------------------->
 Time:
-    2022.3.17.
+    2024.3.17.
 Creator:
     Tessa Samuels
 Description:
     my ASM wrapper for linkage of RTC is not compiling, it says the name of linker is undefined even though it is globa
 Solution:
     my linker.S file has a lowercase s and changing it to uppercase fixed it
+
+<--------------------------------------------------------->
+                          BUG 7                          
+<--------------------------------------------------------->
+Time:
+    2024.3.17.
+Creator:
+    Elizabeth Shank
+Description:
+    Printing the keys to the screen would just print the same
+    character over and over again. 
+Solution:
+    Was using a keyboard test that kept calling the keyboard
+    interrupt over and over causing it to keep printing. 
+    Nothing is needed in test.c to test the keyboard.
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2024.3.17.
+Creator:
+    Elizabeth Shank
+Description:
+    Echoed only one character then would stop working. 
+Solution:
+    send_eoi function needs to OR EOI (0x60) with the
+    irq number when sending the command to slave/master.
+
+<--------------------------------------------------------->
+                          BUG 9                          
+<--------------------------------------------------------->
+Time:
+    2024.3.18.
+Creator:
+    Elizabeth Shank
+Description:
+    Randomly causes page faults when echoing keyboard to
+    the screen. 
+Solution:
+    The IDT was using the keyboard_handler function directly
+    instead of the key_handler_linkage function. 
+
 
 

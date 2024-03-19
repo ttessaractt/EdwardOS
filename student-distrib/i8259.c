@@ -10,12 +10,12 @@ uint8_t master_mask; /* IRQs 0-7  */
 uint8_t slave_mask;  /* IRQs 8-15 */
 
 /* Initialize the 8259 PIC */
-/* code taken from OSdev wiki - 8259 PIC - Initialisation
+/* code reference from OSdev wiki - 8259 PIC - Initialisation
 https://wiki.osdev.org/8259_PIC
 */
 void i8259_init(void) {
-    outb(0xFB, MASTER_DATA);
-    outb(0xFF, SLAVE_DATA);
+    outb(MASK_OUT_MASTER, MASTER_DATA); 
+    outb(MASK_OUT_SLAVE, SLAVE_DATA);
 
     // starts the initialization sequence
     outb(ICW1, MASTER_8259_PORT);
@@ -39,8 +39,8 @@ void i8259_init(void) {
     outb(ICW4, SLAVE_DATA);
 
     //restore saved masks
-    outb(0xFB, MASTER_DATA);
-    outb(0xFF, SLAVE_DATA);
+    outb(MASK_OUT_MASTER, MASTER_DATA);
+    outb(MASK_OUT_SLAVE, SLAVE_DATA);
 
 
     enable_irq(0x02);
@@ -49,7 +49,7 @@ void i8259_init(void) {
 
 /* Enable (unmask) the specified IRQ */
 /* Initialize the 8259 PIC */
-/* code taken from OSdev wiki - 8259 PIC - Masking
+/* code reference from OSdev wiki - 8259 PIC - Masking
 https://wiki.osdev.org/8259_PIC
 */
 void enable_irq(uint32_t irq_num) {
@@ -72,7 +72,7 @@ void enable_irq(uint32_t irq_num) {
 
 /* Disable (mask) the specified IRQ */
 /* Initialize the 8259 PIC */
-/* code taken from OSdev wiki - 8259 PIC - Masking
+/* code reference from OSdev wiki - 8259 PIC - Masking
 https://wiki.osdev.org/8259_PIC
 */
 void disable_irq(uint32_t irq_num) {
@@ -94,7 +94,7 @@ void disable_irq(uint32_t irq_num) {
 }
 
 /* Send end-of-interrupt signal for the specified IRQ */
-/* code taken from OSdev wiki - 8259 PIC - End of Interrupt
+/* code reference from OSdev wiki - 8259 PIC - End of Interrupt
 https://wiki.osdev.org/8259_PIC
 */
 /*

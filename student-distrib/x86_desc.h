@@ -22,6 +22,9 @@
 /* Number of vectors in the interrupt descriptor table (IDT) */
 #define NUM_VEC     256
 
+/* bottom of IDT (4kB) */
+#define NUM_VEC_B     4096
+
 #ifndef ASM
 
 /* This structure is used to load descriptor base registers

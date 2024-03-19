@@ -1,3 +1,6 @@
+# linker.S - links device handlers to IDT (for when interrupt called)
+# vim:ts=4 noexpandtab
+
 #define ASM 1
 
 #define LINK(name, func)    \

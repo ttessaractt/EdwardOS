@@ -35,6 +35,11 @@
 #define MASTER_DATA    (MASTER_8259_PORT+1)
 #define SLAVE_DATA     (SLAVE_8259_PORT+1)
 
+
+/* Initialization masks for master and slave */
+#define MASK_OUT_MASTER     0xFB
+#define MASK_OUT_SLAVE      0xFF
+
 /* End-of-interrupt byte.  This gets OR'd with
  * the interrupt number and sent out to the PIC
  * to declare the interrupt finished */
