@@ -39,13 +39,39 @@ int idt_test(){
 
 	int i;
 	int result = PASS;
-	for (i = 0; i < 10; ++i){
+	for (i = 0; i < 15; ++i){
 		if ((idt[i].offset_15_00 == NULL) && 
 			(idt[i].offset_31_16 == NULL)){
 				//printf("fail\n");
 			assertion_failure();
 			result = FAIL;
 		}
+	}
+	for (i = 16; i < 20; ++i){
+		if ((idt[i].offset_15_00 == NULL) && 
+			(idt[i].offset_31_16 == NULL)){
+				//printf("fail\n");
+			assertion_failure();
+			result = FAIL;
+		}
+	}
+	if ((idt[33].offset_15_00 == NULL) && 
+			(idt[33].offset_31_16 == NULL)){
+				//printf("fail\n");
+			assertion_failure();
+			result = FAIL;
+	}
+	if ((idt[40].offset_15_00 == NULL) && 
+			(idt[40].offset_31_16 == NULL)){
+				//printf("fail\n");
+			assertion_failure();
+			result = FAIL;
+	}
+	if ((idt[126].offset_15_00 == NULL) && 
+			(idt[126].offset_31_16 == NULL)){
+				//printf("fail\n");
+			assertion_failure();
+			result = FAIL;
 	}
 
 	return result;
@@ -68,19 +94,36 @@ void idt_div0_test(){
 
 	k = i/j;
 	//asm volatile("int $0");
+};
+
+void debug_test(){
+	asm volatile("int $1");
 }
 
 void NMI_test(){
 	asm volatile("int $2");
 };
 
+void invalid_opcode_test(){
+	asm volatile("int $6");
+};
+
+void stack_fault_test(){
+	asm volatile("int $12");
+};
+
+void x86_FP_test(){
+	asm volatile("int $16");
+};
+
 void key_test(){
 	asm volatile("int $33");
-}
+};
 
 void RTC_test(){
 	asm volatile("int $40");
-}
+};
+
 
 /*
 	Tests for paging memory allocation:
@@ -179,8 +222,16 @@ void mem_test_kernel_outside_3(){
 void launch_tests(){
 	//TEST_OUTPUT("idt_test", idt_test());
 	//idt_div0_test();
+	//debug_test();
 	//NMI_test();
+	//invalid_opcode_test();
+	//stack_fault_test();
+	//x86_FP_test();
 	//key_test();
+	//while(1){
+		//RTC_test();
+	//}
+	
 	//mem_test_video_inside_1();
 	//mem_test_video_inside_1();
 	//mem_test_video_inside_2();
@@ -195,9 +246,6 @@ void launch_tests(){
 	//mem_test_kernel_outside_1();
 	//mem_test_kernel_outside_2();
 	//mem_test_kernel_outside_3();
-	//while(1){
-		//RTC_test();
-	//}
 	
 	// launch your tests here
 }
