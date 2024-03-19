@@ -67,8 +67,8 @@ int idt_test(){
 			assertion_failure();
 			result = FAIL;
 	}
-	if ((idt[126].offset_15_00 == NULL) && 
-			(idt[126].offset_31_16 == NULL)){
+	if ((idt[128].offset_15_00 == NULL) && 
+			(idt[128].offset_31_16 == NULL)){
 				//printf("fail\n");
 			assertion_failure();
 			result = FAIL;
@@ -163,7 +163,7 @@ void mem_test_video_outside_2(){
 
 void mem_test_video_outside_3(){
 	int8_t *ptr;
-	ptr = (int8_t*)0x1000;
+	ptr = (int8_t*)0x10000;
 	*ptr = 5;
 }
 
@@ -209,6 +209,27 @@ void mem_test_kernel_outside_3(){
 	*ptr = 5;
 }
 
+void mem_test_choose_address(int addr){
+	int8_t *ptr;
+	ptr = (int8_t*)addr;
+	*ptr = 5;
+}
+
+void mem_test_null_pointer(){
+	int8_t *ptr;
+	ptr = NULL;
+	*ptr = 5;
+}
+
+void mem_test_change_memory(int addr){
+	int8_t *ptr;
+	ptr = (int8_t*)addr;
+	printf("before: %x \n", *ptr);
+	*ptr = 5;
+	printf("after: %x \n", *ptr);
+}
+
+
 
 // add more tests here
 
@@ -232,6 +253,9 @@ void launch_tests(){
 		//RTC_test();
 	//}
 	
+	//mem_test_choose_address(0xB9000);
+	//mem_test_null_pointer();
+	//mem_test_change_memory(0xB8FFF);
 	//mem_test_video_inside_1();
 	//mem_test_video_inside_1();
 	//mem_test_video_inside_2();

@@ -185,12 +185,12 @@ void entry(unsigned long magic, unsigned long addr) {
      * without showing you any output */
     /*printf("Enabling Interrupts\n");
     sti();*/
-    printf("Enabling Interrupts\n");
+    //printf("Enabling Interrupts\n");
     sti();
 
 #ifdef RUN_TESTS
     /* Run tests */
-    //printf("start running test\n");
+    printf("start running test\n");
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
