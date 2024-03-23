@@ -117,7 +117,10 @@ void x86_FP_test(){
 };
 
 void key_test(){
-	asm volatile("int $33");
+	/* while(1){
+		terminal_read();
+		terminal_write();
+	} */
 };
 
 void RTC_test(){
