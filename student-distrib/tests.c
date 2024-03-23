@@ -252,7 +252,6 @@ void launch_tests(){
 	//while(1){
 		//RTC_test();
 	//}
-	
 	//mem_test_choose_address(0xB9000);
 	//mem_test_null_pointer();
 	//mem_test_change_memory(0xB8FFF);
