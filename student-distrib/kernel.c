@@ -178,7 +178,7 @@ void entry(unsigned long magic, unsigned long addr) {
     load_page_dir(page_directory);
     enable_paging(); // enable paging last
 
-
+    enable_cursor(13, 14);
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close

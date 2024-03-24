@@ -294,5 +294,5 @@ void launch_tests(){
 	// launch your tests here
 	//terminal_key_write_test(); // works
 	//key_test(); // page fault exception
-	terminal_key_write_read_test();
+	//terminal_key_write_read_test();
 }

@@ -37,13 +37,15 @@
 
 int good_index; // within bounds of characters to type
 
+int tab_c;
+
 int CAPS_CHECK;
 
 int SHIFT_CHECK;
 
 int CTRL_CHECK;
 
-int BACKSP_CHECK;
+int TAB_CHECK;
 
 int terminal_can_read;
 
