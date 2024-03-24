@@ -159,7 +159,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //printf("end TSS construct\n");
 
     /* Init the PIC */
-    printf("init PIC\n");
+    //printf("init PIC\n");
     i8259_init();
 
 

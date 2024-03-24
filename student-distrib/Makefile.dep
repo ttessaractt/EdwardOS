@@ -1,0 +1,13 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+linker.o: linker.S
+set_paging.o: set_paging.S
+x86_desc.o: x86_desc.S x86_desc.h types.h
+i8259.o: i8259.c i8259.h types.h lib.h
+idt.o: idt.c lib.h types.h x86_desc.h idt.h keyboard.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
+  tests.h keyboard.h rtc.h paging.h
+keyboard.o: keyboard.c keyboard.h i8259.h types.h lib.h
+lib.o: lib.c lib.h types.h
+paging.o: paging.c paging.h types.h
+rtc.o: rtc.c rtc.h i8259.h types.h lib.h idt.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h idt.h rtc.h i8259.h

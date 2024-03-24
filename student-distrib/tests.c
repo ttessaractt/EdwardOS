@@ -234,6 +234,16 @@ void mem_test_change_memory(int addr){
 // add more tests here
 
 /* Checkpoint 2 tests */
+
+//print characters at all of the frequencies they tell us to do
+//powers of 2 between 2 and 2024 
+void RTC_freq_RW_test(){
+	//go through frequencies 
+	
+};
+
+
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -249,8 +259,9 @@ void launch_tests(){
 	//stack_fault_test();
 	//x86_FP_test();
 	//key_test();
+	RTC_freq_RW_test();
 	//while(1){
-		//RTC_test();
+	//RTC_test();
 	//}
 	
 	//mem_test_choose_address(0xB9000);
