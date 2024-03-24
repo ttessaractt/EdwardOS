@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "rtc.h"
 #include "i8259.h"
+#include "keyboard.h"
 
 #define PASS 1
 #define FAIL 0
@@ -117,10 +118,27 @@ void x86_FP_test(){
 };
 
 void key_test(){
-	/* while(1){
-		terminal_read();
-		terminal_write();
-	} */
+	char* buf;
+	while(1){
+		terminal_key_read(1, buf, 128);
+		terminal_key_write(1, buf, 128);
+	}
+};
+
+void terminal_key_write_test(){
+	char* buf = "391OS> ";
+	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	terminal_key_write(1, buf, 7);
+};
+
+void terminal_key_write_read_test(){
+	clear_screen();
+	char* buf = "391OS> ";
+	char* read_buf;
+	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	terminal_key_write(1, buf, 7);
+	terminal_key_read(0, read_buf, 7);
+	terminal_key_write(1, read_buf, 7);
 };
 
 void RTC_test(){
@@ -274,4 +292,7 @@ void launch_tests(){
 	//mem_test_kernel_outside_3();
 	
 	// launch your tests here
+	//terminal_key_write_test(); // works
+	//key_test(); // page fault exception
+	terminal_key_write_read_test();
 }
