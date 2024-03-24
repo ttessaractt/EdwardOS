@@ -5,7 +5,10 @@
 #include "idt.h"
 
 //flag for RTC_read()
-flag interrupt_occured = false;
+int volatile interrupt_occured = -1;
+int volatile freqency = 2;
+int volatile rtc_count = 0;
+//int volatile diff = MAX_FREQ/freqency;
 
 //initilize RTC
 //enable associated inerrupt on PIC
@@ -15,8 +18,15 @@ https://wiki.osdev.org/RTC
 */
 void RTC_init(){
     //enable RTC on PIC
+    cli();          //disable interrupts
+    NMI_disable();  //disable NMI
+    outb(REG_B, RTC_PORT1);
+    char prev = inb(RTC_PORT2);
+    outb(0x8B, 0x70);
+    outb(prev|0x40, 0x71);
     enable_irq(0x08);
-    
+    NMI_enable();   //enable NMI
+    sti(); 
 };
 
 /*
@@ -25,21 +35,31 @@ https://wiki.osdev.org/RTC
 */
 //RTC handler
 void RTC_handler(){
+    //int32_t flags;
     //disable other interrupts (SUPER IMPORTANT)
-    cli(); //might need to be cli_and_save() ? but not sure
+    //cli_and_save(flags); //might need to be cli_and_save() ? but not sure
+    cli();
     NMI_disable();  //disable NMI
-    //interrupt has occured
-    interrupt_occured = true;
-    //handler stuff
-    printf("RTC interrupt\n");
-    test_interrupts();
 
+    rtc_count++;    //increment rtc_count at every interrupt
+    //interrupt has occured
+    interrupt_occured = 0;
+    //handler stuff
+
+    //printf("RTC interrupt\n");
+    //test_interrupts();
+
+    printf("1");
+    
     //make sure we get another interrupt
     outb(REG_C, RTC_PORT1);	// select register C
     inb(RTC_PORT2);		// just throw away contents
     //enable other interrupts
+    //restore_flags(flags);
+    send_eoi(0x08);
     NMI_enable();   //enable NMI
     sti(); 
+    
 };
 
 //virtualization of RTC frequency
@@ -58,14 +78,21 @@ https://wiki.osdev.org/RTC
 input is the desired frequency in Hz 
 */
 int32_t RTC_frequency(int32_t freq){
-    int32_t rate;
+    int32_t rate = 0;
+    int32_t i = 0x01;   //start at 1
+    int32_t pos = 0;
+    int32_t next, prev;
+    int32_t flags;
+    int32_t dif = 0;
     //disable other interrupts (SUPER IMPORTANT)
-    cli(); //might need to be cli_and_save() ? 
+    cli_and_save(flags); //might need to be cli_and_save() ? 
     NMI_disable();  //disable NMI
-    
+
+    //printf("freq1: %d\n", freq);
     //freqency is between 2 and 1024 Hz
     if (freq < 2 && freq > 1024){
         //enable interrupts before returning
+        restore_flags(flags);
         NMI_enable();   //enable NMI
         sti(); 
         return -1;
@@ -73,60 +100,53 @@ int32_t RTC_frequency(int32_t freq){
     //freqnecy must be a power of 2
     if ((freq & (freq - 1)) != 0){
         //enable interrupts before returning
+        restore_flags(flags);
         NMI_enable();   //enable NMI
         sti(); 
         return -1;
     }
-
-    /*
-    RS bits control freq, bits [3:0] of Register A
-    RS3 RS2 RS1 RS0
-
-    2Hz = 1111
-    1024Hz = 0110
-    */
-    /*
-    1111 = 15
-    0010 = 2
-
-    rate 3 = 8kHz
-    rate 5 = 1024Hz
-    rate 15 = 2Hz
-    */
+    //freqency = freq;
+    //printf("freq2: %d\n", freq);
     //to get rate need to get what power of 2 the frequency is
     //go through bits in freq to find which is set to 1
-    int32_t i = 0x10;   //start at 2
-    int32_t pos = 1;
+    
     //go until i matches freq
     while (!(i == freq)){
         if (pos > 11){      //highest power of 2 freqnecy can be set to
             //enable interrupts before returning
+            restore_flags(flags);
             NMI_enable();   //enable NMI
             sti(); 
             return -1; 
         }
+        //printf("pos: %d\n", pos);
         i = i << 1;         //move 1 to next but, ex. go from 0x10 to 0x100
         pos++;              //increment position
     }
-
+    //printf("freq3: %d\n", freq);
     //lower rate give higher freqency so need to subtract position from 16 (15+1, max rate+1 to account for pos starting at 1)
-    rate = 16 - pos;
-    //printf("input rate = %d\n", rate);
+    rate = 16 - pos;    //calculated correctly
+    dif = 10 - rate;
+    //diff = dif;
+    //printf("pos: %d\n", pos);
+    //printf("rate: %d\n", rate);
 
-    //freq =  32768 >> (rate-1);
-    //printf("freq = %d\n", freq);
-    //rate &= 0x0F;			// rate must be above 2 and not over 15
-    //printf("set rate = %d\n", rate);
-    //disable other interrupts (SUPER IMPORTANT)
-    //cli(); //might need to be cli_and_save() ? but not sure
-    //NMI_disable();  //disable NMI
+    //test_interrupts();
 
-    char prev = inb(RTC_PORT2);	// get initial value of register A
-    //printf("prev = %c\n", prev);
+
+    outb(REG_A, RTC_PORT1);     //set index to register A
+    prev = inb(RTC_PORT2);	// get initial value of register A
+    //printf("prev: %d\n", prev);
     outb(REG_A, RTC_PORT1);		// reset index to A
-    outb((prev & 0xF0) | rate, RTC_PORT2); //write only our rate to A. Note, rate is the bottom 4 bits.
+    next = (prev & 0xF0) | rate;
+    //printf("next: %d\n", next);
+    outb(next, RTC_PORT2); //write only our rate to A. Note, rate is the bottom 4 bits.
+
+    prev = inb(RTC_PORT2);
+    //printf("new: %d\n", prev);
 
     //enable interrupts
+    restore_flags(flags);
     NMI_enable();   //enable NMI
     sti(); 
 
@@ -143,6 +163,8 @@ named file, allocate an unused file descriptor, and set up any data necessary to
 RTC device, or regular file). If the named file does not exist or no descriptors are free, the call returns -1.
 */
 int32_t RTC_open(const uint8_t* filename){
+    enable_irq(0x08);
+
     //set frequency to 2Hz
     return RTC_frequency((int32_t)2);      //hypothetically (needs testing) set freq to 2Hz
 
@@ -158,10 +180,12 @@ For the real-time clock (RTC), this call should always return 0, but only after 
 occurred (set a flag and wait until the interrupt handler clears it, then return 0). 
 */
 int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
-    interrupt_occured = false;
+    interrupt_occured = 1;
 
-    while (volatile interrupt_occured == false);    //wait until interrupt is called
+    printf("waiting read\n");
+    while (interrupt_occured != 0);    //wait until interrupt is called
     
+    printf("done read\n");
     return 0;
 };
 
@@ -180,6 +204,7 @@ int32_t RTC_write(int32_t fd, const void* buf, int32_t nbytes){
 
     int32_t freq = (int32_t)buf;    //get interrupt rate from buffer
 
+    printf("write freq: %d\n", freq);
     //set freqency
     return RTC_frequency(freq);
 

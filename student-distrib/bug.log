@@ -175,3 +175,52 @@ Solution:
 
 
 
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP2
+CreateTime:
+    2024.3.24
+
+<--------------------------------------------------------->
+                          BUG 1                          
+<--------------------------------------------------------->
+Time:
+    2022.3.24.
+Creator:
+    Tessa Samuels
+Description:
+    my set freqency function does not change the frequency, after a bit of testing it
+    seems like the freqency is not saved when the rtc handler is called
+Solution:
+    i was never actually getting the previous value of register A so the top bits of the register
+    were constantly being cleared
+
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2022.3.24.
+Creator:
+    Tessa Samuels.
+Description:
+    my logic to get the rate in set freqency doesn't work to set frequency to 2
+Solution:
+    my starting value was 0x10 and it had to be changed to 0x01, edge case 
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2022.3.24.
+Creator:
+    Tessa Samuels.
+Description:
+    only 1 1 prints for rtc test, looks like a 2nd interrupt never gets called
+Solution:
+    
+
+
