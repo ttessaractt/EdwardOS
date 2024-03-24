@@ -18,6 +18,8 @@
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags, bit)   ((flags) & (1 << (bit)))
 
+unsigned long global_addr;
+
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
 void entry(unsigned long magic, unsigned long addr) {
@@ -98,6 +100,7 @@ void entry(unsigned long magic, unsigned long addr) {
         memory_map_t *mmap;
         printf("mmap_addr = 0x%#x, mmap_length = 0x%x\n",
                 (unsigned)mbi->mmap_addr, (unsigned)mbi->mmap_length);
+        global_addr = (unsigned)mbi->mmap_addr;
         for (mmap = (memory_map_t *)mbi->mmap_addr;
                 (unsigned long)mmap < mbi->mmap_addr + mbi->mmap_length;
                 mmap = (memory_map_t *)((unsigned long)mmap + mmap->size + sizeof (mmap->size)))

@@ -1,15 +1,4 @@
-#include <dirent.h>
-#include <fcntl.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <unistd.h>
-
-#include "ece391support.h"
-#include "ece391syscall.h"
-#include "ece391sysnum.h"
-
 
 static uint32_t start_esp;
 static int32_t dir_fd = -1;
