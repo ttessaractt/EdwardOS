@@ -69,6 +69,17 @@ void keyboard_handler(){
         //printf("shift off ");
     }
 
+   /*  if(key == BACKSP_INDEX){
+        // call some function?
+        good_index = 1;
+        BACKSP_CHECK = 1;
+        removec(p); // change from p
+        keyboard_buffer[buffer_postion] = 'P';
+    }
+    else if(key == 0x8E){
+        BACKSP_CHECK = 0;
+    } */
+
 
     if (CTRL_CHECK){
         // need to clear screen if press L
@@ -97,6 +108,11 @@ void keyboard_handler(){
                 p = space;
                 good_index = 1;
             }
+            else if(key == BACKSP_INDEX){
+                removec(p);
+                buffer_postion--;
+                //keyboard_buffer[buffer_postion] = 'P';
+            }
         }
         else{
             if (((ONE_INDEX <= key) && (key <= EQUALS_INDEX)) | ((Q_INDEX <= key) && (key <= BRACKET_INDEX)) | ((A_INDEX <= key) && (key <= TILDE_INDEX)) | ((BSLASH_INDEX <= key) && (key <= QUESTION_INDEX))){
@@ -111,6 +127,11 @@ void keyboard_handler(){
             else if(key == 57){
                 p = space;
                 good_index = 1;
+            }
+            else if(key == BACKSP_INDEX){
+                removec(p);
+                buffer_postion--;
+                //keyboard_buffer[buffer_postion] = 'P';
             }
         }
     }
@@ -130,6 +151,11 @@ void keyboard_handler(){
                 p = space;
                 good_index = 1;
             }
+            else if(key == BACKSP_INDEX){
+                removec(p);
+                buffer_postion--;
+                //keyboard_buffer[buffer_postion] = 'P';
+            }
         }
         else{
             if (((ONE_INDEX <= key) && (key <= EQUALS_INDEX)) | ((Q_INDEX <= key) && (key <= BRACKET_INDEX)) | ((A_INDEX <= key) && (key <= TILDE_INDEX)) | ((BSLASH_INDEX <= key) && (key <= QUESTION_INDEX))){
@@ -145,26 +171,43 @@ void keyboard_handler(){
                 p = space;
                 good_index = 1;
             }
+            else if(key == BACKSP_INDEX){
+                removec(p);
+                buffer_postion--;
+                //keyboard_buffer[buffer_postion] = 'P';
+            }
         }
     }
 
+/*     if (BACKSP_CHECK){
+        //buffer_postion--;
+        keyboard_buffer[buffer_postion] = 'P';
+
+    }
+ */
     if (good_index){
 
         if ((buffer_postion == 127) && (p == '\n')){ // max size
             send_eoi(1);
             return; 
         }
-
         printf("%c", p);
         keyboard_buffer[buffer_postion] = p;
         buffer_postion++;
-
+        
         if (p == '\n'){
             //printf("enter!!");
             terminal_can_read = 1;
             buffer_postion = 0;    
         }
+        
     }
+    
+    /*  if (BACKSP_CHECK){
+        //buffer_postion--;
+        keyboard_buffer[buffer_postion] = 'P';
+
+    } */
    
     send_eoi(1); //sends end of interrupt on IRQ1
    

@@ -10,6 +10,7 @@
 #define ONE_INDEX       2 // 0x2
 #define ZERO_INDEX      11 // 0xB
 #define EQUALS_INDEX    13 // 0xD
+#define BACKSP_INDEX    14 // 0xE
 
 
 #define Q_INDEX         16 // 0x10
@@ -41,6 +42,8 @@ int CAPS_CHECK;
 int SHIFT_CHECK;
 
 int CTRL_CHECK;
+
+int BACKSP_CHECK;
 
 int terminal_can_read;
 

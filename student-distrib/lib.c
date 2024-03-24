@@ -194,6 +194,28 @@ void putc(uint8_t c) {
     }
 }
 
+/* void remove();
+ * Inputs: none
+ * Return Value: void
+ *  Function: remove a character from the console */
+void removec(uint8_t c) {
+    //if(c == tab) {
+        //screen_y++;
+        //screen_x = 0;
+    //} 
+    //else {
+        screen_x--;
+        if (screen_x < 0){
+            screen_x = 0; // make sure backspace doesn't go out of bounds
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        
+        screen_x %= NUM_COLS;
+        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+    //}
+}
+
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert
  *            int8_t* buf = allocated buffer to place string in

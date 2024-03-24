@@ -196,6 +196,37 @@ Solution:
     Caps lock check variable has to be defined globally in the
     keyboard.h file instead of inside keyboard_handler.
 
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2023.3.24.
+Creator:
+    Elizabeth Shank
+Description:
+    Keyboard handler would print keys twice.
+Solution:
+    When moving the printf statement outsid of the ifs
+    it was originally in, caused it to print twice
+    since the keyboard sends two interrupts, once when
+    key is pressed and once when key let go.
+    So used a good_index flag to make sure it only
+    printed when the key was pressed.
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2023.3.24.
+Creator:
+    Elizabeth Shank
+Description:
+    In order for backspace to work, need to hit backspace once
+    before it actually does anything.
+Solution:
+    Decrement screen x before clearing vid memory since putc
+    increments screen x after writing to vid memory.
+
 
 
 

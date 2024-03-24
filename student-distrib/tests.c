@@ -137,8 +137,8 @@ void terminal_key_write_read_test(){
 	char* read_buf;
 	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
 	terminal_key_write(1, buf, 7);
-	terminal_key_read(0, read_buf, 7);
-	terminal_key_write(1, read_buf, 7);
+	terminal_key_read(0, read_buf, 10);
+	terminal_key_write(1, read_buf, 10);
 };
 
 void RTC_test(){
