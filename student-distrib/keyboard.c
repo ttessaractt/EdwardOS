@@ -217,7 +217,7 @@ void keyboard_handler(){
                     send_eoi(1);
                     return; 
                 }
-                printf("%c", p);
+                putc(p);
                 keyboard_buffer[buffer_postion] = p;
                 buffer_postion++;
         
@@ -235,7 +235,7 @@ void keyboard_handler(){
                 send_eoi(1);
                 return; 
             }
-            printf("%c", p);
+            putc(p);
             keyboard_buffer[buffer_postion] = p;
             buffer_postion++;
         

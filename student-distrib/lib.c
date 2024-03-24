@@ -185,16 +185,64 @@ int32_t puts(int8_t* s) {
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
         screen_y++;
+        if (screen_y == 25){
+            screen_y = 24;
+            SCROLLING = 1;
+        }
+        else{
+            SCROLLING = 0;
+        }
         screen_x = 0;
         update_cursor(screen_x, screen_y);
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        screen_x++; // when x = 80, x % cols = 0, x / cols = 1
+        if (screen_x >= 80 ){
+            screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS) + 1) % NUM_ROWS;
+            screen_y = (screen_y + (screen_x / NUM_COLS) + 1);
+            if (screen_y >= 25){
+                screen_y = 24;
+                SCROLLING = 1;
+            }
+            else{
+                screen_y = screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        else{
+            screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            screen_y = (screen_y + (screen_x / NUM_COLS));
+            if (screen_y >= 25){
+                screen_y = 24;
+                SCROLLING = 1;
+            }
+            else{
+                screen_y = screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        
         update_cursor(screen_x, screen_y);
+
+        
+        
     }
+    int32_t i;
+    if (SCROLLING){
+            for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+            if (i + 80 < 2000){    
+                *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + 80) << 1));
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            else{
+                *(uint8_t *)(video_mem + (i << 1)) = ' ';
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            }
+        }
     
 }
 
@@ -217,6 +265,7 @@ void removec(uint8_t c) {
         
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        update_cursor(screen_x, screen_y);
     //}
 }
 
