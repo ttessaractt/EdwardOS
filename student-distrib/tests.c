@@ -4,6 +4,8 @@
 #include "idt.h"
 #include "rtc.h"
 #include "i8259.h"
+#include "keyboard.h"
+#include "file.h"
 
 #define PASS 1
 #define FAIL 0
@@ -117,8 +119,9 @@ void x86_FP_test(){
 };
 
 void key_test(){
-	asm volatile("int $33");
 };
+
+
 
 void RTC_test(){
 	asm volatile("int $40");
@@ -234,6 +237,142 @@ void mem_test_change_memory(int addr){
 // add more tests here
 
 /* Checkpoint 2 tests */
+
+//print characters at all of the frequencies that are powers of 2 between 2 and 2024 
+//tests RTC_open, RTC_close, RTC_read, RTC_write, and RTC_freqeuency
+//if all functions work they should return 0 so result will be 0 if all correct,
+//watching terminal display needed to fully test
+int RTC_freq_RW_test(){
+	TEST_HEADER;
+	//go through frequencies 
+	int32_t i, a;
+	int32_t fd;
+	int result = 0;
+	int final;
+	const void* buf;
+	clear_screen();							//clear screen
+	fd = RTC_open((uint8_t*)"RTC");			//open RTC
+	result += fd; 
+	for (i = 2; i <=1024; i*=2){			//go through all specified frequencies (powers of 2)
+		buf = (void*)i;
+		result += RTC_write(fd, buf, 4);	//set frequency
+		for (a = 0; a < i; a++){
+			result += RTC_read(fd,0,0);		//wait until interrupt occurs
+			printf("1");                //show the interrupt occured in terminal
+		}
+		printf("\n");						//seperate frequencies with a new line
+	}
+	result += RTC_close(fd);				//close RTC
+
+	//test if everything works
+	if (result != 0){					
+		assertion_failure();
+		final = FAIL;
+	}
+	else{
+		final = PASS;
+	}
+	return final;
+};
+
+
+void terminal_wr_test1(){
+	clear_screen();
+	int i, j;
+	char* buf = "391OS> "; 
+	
+	char read_buf[128];
+	
+	terminal_key_open();
+
+	terminal_key_write(0, buf, 7);
+
+	i = terminal_key_read(0, read_buf, 128);
+
+	j = terminal_key_write(0, read_buf, 128);
+
+	terminal_key_close();
+
+}; 
+
+void terminal_wr_test2(){
+	clear_screen();
+	// to pass, should not print the 9's in string
+	// buffer size 140
+	char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111118888here9999"; //140
+	
+	terminal_key_open();
+
+	printf("test nbytes 128 \n");
+	terminal_key_write(0, buf, 128);
+
+	printf("\ntest nbytes 140 \n");
+	terminal_key_write(0, buf, 140);
+
+	terminal_key_close();
+
+}; 
+
+
+void terminal_wr_test3(){
+	clear_screen();
+
+	char* buf = "EdwardOS> "; 
+	
+	char read_buf[128];
+	
+	terminal_key_open();
+
+	while(1){
+		terminal_key_write(0, buf, 10);
+
+		terminal_key_read(0, read_buf, 128);
+
+		terminal_key_write(0, read_buf, 128);
+	}
+	terminal_key_close();
+
+}; 
+
+void file_system_read(int8_t* name) {
+	file_open(name);
+	file_read(name);
+	clear_screen();
+    file_key_write(0, (char*)data_buffer.data, cur_file_det.length);
+    printf("\nFile_name: %s", name);
+}
+
+void directory_read_test_full() {
+	int i;
+	clear_screen();
+	directory_open();
+	for(i = 0; i < num_dir_entries; i++) {
+		directory_read();
+		printf("file name: ");
+        printf("%s", cur_dir.file_name);
+        printf(", file type: ");
+        printf("%d", cur_dir.file_type);
+        printf(", file size: ");
+        printf("%d", file_size);
+        printf("\n");
+		directory_open();
+	}
+}
+
+void directory_read_test_single() {
+	clear_screen();
+	directory_open();
+	directory_read();
+	printf("file name: ");
+	printf("%s", cur_dir.file_name);
+	printf(", file type: ");
+	printf("%d", cur_dir.file_type);
+	printf(", file size: ");
+	printf("%d", file_size);
+	printf("\n");
+	directory_open();
+}
+
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -252,7 +391,6 @@ void launch_tests(){
 	//while(1){
 		//RTC_test();
 	//}
-	
 	//mem_test_choose_address(0xB9000);
 	//mem_test_null_pointer();
 	//mem_test_change_memory(0xB8FFF);
@@ -272,4 +410,19 @@ void launch_tests(){
 	//mem_test_kernel_outside_3();
 	
 	// launch your tests here
+
+	//terminal_wr_test1();
+
+	//terminal_wr_test2();
+
+	/* terminal :) */
+	terminal_wr_test3();
+
+	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
+
+
+	//file_system_read("ls");
+	//directory_read_test_full();
+	//directory_read_test_single();
+
 }

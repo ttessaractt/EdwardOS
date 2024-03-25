@@ -6,14 +6,17 @@
 #define _LIB_H
 
 #include "types.h"
+#include "cursor.h"
 
 int32_t printf(int8_t *format, ...);
 void putc(uint8_t c);
+void removec(uint8_t c);
 int32_t puts(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t *strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
 void clear(void);
+void clear_screen(void);
 void test_interrupts(void);
 
 void* memset(void* s, int32_t c, uint32_t n);
@@ -28,6 +31,8 @@ int8_t* strncpy(int8_t* dest, const int8_t*src, uint32_t n);
 /* Userspace address-check functions */
 int32_t bad_userspace_addr(const void* addr, int32_t len);
 int32_t safe_strncpy(int8_t* dest, const int8_t* src, int32_t n);
+
+int SCROLLING;
 
 /* Port read functions */
 /* Inb reads a byte and returns its value as a zero-extended 32-bit

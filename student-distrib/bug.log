@@ -172,6 +172,3 @@ Solution:
     an extra 3 bytes, unlike int8_t pointers which are a     
     singular byte.
 
-
-
-

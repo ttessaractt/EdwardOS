@@ -1,0 +1,185 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP2
+CreateTime:
+    2024.3.23
+
+<--------------------------------------------------------->
+                          BUG 1                          
+<--------------------------------------------------------->
+Time:
+    2024.3.23.
+Creator:
+    Elizabeth Shank
+Description:
+    Pressing caps lock wouldn't show uppercase letters despite
+    use of a caps lock check variable.
+Solution:
+    Caps lock check variable has to be defined globally in the
+    keyboard.h file instead of inside keyboard_handler.
+
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2023.3.24.
+Creator:
+    Elizabeth Shank
+Description:
+    Keyboard handler would print keys twice.
+Solution:
+    When moving the printf statement outsid of the ifs
+    it was originally in, caused it to print twice
+    since the keyboard sends two interrupts, once when
+    key is pressed and once when key let go.
+    So used a good_index flag to make sure it only
+    printed when the key was pressed.
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2023.3.24.
+Creator:
+    Elizabeth Shank
+Description:
+    In order for backspace to work, need to hit backspace once
+    before it actually does anything.
+Solution:
+    Decrement screen x before clearing vid memory since putc
+    increments screen x after writing to vid memory.
+
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2023.3.25.
+Creator:
+    Elizabeth Shank
+Description:
+    Terminal read and write did not work in a while(1)
+    loop for tests.
+Solution:
+    Needed to update terminal_can_read back to 0 after
+    a read is done.
+
+<--------------------------------------------------------->
+                          BUG 5                          
+<--------------------------------------------------------->
+Time:
+    2022.3.24.
+Creator:
+    Tessa Samuels
+Description:
+    my set freqency function does not change the frequency, 
+    after a bit of testing it seems like the freqency is not 
+    saved when the rtc handler is called
+Solution:
+    I was never actually getting the previous value of 
+    register A so the top bits of the register were 
+    constantly being cleared
+
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2022.3.24.
+Creator:
+    Tessa Samuels.
+Description:
+    my logic to get the rate in set freqency doesn't work to set 
+    frequency to 2
+Solution:
+    my starting value was 0x10 and it had to be changed to 
+    0x01, edge case 
+
+<--------------------------------------------------------->
+                          BUG 7                          
+<--------------------------------------------------------->
+Time:
+    2022.3.24.
+Creator:
+    Tessa Samuels.
+Description:
+    only 1 1 prints for rtc test, looks like a 2nd interrupt 
+    never gets called
+Solution:
+    our send end of interrupt function is wrong
+
+<--------------------------------------------------------->
+                          BUG 8                        
+<--------------------------------------------------------->
+Time:
+    2024.3.24.
+Creator:
+    Ian Watson
+Description:
+    Issue in compiling structs in file.h
+Solution:
+    Had to include typedef union and
+    __attribute__((packed)) to make file.c access the structs
+    correctly
+
+
+<--------------------------------------------------------->
+                          BUG 9                        
+<--------------------------------------------------------->
+Time:
+    2024.3.24.
+Creator:
+    Ian Watson
+Description:
+    Issues accessing members of structs
+Solution:
+    Instead of using a '.' had to use '->' since the struct
+    is a pointer
+
+<--------------------------------------------------------->
+                          BUG 10                        
+<--------------------------------------------------------->
+Time:
+    2024.3.25.
+Creator:
+    Sairaj Shetye
+Description:
+    Page fault occurring when trying to access files or
+    directories in the file system
+Solution:
+    Was improperly initializing the boot_block_addr pointer
+    to mbi->mods_addr instead of mod->mod_start
+
+
+<--------------------------------------------------------->
+                          BUG 11                        
+<--------------------------------------------------------->
+Time:
+    2024.3.25.
+Creator:
+    Sairaj Shetye
+Description:
+    Was printing incorrect file_name, file_type, and file_sizes
+    despite seemingly accessing correct points in memory
+   
+Solution:
+    Was using wrong pointer types as uint32_t* when should have been
+    uint8_t*
+
+
+<--------------------------------------------------------->
+                          BUG 12                        
+<--------------------------------------------------------->
+Time:
+    2024.3.25.
+Creator:
+    Sairaj Shetye
+Description:
+    Exec files not printing ELF header at top, only printing the
+    numbers and letters are bottom with blank spaces at top
+   
+Solution:
+    Forgot to ignore null characters when calling the terminal
+    write function
