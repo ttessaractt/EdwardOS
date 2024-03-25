@@ -259,13 +259,13 @@ int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes){
 
         if (keyboard_buffer[i] != '\n'){
             buf[i] = keyboard_buffer[i];
-            keyboard_buffer[i] = '\0';
+            keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             terminal_can_read = 0;
             //printf("cleared");
         }
         else{
             buf[i] = keyboard_buffer[i]; // returns when key buffer is enter
-            keyboard_buffer[i] = '\0';
+            keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             //printf("cleared2");
             terminal_can_read = 0;
             return i;
