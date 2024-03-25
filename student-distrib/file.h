@@ -1,9 +1,9 @@
 #include "types.h"
-
+#include "lib.h"
 
 typedef union dentry_t {
   struct {
-    char file_name[32];
+    int8_t file_name[33];
     uint32_t file_type;
     uint32_t inode_num;
     char reserved[24]; 
@@ -27,6 +27,15 @@ typedef union inode {
   } __attribute__((packed));
 } inode;
 
+typedef union data_block {
+  struct {
+    int8_t data[10000];
+  } __attribute__((packed));
+} data_block;
+
+extern dentry_t cur_file;
+extern data_block data_buffer;
+
 uint32_t file_open();
 uint32_t file_close();
 uint32_t file_read();
@@ -37,6 +46,6 @@ uint32_t directory_close();
 uint32_t directory_read();
 uint32_t directory_write();
 
-uint32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
+uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
 uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
-uint32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);

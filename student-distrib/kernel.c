@@ -12,6 +12,8 @@
 #include "rtc.h"
 #include "paging.h"
 #include "kernel.h"
+#include "file.h"
+#include "cursor.h"
 
 #define RUN_TESTS
 
@@ -20,7 +22,8 @@
 #define CHECK_FLAG(flags, bit)   ((flags) & (1 << (bit)))
 
 unsigned long global_addr;
-uint32_t boot_block_addr;
+uint32_t* boot_block_addr;
+uint32_t copy_boot_block_addr;
 
 /* Check if MAGIC is valid and print the Multiboot information structure
    pointed by ADDR. */
@@ -65,7 +68,8 @@ void entry(unsigned long magic, unsigned long addr) {
         int mod_count = 0;
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
-        boot_block_addr = mbi->mods_addr;
+        boot_block_addr = (uint32_t*)mod->mod_start;
+        copy_boot_block_addr = mod->mod_start;
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
@@ -184,6 +188,13 @@ void entry(unsigned long magic, unsigned long addr) {
     load_page_dir(page_directory);
     enable_paging(); // enable paging last
 
+    //cursor
+    enable_cursor(13, 14);
+
+    // file system 
+    //directory_read();
+    file_read("frame0.txt");
+
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
@@ -196,7 +207,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
 #ifdef RUN_TESTS
     /* Run tests */
-    printf("start running test\n");
+    //printf("start running test\n");
+    // printf("%#x", copy_boot_block_addr);
     launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
