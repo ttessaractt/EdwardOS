@@ -22,8 +22,7 @@
 #define DATA_BLOCK_INDEX_SIZE 4
 
 
-
-
+/* dentry structure */
 typedef union dentry_t {
   struct {
     int8_t file_name[33];
@@ -33,6 +32,7 @@ typedef union dentry_t {
   } __attribute__((packed));
 } dentry_t;
 
+/* boot block structure */
 typedef union boot_block {
   struct {
     uint32_t num_dentries;
@@ -43,6 +43,7 @@ typedef union boot_block {
   } __attribute__((packed));
 } boot_block;
 
+/* inode structure */
 typedef union inode {
   struct {
     int32_t length;
@@ -50,15 +51,21 @@ typedef union inode {
   } __attribute__((packed));
 } inode;
 
+/* buffer to hold data */
 typedef union data_block {
   struct {
-    int8_t data[10000];
+    int8_t data[40000];
   } __attribute__((packed));
 } data_block;
 
+/* global variables that store state of current file */
 extern dentry_t cur_file;
 extern inode cur_file_det;
 extern data_block data_buffer;
+extern unsigned int num_dir_entries;
+extern dentry_t cur_dir;
+extern uint32_t dentry_index;
+extern uint32_t file_size;
 
 uint32_t file_open();
 uint32_t file_close();
@@ -73,3 +80,4 @@ uint32_t directory_write();
 uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
 uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
+uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes);

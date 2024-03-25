@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "rtc.h"
 #include "i8259.h"
+#include "file.h"
 
 #define PASS 1
 #define FAIL 0
@@ -234,6 +235,45 @@ void mem_test_change_memory(int addr){
 // add more tests here
 
 /* Checkpoint 2 tests */
+
+void file_system_read(int8_t* name) {
+	file_open(name);
+	file_read(name);
+	clear_screen();
+    file_key_write(0, (char*)data_buffer.data, cur_file_det.length);
+    printf("\nFile_name: %s", name);
+}
+
+void directory_read_test_full() {
+	int i;
+	clear_screen();
+	directory_open();
+	for(i = 0; i < num_dir_entries; i++) {
+		directory_read();
+		printf("file name: ");
+        printf("%s", cur_dir.file_name);
+        printf(", file type: ");
+        printf("%d", cur_dir.file_type);
+        printf(", file size: ");
+        printf("%d", file_size);
+        printf("\n");
+		directory_open();
+	}
+}
+
+void directory_read_test_single() {
+	clear_screen();
+	directory_open();
+	directory_read();
+	printf("file name: ");
+	printf("%s", cur_dir.file_name);
+	printf(", file type: ");
+	printf("%d", cur_dir.file_type);
+	printf(", file size: ");
+	printf("%d", file_size);
+	printf("\n");
+	directory_open();
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -270,6 +310,9 @@ void launch_tests(){
 	//mem_test_kernel_outside_1();
 	//mem_test_kernel_outside_2();
 	//mem_test_kernel_outside_3();
+	//file_system_read("ls");
+	//directory_read_test_full();
+	//directory_read_test_single();
 	
 	// launch your tests here
 }

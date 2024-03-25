@@ -6,6 +6,29 @@
 dentry_t cur_file;
 inode cur_file_det;
 data_block data_buffer;
+unsigned int num_dir_entries;
+dentry_t cur_dir;
+uint32_t dentry_index = -1;
+uint32_t file_size;
+
+/* uint32_t file_key_write(int32_t fd, char* buf, int32_t nbytes);
+ * Description: writes a file to the terminal using the buffer
+ * Inputs: int32_t fd, char* buf, int32_t nbytes
+ * Return Value: 0 
+ * Function: writes to terminal
+ */
+uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes){
+    int i = 0;
+    for (i = 0; i < nbytes; i++){
+        if(buf[i] != '\0') {
+            putc(buf[i]);
+        }
+    }
+
+    return nbytes;
+
+
+}
 
 /* uint32_t file_open(const int8_t* fname);
  * Description: opens a file by 
@@ -40,12 +63,11 @@ uint32_t file_close(){
  * Function: reads a file
  */
 uint32_t file_read(const int8_t* fname){
-    file_open(fname);
-    read_data(cur_file.inode_num, 0, data_buffer.data, cur_file_det.length);
-    clear_screen();
-    terminal_key_write(0, (char*)data_buffer.data, cur_file_det.length);
-    printf("\nFile_name: %s", fname);
-    return 0;
+    if(cur_file.file_type == 2) {
+		read_data(cur_file.inode_num, 0, data_buffer.data, cur_file_det.length);
+        return 0;
+	}
+    return -1;
 }
 
 /* uint32_t file_write();
@@ -59,12 +81,17 @@ uint32_t file_write(){
 }
 
 /* uint32_t directory_open();
- * Description: opens directory
+ * Description: opens directory by incrementing to next dentry
  * Inputs: none
  * Return Value: 0
- * Function: nothing
+ * Function: increments dentry_index pointer 
  */
 uint32_t directory_open(){
+    memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
+    dentry_index = dentry_index + 1;
+    if(dentry_index == num_dir_entries) {
+        dentry_index = 0;
+    }
     return 0;
 }
 
@@ -79,39 +106,17 @@ uint32_t directory_close(){
 }
 
 /* uint32_t directory_read();
- * Description: shows all the files, their file types and size in terminal
+ * Description: copies a dentry to a dentry buffer based on the dentry_index
  * Inputs: none
  * Return Value: 0
- * Function: shows files and their details
+ * Function: reads a dentry 
  */
 uint32_t directory_read(){
-    unsigned int i;
-    unsigned int num_dir_entries;
-    memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
-
-    clear_screen();
-
-    for(i = 0; i < num_dir_entries; i++) {
-
-        dentry_t cur_dir;
-        read_dentry_by_index(i, &cur_dir);
-        cur_dir.file_name[32] = '\0';
-
-        int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
-            (cur_dir.inode_num * BLOCK_LENGTH);
-        uint32_t file_size;
-        memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
-
-        /* print values to terminal */
-        printf("file name: ");
-        printf("%s", cur_dir.file_name);
-        printf(", file type: ");
-        printf("%d", cur_dir.file_type);
-        printf(", file size: ");
-        printf("%d", file_size);
-        printf("\n");
-    }
-
+    read_dentry_by_index(dentry_index, &cur_dir);
+    cur_dir.file_name[32] = '\0';
+    int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+        (cur_dir.inode_num * BLOCK_LENGTH);
+    memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
     return 0;
 }
 
@@ -126,7 +131,7 @@ uint32_t directory_write(){
 }
 
 /* uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
- * Description: fils in dentry based on file name
+ * Description: fills in dentry based on file name
  * Inputs:  const int8_t* fname = file name
             dentry_t* dentry    = dentry to fill out 
  * Return Value:
@@ -195,7 +200,7 @@ uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
 }
 
 /* uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
- * Description: 
+ * Description: puts file data into a read buffer 
  * Inputs:  uint32_t inode  = index node 
             uint32_t offset = offset of beginning of data to be read
             int8_t*  buf    = where we want to store the data
