@@ -237,39 +237,38 @@ void mem_test_change_memory(int addr){
 
 //print characters at all of the frequencies they tell us to do
 //powers of 2 between 2 and 2024 
-void RTC_freq_RW_test(){
+int RTC_freq_RW_test(){
+	TEST_HEADER;
+
 	//go through frequencies 
 	int32_t i, a;
 	int32_t fd;
+	int result = 0;
+	int final;
 	const void* buf;
 	clear_screen();
-	fd = RTC_open((uint8_t*)"RTC");
-	if (fd != 0){
-		printf("error!\n");
-	}
-	for (i = 2; i <=1024; i*=2){
+	fd = RTC_open((uint8_t*)"RTC");		//open RTC
+	result += fd; 
+	for (i = 2; i <=1024; i*=2){		//go through all specified frequencies (powers of 2)
 		buf = (void*)i;
-		RTC_write(fd, buf, 4);
+		result += RTC_write(fd, buf, 4);			//set frequency
 		for (a = 0; a < i; a++){
-			RTC_read(fd,0,0);
+			result += RTC_read(fd,0,0);			//wait until interrupt occurs
 		}
-		printf("\n");
+		printf("\n");					//seperate frequencies with a new line
 	}
+	result += RTC_close(fd);			//close RTC
 
+	if (result != 0){						//check open works
+		assertion_failure();
+		final = FAIL;
+	}
+	else{
+		final = PASS;
+	}
+	return final;
+};	
 
-	
-};
-
-
-void test2(){
-	clear_screen();
-RTC_read(0,0,0);
-RTC_read(0,0,0);
-RTC_read(0,0,0);
-RTC_read(0,0,0);
-RTC_read(0,0,0);
-
-}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -285,21 +284,6 @@ void launch_tests(){
 	//stack_fault_test();
 	//x86_FP_test();
 	//key_test();
-	//clear();
-	//RTC_test();
-	//test2();
-	RTC_freq_RW_test();
-	//RTC_freq_RW_test();
-	//while(1){
-		//RTC_test();
-	//}
-	//int i;
-	//for (i = 0; i < 2000; i++){
-	//	RTC_test();
-	//}
-	//clear_screen();
-	//RTC_freq_RW_test();
-	
 	//mem_test_choose_address(0xB9000);
 	//mem_test_null_pointer();
 	//mem_test_change_memory(0xB8FFF);
@@ -319,4 +303,9 @@ void launch_tests(){
 	//mem_test_kernel_outside_3();
 	
 	// launch your tests here
+
+	//CHECKPOINT 2
+	//RTC_freq_RW_test();
+	TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
+	
 }

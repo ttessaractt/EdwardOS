@@ -7,9 +7,12 @@
 #define REG_B           0x8B    //RTC Status register B
 #define REG_C           0x8C    //RTC Status register C
 
+#define TOP4BITMASK     0xF0    //bit mask to get top 4 bits
+#define MAX_RATE        11      //max value of the rate for valid bounds(to be set in Reg A)
 #define MAX_FREQ        1024    //max frequency in Hz
 #define MIN_FREQ        2       //min frequency in Hz 
-
+#define ONEHEX          0x01    //1 in hex
+#define POSRATE_OFFSET  16      //offset to convert position of 1 bit to rate
 
 extern void RTC_init();         //RTC initialization function
 extern void RTC_handler();      //RTC handler function for IDT
