@@ -118,47 +118,67 @@ void x86_FP_test(){
 };
 
 void key_test(){
-	char* buf;
-	while(1){
-		terminal_key_read(1, buf, 128);
-		terminal_key_write(1, buf, 128);
-	}
 };
 
-void terminal_key_write_test(){
-	char* buf = "391OS> ";
-	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
-	terminal_key_write(1, buf, 7);
-};
-
-void terminal_key_write_read_test(){
-	clear_screen();
-	char* buf = "391OS> ";
-	char* read_buf;
-	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
-	terminal_key_write(1, buf, 7);
-	terminal_key_read(0, read_buf, 10);
-	terminal_key_write(1, read_buf, 10);
-};
 
 void terminal_wr_test1(){
 	clear_screen();
 	int i, j;
-	//char* buf = "391OS> "; 
-	//char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"; // 100
-	//char* buf = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111188888888"; //128
-	//char* buf = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111887888889999"; //128 + more
-	char read_buf[128];
-	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	char* buf = "391OS> "; 
 	
-	//terminal_key_write(1, buf, 7);
+	char read_buf[128];
+	
+	terminal_key_open();
+
+	terminal_key_write(0, buf, 7);
+
 	i = terminal_key_read(0, read_buf, 128);
-	printf("%d \n", i);
-	j = terminal_key_write(1, read_buf, 128);
-	/* for (i = 0; i < 100; i++){
-		putc(read_buf[i]);
-	} */
+
+	j = terminal_key_write(0, read_buf, 128);
+
+	terminal_key_close();
+
 }; 
+
+void terminal_wr_test2(){
+	clear_screen();
+	// to pass, should not print the 9's in string
+	// buffer size 140
+	char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111118888here9999"; //140
+	
+	terminal_key_open();
+
+	printf("test nbytes 128 \n");
+	terminal_key_write(0, buf, 128);
+
+	printf("\ntest nbytes 140 \n");
+	terminal_key_write(0, buf, 140);
+
+	terminal_key_close();
+
+}; 
+
+
+void terminal_wr_test3(){
+	clear_screen();
+
+	char* buf = "EdwardOS > "; 
+	
+	char read_buf[128];
+	
+	terminal_key_open();
+
+	while(1){
+	terminal_key_write(0, buf, 11);
+
+	terminal_key_read(0, read_buf, 128);
+
+	terminal_key_write(0, read_buf, 128);
+	}
+	terminal_key_close();
+
+}; 
+
 
 void RTC_test(){
 	asm volatile("int $40");
@@ -347,10 +367,12 @@ void launch_tests(){
 	//mem_test_kernel_outside_3();
 	
 	// launch your tests here
-	//terminal_key_write_test(); // works
-	//key_test(); // page fault exception
-	//terminal_key_write_read_test();
-	terminal_wr_test1();
+
+	//terminal_wr_test1();
+
+	//terminal_wr_test2();
+
+	terminal_wr_test3();
 
 	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 }

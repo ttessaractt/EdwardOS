@@ -6,7 +6,7 @@
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
-#define ATTRIB      0xD // 0x7 is light grey
+#define ATTRIB      0xB // 0x7 is light grey
 
 static int screen_x;
 static int screen_y;
