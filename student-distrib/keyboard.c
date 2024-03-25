@@ -294,10 +294,10 @@ int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes){
         nbytes = 128;
     }
     for (i = 0; i < nbytes; i++){
-        if (buf[i] != '\n'){
+        if ((buf[i] != '\n') && (buf[i] != '\0')){
             putc(buf[i]);
         }
-        else{
+        else if (buf[i] == '\n'){
             putc(buf[i]);
             return i;
         }

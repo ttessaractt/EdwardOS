@@ -148,7 +148,7 @@ void terminal_wr_test1(){
 	//char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"; // 100
 	//char* buf = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111188888888"; //128
 	//char* buf = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111887888889999"; //128 + more
-	char* read_buf[128];
+	char read_buf[128];
 	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
 	
 	//terminal_key_write(1, buf, 7);
@@ -269,6 +269,42 @@ void mem_test_change_memory(int addr){
 	printf("after: %x \n", *ptr);
 }
 
+//print characters at all of the frequencies that are powers of 2 between 2 and 2024 
+//tests RTC_open, RTC_close, RTC_read, RTC_write, and RTC_freqeuency
+//if all functions work they should return 0 so result will be 0 if all correct,
+//watching terminal display needed to fully test
+int RTC_freq_RW_test(){
+	TEST_HEADER;
+	//go through frequencies 
+	int32_t i, a;
+	int32_t fd;
+	int result = 0;
+	int final;
+	const void* buf;
+	clear_screen();							//clear screen
+	fd = RTC_open((uint8_t*)"RTC");			//open RTC
+	result += fd; 
+	for (i = 2; i <=1024; i*=2){			//go through all specified frequencies (powers of 2)
+		buf = (void*)i;
+		result += RTC_write(fd, buf, 4);	//set frequency
+		for (a = 0; a < i; a++){
+			result += RTC_read(fd,0,0);		//wait until interrupt occurs
+			printf("1");                //show the interrupt occured in terminal
+		}
+		printf("\n");						//seperate frequencies with a new line
+	}
+	result += RTC_close(fd);				//close RTC
+
+	//test if everything works
+	if (result != 0){					
+		assertion_failure();
+		final = FAIL;
+	}
+	else{
+		final = PASS;
+	}
+	return final;
+};
 
 
 // add more tests here
@@ -314,5 +350,7 @@ void launch_tests(){
 	//terminal_key_write_test(); // works
 	//key_test(); // page fault exception
 	//terminal_key_write_read_test();
-	terminal_wr_test1();
+	//terminal_wr_test1();
+
+	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 }
