@@ -1,6 +1,8 @@
 #include "types.h"
 #include "lib.h"
 
+#define BLOCK_LENGTH 4096
+
 typedef union dentry_t {
   struct {
     int8_t file_name[33];

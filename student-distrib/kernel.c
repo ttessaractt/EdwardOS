@@ -192,8 +192,8 @@ void entry(unsigned long magic, unsigned long addr) {
     enable_cursor(13, 14);
 
     // file system 
-    //directory_read();
-    file_read("cat");
+    directory_read();
+    //file_read("frame1.txt");
 
 
     /* Enable interrupts */
