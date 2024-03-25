@@ -239,14 +239,16 @@ void mem_test_change_memory(int addr){
 //powers of 2 between 2 and 2024 
 void RTC_freq_RW_test(){
 	//go through frequencies 
-	int32_t i, a, b;
+	int32_t i, a;
 	int32_t fd;
 	const void* buf;
 	clear_screen();
-	uint8_t* rtc = "RTC";
-	fd = RTC_open(rtc);
+	fd = RTC_open((uint8_t*)"RTC");
+	if (fd != 0){
+		printf("error!\n");
+	}
 	for (i = 2; i <=1024; i*=2){
-		buf = i;
+		buf = (void*)i;
 		RTC_write(fd, buf, 4);
 		for (a = 0; a < i; a++){
 			RTC_read(fd,0,0);
@@ -259,7 +261,15 @@ void RTC_freq_RW_test(){
 };
 
 
+void test2(){
+	clear_screen();
+RTC_read(0,0,0);
+RTC_read(0,0,0);
+RTC_read(0,0,0);
+RTC_read(0,0,0);
+RTC_read(0,0,0);
 
+}
 /* Checkpoint 3 tests */
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
@@ -277,6 +287,7 @@ void launch_tests(){
 	//key_test();
 	//clear();
 	//RTC_test();
+	//test2();
 	RTC_freq_RW_test();
 	//RTC_freq_RW_test();
 	//while(1){

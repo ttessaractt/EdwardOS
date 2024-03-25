@@ -5,7 +5,7 @@
 #include "idt.h"
 
 //flag for RTC_read()
-int volatile interrupt_occured = -1;
+int volatile interrupt_occured = 0;
 int volatile freqency = 2;
 int volatile rtc_count = 0;
 //int volatile diff = MAX_FREQ/freqency;
@@ -21,10 +21,15 @@ void RTC_init(){
     cli();          //disable interrupts
     NMI_disable();  //disable NMI
     outb(REG_B, RTC_PORT1);
-    char prev = inb(RTC_PORT2);
-    outb(0x8B, 0x70);
-    outb(prev|0x40, 0x71);
-    enable_irq(0x08);
+    char prev = inb(RTC_PORT2);     //read current value of register B
+    outb(0x8B, 0x70);               //set the index again
+    outb(prev | 0x40, 0x71);          //turn on bit 6
+    outb(REG_C, RTC_PORT1);	// select register C
+    inb(RTC_PORT2);		// just throw away contents
+    enable_irq(0x08);               //enable irq 8
+    //enable_irq(0x02);
+    //make sure we get another interrupt
+    
     NMI_enable();   //enable NMI
     sti(); 
 };
@@ -40,14 +45,19 @@ void RTC_handler(){
     //cli_and_save(flags); //might need to be cli_and_save() ? but not sure
     cli();
     NMI_disable();  //disable NMI
+    outb(REG_C, RTC_PORT1);	// select register C
+    inb(RTC_PORT2);		// just throw away contents
 
-    rtc_count++;    //increment rtc_count at every interrupt
+    //rtc_count++;    //increment rtc_count at every interrupt
     //interrupt has occured
-    interrupt_occured = 0;
+    interrupt_occured = 1;
     //handler stuff
 
     //printf("RTC interrupt\n");
     //test_interrupts();
+    //outb(REG_B, RTC_PORT1);     //set index to register A
+    //char prev = inb(RTC_PORT2);	// get initial value of register A
+    //printf("reg B: %d\n", prev);
 
     printf("1");
     
@@ -56,9 +66,13 @@ void RTC_handler(){
     inb(RTC_PORT2);		// just throw away contents
     //enable other interrupts
     //restore_flags(flags);
-    send_eoi(0x08);
+    send_eoi(8);
+    //send_eoi(0x02);
+    //send_eoi(1);
     NMI_enable();   //enable NMI
     sti(); 
+    //send_eoi(0x08);
+    //send_eoi(0x02);
     
 };
 
@@ -163,9 +177,8 @@ named file, allocate an unused file descriptor, and set up any data necessary to
 RTC device, or regular file). If the named file does not exist or no descriptors are free, the call returns -1.
 */
 int32_t RTC_open(const uint8_t* filename){
-    enable_irq(0x08);
-
     //set frequency to 2Hz
+    interrupt_occured = 0;
     return RTC_frequency((int32_t)2);      //hypothetically (needs testing) set freq to 2Hz
 
     //return 0;
@@ -180,12 +193,16 @@ For the real-time clock (RTC), this call should always return 0, but only after 
 occurred (set a flag and wait until the interrupt handler clears it, then return 0). 
 */
 int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
-    interrupt_occured = 1;
-
-    printf("waiting read\n");
-    while (interrupt_occured != 0);    //wait until interrupt is called
-    
-    printf("done read\n");
+    interrupt_occured = 0;
+    //outb(REG_B, RTC_PORT1);     //set index to register A
+    //char prev = inb(RTC_PORT2);	// get initial value of register A
+    //printf("reg B: %d\n", prev);
+    //printf("waiting read\n");
+    while (interrupt_occured != 1){
+        //printf("2");
+    };    //wait until interrupt is called
+    //interrupt_occured = 1;
+    //printf("done read\n");
     return 0;
 };
 
