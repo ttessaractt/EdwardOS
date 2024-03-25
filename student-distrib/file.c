@@ -1,119 +1,49 @@
 #include "types.h"
 #include "file.h"
+#include "kernel.h"
 
-//return 0 for success, -1 for failure
-
-unsigned long addr;
-
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
 uint32_t file_open(const uint8_t* fnamme, dentry_t* dentry){
     read_dentry_by_name(fnamme, dentry);
     return 0;
 }
 
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
 uint32_t file_close(){
     return 0;
 }
 
-/*
- *  file_read
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
 uint32_t file_read(const uint8_t* fname, dentry_t* dentry){
 
     return 0;
 }
 
-/*
- *  file_write
- *  Description: write to file (does nothing)
- *  Input:
- *  Output: -1
- *  Return Value: -1
- *  Side Effects: 
-*/
+/* done */
 uint32_t file_write(){
     return -1;
 }
 
-
-
-
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
 uint32_t directory_open(){
     return 0;
 }
 
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
+/* done */
 uint32_t directory_close(){
     return 0;
 }
 
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
+
 uint32_t directory_read(){
 
     return 0;
 }
 
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
+/* done */
 uint32_t directory_write(){
-    return 0;
+    return -1;
 }
 
 /*
- *  read_dentry_by_name
- *  Description: 
- *  Input: 
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
+When successful, the first two calls fill in the dentry t block passed as their second argument with the file name, file
+type, and inode number for the file, then return 0. 
 */
 uint32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
     //if file name is invalid
@@ -129,29 +59,15 @@ uint32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
     return 0;
 }
 
-/*
- *  read_dentry_by_index
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
 uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
     dentry->inode_num = index;
     return 0;
     
 }
 
-/*
- *  
- *  Description: 
- *  Input:
- *  Output: 
- *  Return Value: 
- *  Side Effects: 
-*/
 uint32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length){
 
+    // inode = inode number
+    // 
     return 0;
 }

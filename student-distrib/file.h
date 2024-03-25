@@ -13,7 +13,7 @@ typedef union dentry_t {
 typedef union boot_block {
   struct {
     uint32_t num_dentries;
-    uint32_t inodes;
+    uint32_t num_inodes;
     uint32_t data_blocks;
     char reserved[52];
     dentry_t dentries[63];  
@@ -23,14 +23,14 @@ typedef union boot_block {
 typedef union inode {
   struct {
     int32_t length;
-    int32_t data_block[15];
+    int32_t data_block[1023];
   } __attribute__((packed));
 } inode;
 
 uint32_t file_open();
 uint32_t file_close();
 uint32_t file_read();
-uint32_t file_read();
+uint32_t file_write();
 
 uint32_t directory_open();
 uint32_t directory_close();
