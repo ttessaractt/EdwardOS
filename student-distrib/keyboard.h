@@ -52,7 +52,7 @@ int terminal_can_read;
 char keyboard_buffer[128];
 
 
-int buffer_postion;
+int buffer_position;
 
 
 

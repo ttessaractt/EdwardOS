@@ -84,7 +84,7 @@ void keyboard_handler(){
         good_index = 1;
         BACKSP_CHECK = 1;
         removec(p); // change from p
-        keyboard_buffer[buffer_postion] = 'P';
+        keyboard_buffer[buffer_position] = 'P';
     }
     else if(key == 0x8E){
         BACKSP_CHECK = 0;
@@ -125,8 +125,8 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
-                    buffer_postion--;
-                    //keyboard_buffer[buffer_postion] = 'P';
+                    buffer_position--;
+                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
         else{
@@ -150,8 +150,8 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
-                    buffer_postion--;
-                    //keyboard_buffer[buffer_postion] = 'P';
+                    buffer_position--;
+                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
     }
@@ -178,8 +178,8 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
-                    buffer_postion--;
-                    //keyboard_buffer[buffer_postion] = 'P';
+                    buffer_position--;
+                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
         else{
@@ -203,8 +203,8 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
-                    buffer_postion--;
-                    //keyboard_buffer[buffer_postion] = 'P';
+                    buffer_position--;
+                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
     }
@@ -213,37 +213,46 @@ void keyboard_handler(){
 
         if (tab_c){
             for (j = 0; j < 4; j++){
-                if ((buffer_postion == 127) && (p == '\n')){ // max size
+                if ((buffer_position == 127) && (p == '\n')){ // max size
                     send_eoi(1);
                     return; 
                 }
                 putc(p);
-                keyboard_buffer[buffer_postion] = p;
-                buffer_postion++;
+                keyboard_buffer[buffer_position] = p;
+                buffer_position++;
         
                 if (p == '\n'){
                     //printf("enter!!");
                     terminal_can_read = 1;
-                    buffer_postion = 0;    
+                    buffer_position = 0;    
+                }
+                else{
+                    terminal_can_read = 0;
                 }
 
             }
             
         }
         else{
-            if ((buffer_postion == 127) && (p == '\n')){ // max size
+            if (buffer_position == 127){
+                printf("we got here");
+            }
+            if ((buffer_position == 127) && (p == '\n')){ // max size
                 send_eoi(1);
                 return; 
             }
             putc(p);
-            keyboard_buffer[buffer_postion] = p;
-            buffer_postion++;
+            keyboard_buffer[buffer_position] = p;
+            buffer_position++;
         
             if (p == '\n'){
                 //printf("enter!!");
                 terminal_can_read = 1;
-                buffer_postion = 0;    
+                buffer_position = 0;    
             }
+            else{
+                    terminal_can_read = 0;
+                }
         }
     }
    

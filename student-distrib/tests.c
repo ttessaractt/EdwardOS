@@ -137,8 +137,8 @@ void terminal_key_write_read_test(){
 	char* read_buf;
 	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
 	terminal_key_write(1, buf, 7);
-	terminal_key_read(0, read_buf, 10);
-	terminal_key_write(1, read_buf, 10);
+	terminal_key_read(0, read_buf, 50);
+	terminal_key_write(1, read_buf, 50);
 };
 
 void RTC_test(){
@@ -294,5 +294,5 @@ void launch_tests(){
 	// launch your tests here
 	//terminal_key_write_test(); // works
 	//key_test(); // page fault exception
-	//terminal_key_write_read_test();
+	terminal_key_write_read_test();
 }
