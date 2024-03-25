@@ -137,9 +137,28 @@ void terminal_key_write_read_test(){
 	char* read_buf;
 	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
 	terminal_key_write(1, buf, 7);
-	terminal_key_read(0, read_buf, 50);
-	terminal_key_write(1, read_buf, 50);
+	terminal_key_read(0, read_buf, 10);
+	terminal_key_write(1, read_buf, 10);
 };
+
+void terminal_wr_test1(){
+	clear_screen();
+	int i, j;
+	//char* buf = "391OS> "; 
+	//char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"; // 100
+	//char* buf = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111188888888"; //128
+	//char* buf = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111887888889999"; //128 + more
+	char* read_buf[128];
+	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	
+	//terminal_key_write(1, buf, 7);
+	i = terminal_key_read(0, read_buf, 128);
+	printf("%d \n", i);
+	j = terminal_key_write(1, read_buf, 128);
+	/* for (i = 0; i < 100; i++){
+		putc(read_buf[i]);
+	} */
+}; 
 
 void RTC_test(){
 	asm volatile("int $40");
@@ -294,5 +313,6 @@ void launch_tests(){
 	// launch your tests here
 	//terminal_key_write_test(); // works
 	//key_test(); // page fault exception
-	terminal_key_write_read_test();
+	//terminal_key_write_read_test();
+	terminal_wr_test1();
 }

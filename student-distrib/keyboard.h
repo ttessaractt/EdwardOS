@@ -72,7 +72,7 @@ extern void keyboard_init();
 
 
 // terminal_read
-int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes);
+int32_t terminal_key_read(int32_t fd, char* buffer, int32_t nbytes);
 
 // terminal_write
 int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes);

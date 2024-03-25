@@ -213,12 +213,13 @@ void keyboard_handler(){
 
         if (tab_c){
             for (j = 0; j < 4; j++){
-                if ((buffer_position == 127) && (p == '\n')){ // max size
+                if ((buffer_position == 127) && (p != '\n')){ // max size
                     send_eoi(1);
                     return; 
                 }
-                putc(p);
+                //putc(p);
                 keyboard_buffer[buffer_position] = p;
+                putc(keyboard_buffer[buffer_position]);
                 buffer_position++;
         
                 if (p == '\n'){
@@ -234,15 +235,17 @@ void keyboard_handler(){
             
         }
         else{
-            if (buffer_position == 127){
+            /* if (buffer_position == 127){
                 printf("we got here");
-            }
-            if ((buffer_position == 127) && (p == '\n')){ // max size
+            } */
+            if ((buffer_position == 127) && (p != '\n')){ // max size
                 send_eoi(1);
                 return; 
             }
-            putc(p);
+            //putc(p);
             keyboard_buffer[buffer_position] = p;
+            putc(keyboard_buffer[buffer_position]);
+            //printf("%d", buffer_position);
             buffer_position++;
         
             if (p == '\n'){
@@ -262,23 +265,24 @@ void keyboard_handler(){
 
 // still need terminal open close
 
-int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes){
+int32_t terminal_key_read(int32_t fd, char* buffer, int32_t nbytes){
     int i = 0;
     while(terminal_can_read == 0){}; //wait
 
     for(i = 0; i < nbytes; i++){
 
         if (i > 127){
-            return nbytes;
+            return i;
         }
 
         if (keyboard_buffer[i] != '\n'){
-            buf[i] = keyboard_buffer[i];
+            buffer[i] = keyboard_buffer[i];
         }
         else{
-            buf[i] = keyboard_buffer[i];
-            return nbytes;
+            buffer[i] = keyboard_buffer[i];
+            return i;
         }
+        //printf("%d", i);
     }
 
     return nbytes;
@@ -286,10 +290,18 @@ int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes){
 
 int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes){
     int i = 0;
-    for (i = 0; i < nbytes; i++){
-        putc(buf[i]);
+    if (nbytes > 128){
+        nbytes = 128;
     }
-
+    for (i = 0; i < nbytes; i++){
+        if (buf[i] != '\n'){
+            putc(buf[i]);
+        }
+        else{
+            putc(buf[i]);
+            return i;
+        }
+    }
     return nbytes;
 
 
