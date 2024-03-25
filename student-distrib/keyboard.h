@@ -28,34 +28,38 @@
 #define M_INDEX         50 // 0x32
 #define QUESTION_INDEX  53 // 0x32
 
-
 #define CAPS_INDEX      58 // 0x3A
+#define CTRL_INDEX      29 // 0x1D
+#define CTRL_BREAK      157 // 0x9D
+#define LSHIFT_INDEX    42 // 0x2A
+#define RSHIFT_INDEX    54 // 0x36
+#define LSHIFT_BREAK    170 // 0xAA
+#define RSHIFT_BREAK    182 // 0xB6
+#define TAB_INDEX       15 // 0xF
 
+#define ENTER_INDEX     28 // 0x1C
+#define SPACE_INDEX     57 // 0x39
+
+#define MAX_BUF_SIZE    128
 
 #define KEYBOARD_DATA       0x60 // port to get scan code from keyboard
 
 
 int good_index; // within bounds of characters to type
 
-int tab_c;
+int CAPS_CHECK; // capslock toggle
 
-int CAPS_CHECK;
+int SHIFT_CHECK; // shift pressed
 
-int SHIFT_CHECK;
+int CTRL_CHECK; // control pressed
 
-int CTRL_CHECK;
+int TAB_CHECK; // tab was pressed
 
-int TAB_CHECK;
+int terminal_can_read; // terminal read allowed
 
-int terminal_can_read;
+char keyboard_buffer[MAX_BUF_SIZE]; // keyboard buffer size 128
 
-char keyboard_buffer[128];
-
-
-int buffer_position;
-
-
-
+int buffer_position; // keyboard buffer index
 
 
 /* handles printing key pressed to screen */
@@ -66,17 +70,15 @@ extern void keyboard_handler();
 extern void keyboard_init();
 
 
-
-
 // terminal_open
-
+int32_t terminal_key_open();
 
 // terminal_read
-int32_t terminal_key_read(int32_t fd, char* buffer, int32_t nbytes);
+int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes);
 
 // terminal_write
 int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes);
 
 // terminal_close
-
+int32_t terminal_key_close();
 

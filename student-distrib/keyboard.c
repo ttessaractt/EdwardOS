@@ -27,13 +27,13 @@ void keyboard_init(){
  *  Return: none
  */
 void keyboard_handler(){
-    // warning: don't try to print just a space
+
+    /* lookup tables for all characters */
     static char lookup[] = "..1234567890-=..qwertyuiop[]..asdfghjkl;\'`.\\zxcvbnm,./"; // lookup table of characters based on keyboard scan code
     static char lookup_cap[] = "..1234567890-=..QWERTYUIOP[]..ASDFGHJKL;\'`.\\ZXCVBNM,./"; // lookup table for capital letters
     static char lookup_shift[] = "..!@#$%^&*()_+..QWERTYUIOP{}..ASDFGHJKL:\"~.|ZXCVBNM<>?"; // lookup table for shift letters
     static char lookup_cap_shift[] = "..!@#$%^&*()_+..qwertyuiop{}..asdfghjkl:\"~.|zxcvbnm<>?"; // lookup table for caps then shift letters
-    // add in space like ' '
-    // need to add control
+
     char space = ' ';
 
     char p;
@@ -44,51 +44,32 @@ void keyboard_handler(){
 
     uint32_t key = inb(KEYBOARD_DATA); // scan code from port x60
 
-
-    //printf("%x", key);
-    // 3A = caps
-    if (key == CAPS_INDEX){
+    
+    if (key == CAPS_INDEX){ // x3A = caps
         CAPS_CHECK = !CAPS_CHECK;
-        //printf("%d", CAPS);
     }
 
-    if ((key == 0x1D)){ // x1D = L and R control, 
+    if ((key == CTRL_INDEX)){ // x1D = L and R control 
         CTRL_CHECK = 1;
-        //printf("control ");
     }
-    else if ((key == 0x9D)){ // x9D
+    else if ((key == CTRL_BREAK)){ // x9D break
         CTRL_CHECK = 0;
-        //printf("control off ");
     }
 
-    // 2A = L shift, 36 = R shift
-    if ((key == 0x2A) || (key == 0x36)){
+    
+    if ((key == LSHIFT_INDEX) || (key == RSHIFT_INDEX)){ // x2A = L shift, x36 = R shift
         SHIFT_CHECK = 1;
-        //printf("shift ");
     }
-    else if ((key == 0xAA) || (key == 0xB6)){ // xAA, xB6 is break
+    else if ((key == LSHIFT_BREAK) || (key == RSHIFT_BREAK)){ // xAA, xB6 is break
         SHIFT_CHECK = 0;
-        //printf("shift off ");
     }
 
-    if ((key == 0xF)){
-        tab_c = 1;
-        //printf("shift ");
+    if ((key == TAB_INDEX)){ // xF = tab
+        TAB_CHECK = 1;
     }
-    else{ // xAA, xB6 is break
-        tab_c = 0;
-        //printf("shift off ");
+    else{
+        TAB_CHECK = 0;
     }
-   /*  if(key == BACKSP_INDEX){
-        // call some function?
-        good_index = 1;
-        BACKSP_CHECK = 1;
-        removec(p); // change from p
-        keyboard_buffer[buffer_position] = 'P';
-    }
-    else if(key == 0x8E){
-        BACKSP_CHECK = 0;
-    } */
 
 
     if (CTRL_CHECK){
@@ -101,131 +82,117 @@ void keyboard_handler(){
 
     }
 
-    if (CAPS_CHECK){
-    // checks if key is within bounds of numbers and lower case letters
-        if (SHIFT_CHECK){
-        // checks if key is within bounds of numbers and lower case letters
+    if (CAPS_CHECK){ // if capslock was toggled
+        if (SHIFT_CHECK){ // if press shift in capslock
+            // checks bounds of key
             if (((ONE_INDEX <= key) && (key <= EQUALS_INDEX)) | ((Q_INDEX <= key) && (key <= BRACKET_INDEX)) | ((A_INDEX <= key) && (key <= TILDE_INDEX)) | ((BSLASH_INDEX <= key) && (key <= QUESTION_INDEX))){
                 p = lookup_cap_shift[key];
-                //printf("%c", p); 
                 good_index = 1;
             }
-            else if(key == 28){
+            else if(key == ENTER_INDEX){
                 p = '\n';
                 good_index = 1;
             }
-            else if(key == 57){
+            else if(key == SPACE_INDEX){
                 p = space;
                 good_index = 1;
             }
-            else if(key == 15){
+            else if(key == TAB_INDEX){
                 p = space;
                 good_index = 1;
-                //tab_c = 1;
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
                     buffer_position--;
-                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
-        else{
+        else{ // just capslock toggled
             if (((ONE_INDEX <= key) && (key <= EQUALS_INDEX)) | ((Q_INDEX <= key) && (key <= BRACKET_INDEX)) | ((A_INDEX <= key) && (key <= TILDE_INDEX)) | ((BSLASH_INDEX <= key) && (key <= QUESTION_INDEX))){
                 p = lookup_cap[key];
-                //printf("%c", p);
                 good_index = 1;
             }
-            else if(key == 28){
+            else if(key == ENTER_INDEX){
                 p = '\n';
                 good_index = 1;
             }
-            else if(key == 57){
+            else if(key == SPACE_INDEX){
                 p = space;
                 good_index = 1;
             }
-            else if(key == 15){
+            else if(key == TAB_INDEX){
                 p = space;
                 good_index = 1;
-                //tab_c = 1;
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
                     buffer_position--;
-                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
     }
-    else{
-        if (SHIFT_CHECK){
-        // checks if key is within bounds of numbers and lower case letters
+    else{ // capslock not toggled
+        if (SHIFT_CHECK){ // if shift pressed
+        // checks if key is within bounds
             if (((ONE_INDEX <= key) && (key <= EQUALS_INDEX)) | ((Q_INDEX <= key) && (key <= BRACKET_INDEX)) | ((A_INDEX <= key) && (key <= TILDE_INDEX)) | ((BSLASH_INDEX <= key) && (key <= QUESTION_INDEX))){
                 p = lookup_shift[key];
-                //printf("%c", p);
                 good_index = 1;
             }
-            else if(key == 28){
+            else if(key == ENTER_INDEX){
                 p = '\n';
                 good_index = 1;
             }
-            else if(key == 57){
+            else if(key == SPACE_INDEX){
                 p = space;
                 good_index = 1;
             }
-            else if(key == 15){
+            else if(key == TAB_INDEX){
                 p = space;
                 good_index = 1;
-                //tab_c = 1;
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
                     buffer_position--;
-                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
-        else{
+        else{ // shift not pressed
             if (((ONE_INDEX <= key) && (key <= EQUALS_INDEX)) | ((Q_INDEX <= key) && (key <= BRACKET_INDEX)) | ((A_INDEX <= key) && (key <= TILDE_INDEX)) | ((BSLASH_INDEX <= key) && (key <= QUESTION_INDEX))){
                 p = lookup[key];
-                //printf("%c", p);
                 good_index = 1;
             }
-            else if(key == 28){
+            else if(key == ENTER_INDEX){
                 p = '\n';
                 good_index = 1;
             }
-            else if(key == 57){
+            else if(key == SPACE_INDEX){
                 p = space;
                 good_index = 1;
             }
-            else if(key == 15){
+            else if(key == TAB_INDEX){
                 p = space;
                 good_index = 1;
-                //tab_c = 1;
             }
             else if(key == BACKSP_INDEX){
                     removec(p);
                     buffer_position--;
-                    //keyboard_buffer[buffer_position] = 'P';
             }
         }
     }
 
-    if (good_index){
+    if (good_index){ // if key was within bounds, allow to continue
 
-        if (tab_c){
-            for (j = 0; j < 4; j++){
-                if ((buffer_position == 127) && (p != '\n')){ // max size
+        if (TAB_CHECK){ // if a tab
+            for (j = 0; j < 4; j++){ // print space 4 times for a tab
+                if ((buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
                     send_eoi(1);
                     return; 
                 }
-                //putc(p);
+
                 keyboard_buffer[buffer_position] = p;
-                putc(keyboard_buffer[buffer_position]);
+                putc(keyboard_buffer[buffer_position]); // prints key
                 buffer_position++;
         
-                if (p == '\n'){
-                    //printf("enter!!");
-                    terminal_can_read = 1;
-                    buffer_position = 0;    
+                if (p == '\n'){ // if pressed enter
+                    terminal_can_read = 1; // allow terminal to read
+                    buffer_position = 0; // reset buffer position to 0    
                 }
                 else{
                     terminal_can_read = 0;
@@ -234,24 +201,19 @@ void keyboard_handler(){
             }
             
         }
-        else{
-            /* if (buffer_position == 127){
-                printf("we got here");
-            } */
-            if ((buffer_position == 127) && (p != '\n')){ // max size
+        else{ // not a tab
+            if ((buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
                 send_eoi(1);
                 return; 
             }
-            //putc(p);
+
             keyboard_buffer[buffer_position] = p;
-            putc(keyboard_buffer[buffer_position]);
-            //printf("%d", buffer_position);
+            putc(keyboard_buffer[buffer_position]); // prints key
             buffer_position++;
         
-            if (p == '\n'){
-                //printf("enter!!");
-                terminal_can_read = 1;
-                buffer_position = 0;    
+            if (p == '\n'){ // if pressed enter
+                terminal_can_read = 1; // allow terminal to read
+                buffer_position = 0; // reset buffer position to 0    
             }
             else{
                     terminal_can_read = 0;
@@ -263,46 +225,83 @@ void keyboard_handler(){
    
 };
 
-// still need terminal open close
 
-int32_t terminal_key_read(int32_t fd, char* buffer, int32_t nbytes){
+
+/* terminal_key_open
+ *  Functionality: Open terminal
+ *  Arguments: None
+ *  Return: None
+ */
+int32_t terminal_key_open(){
+    return 0;
+}
+
+
+/* terminal_key_read
+ *  Functionality: Reads from the keyboard buffer once enter was pressed.
+ *  Arguments: fd: file directory (not used right now)
+ *             buf: buffer to read to
+ *             nbytes: number of bytes to read 
+ *  Return: number of bytes read
+ */
+int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes){
+
     int i = 0;
-    while(terminal_can_read == 0){}; //wait
+
+    while(terminal_can_read == 0){}; //wait until enter pressed
 
     for(i = 0; i < nbytes; i++){
 
-        if (i > 127){
+        if (i > (MAX_BUF_SIZE - 1)){
             return i;
         }
 
         if (keyboard_buffer[i] != '\n'){
-            buffer[i] = keyboard_buffer[i];
+            buf[i] = keyboard_buffer[i];
         }
         else{
-            buffer[i] = keyboard_buffer[i];
+            buf[i] = keyboard_buffer[i]; // returns when key buffer is enter
             return i;
         }
-        //printf("%d", i);
     }
 
     return nbytes;
+
 }
 
+/* terminal_key_write
+ *  Functionality: Print buffer to the terminal screen.
+ *  Arguments: fd: file directory (not used right now)
+ *             buf: buffer used to output on screen
+ *             nbytes: number of bytes to write 
+ *  Return: number of bytes written
+ */
 int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes){
+    
     int i = 0;
-    if (nbytes > 128){
-        nbytes = 128;
+
+    if (nbytes > MAX_BUF_SIZE){
+        nbytes = MAX_BUF_SIZE;
     }
     for (i = 0; i < nbytes; i++){
-        if (buf[i] != '\n'){
+        if ((buf[i] != '\n') && (buf[i] != '\0')){ // only prints characters
             putc(buf[i]);
         }
-        else{
+        else if (buf[i] == '\n'){ // returns when end of buffer (the new line)
             putc(buf[i]);
             return i;
         }
     }
+
     return nbytes;
 
+}
 
+/* terminal_key_close
+ *  Functionality: Close terminal
+ *  Arguments: None
+ *  Return: None
+ */
+int32_t terminal_key_close(){
+    return 0;
 }

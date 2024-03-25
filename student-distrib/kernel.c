@@ -14,6 +14,9 @@
 
 #define RUN_TESTS
 
+#define CURSOR_START    13
+#define CURSOR_END      14
+
 /* Macros. */
 /* Check if the bit BIT in FLAGS is set. */
 #define CHECK_FLAG(flags, bit)   ((flags) & (1 << (bit)))
@@ -178,7 +181,7 @@ void entry(unsigned long magic, unsigned long addr) {
     load_page_dir(page_directory);
     enable_paging(); // enable paging last
 
-    enable_cursor(13, 14);
+    enable_cursor(CURSOR_START, CURSOR_END);
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
