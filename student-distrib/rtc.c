@@ -40,7 +40,7 @@ void RTC_handler(){
     inb(RTC_PORT2);		        // just throw away contents
     //interrupt handling
     interrupt_occured = 1;      //set interrupt_occured flag
-    printf("1");                //show the interrupt occured in terminal
+    //printf("1");                //show the interrupt occured in terminal
     send_eoi(8);                //signal end of interrupt to PIC
     //enable interrupts
     NMI_enable();               //enable NMI

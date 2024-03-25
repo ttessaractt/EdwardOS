@@ -6,7 +6,7 @@
 #define VIDEO       0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
-#define ATTRIB      0x7
+#define ATTRIB      0xD // 0x7 is light grey
 
 static int screen_x;
 static int screen_y;
@@ -36,30 +36,8 @@ void clear_screen(void) {
     }
     screen_x = 0;
     screen_y = 0;
+    update_cursor(screen_x, screen_y);
 }
-
-/* void remove();
- * Inputs: none
- * Return Value: void
- *  Function: remove a character from the console */
-void removec(uint8_t c) {
-    //if(c == tab) {
-        //screen_y++;
-        //screen_x = 0;
-    //} 
-    //else {
-        screen_x--;
-        if (screen_x < 0){
-            screen_x = 0; // make sure backspace doesn't go out of bounds
-        }
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
-    //}
-}
-
 
 /* Standard printf().
  * Only supports the following format strings:
@@ -207,14 +185,88 @@ int32_t puts(int8_t* s) {
 void putc(uint8_t c) {
     if(c == '\n' || c == '\r') {
         screen_y++;
+        if (screen_y == 25){
+            screen_y = 24;
+            SCROLLING = 1;
+        }
+        else{
+            SCROLLING = 0;
+        }
         screen_x = 0;
+        update_cursor(screen_x, screen_y);
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
+        screen_x++; // when x = 80, x % cols = 0, x / cols = 1
+        if (screen_x >= 80 ){
+            screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS) + 1) % NUM_ROWS;
+            screen_y = (screen_y + (screen_x / NUM_COLS) + 1);
+            if (screen_y >= 25){
+                screen_y = 24;
+                SCROLLING = 1;
+            }
+            else{
+                screen_y = screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        else{
+            screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            screen_y = (screen_y + (screen_x / NUM_COLS));
+            if (screen_y >= 25){
+                screen_y = 24;
+                SCROLLING = 1;
+            }
+            else{
+                screen_y = screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        
+        update_cursor(screen_x, screen_y);
+
+        
+        
+    }
+    int32_t i;
+    if (SCROLLING){
+            for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+            if (i + 80 < 2000){    
+                *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + 80) << 1));
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            else{
+                *(uint8_t *)(video_mem + (i << 1)) = ' ';
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            }
+        }
+    
+}
+
+/* void remove();
+ * Inputs: none
+ * Return Value: void
+ *  Function: remove a character from the console */
+void removec(uint8_t c) {
+    //if(c == tab) {
+        //screen_y++;
+        //screen_x = 0;
+    //} 
+    //else {
+        screen_x--;
+        if (screen_x < 0){
+            screen_x = 0; // make sure backspace doesn't go out of bounds
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+        
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
-    }
+        update_cursor(screen_x, screen_y);
+    //}
 }
 
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
@@ -511,3 +563,4 @@ void test_interrupts(void) {
         video_mem[i << 1]++;
     }
 }
+

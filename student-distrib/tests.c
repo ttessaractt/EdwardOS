@@ -4,6 +4,7 @@
 #include "idt.h"
 #include "rtc.h"
 #include "i8259.h"
+#include "keyboard.h"
 
 #define PASS 1
 #define FAIL 0
@@ -235,6 +236,44 @@ void mem_test_change_memory(int addr){
 
 /* Checkpoint 2 tests */
 
+void terminal_key_write_test(){
+	char* buf = "391OS> ";
+	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	terminal_key_write(1, buf, 7);
+};
+
+void terminal_key_write_read_test(){
+	clear_screen();
+	char* buf = "391OS> ";
+	char* read_buf;
+	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	terminal_key_write(1, buf, 7);
+	terminal_key_read(0, read_buf, 10);
+	terminal_key_write(1, read_buf, 10);
+};
+
+void terminal_wr_test1(){
+	clear_screen();
+	int i, j;
+	//char* buf = "391OS> "; 
+	//char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"; // 100
+	//char* buf = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111188888888"; //128
+	//char* buf = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111887888889999"; //128 + more
+	char* read_buf[128];
+	//char* buf = "peepepoopoo hehehe :) WOW !!*"; // tab is weird
+	
+	//terminal_key_write(1, buf, 7);
+	i = terminal_key_read(0, read_buf, 128);
+	printf("%d \n", i);
+	j = terminal_key_write(1, read_buf, 128);
+	/* for (i = 0; i < 100; i++){
+		putc(read_buf[i]);
+	} */
+}; 
+
+
+
+
 //print characters at all of the frequencies that are powers of 2 between 2 and 2024 
 //tests RTC_open, RTC_close, RTC_read, RTC_write, and RTC_freqeuency
 //if all functions work they should return 0 so result will be 0 if all correct,
@@ -255,6 +294,7 @@ int RTC_freq_RW_test(){
 		result += RTC_write(fd, buf, 4);	//set frequency
 		for (a = 0; a < i; a++){
 			result += RTC_read(fd,0,0);		//wait until interrupt occurs
+			printf("1");                //show the interrupt occured in terminal
 		}
 		printf("\n");						//seperate frequencies with a new line
 	}
@@ -307,7 +347,8 @@ void launch_tests(){
 	// launch your tests here
 
 	//CHECKPOINT 2
-	//RTC_freq_RW_test();
 	TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
-	
+	//terminal_key_write_test();
+	//terminal_key_write_read_test();
+	//terminal_wr_test1();
 }

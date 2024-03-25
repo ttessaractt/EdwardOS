@@ -159,7 +159,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //printf("end TSS construct\n");
 
     /* Init the PIC */
-    //printf("init PIC\n");
+    printf("init PIC\n");
     i8259_init();
 
 
@@ -178,7 +178,7 @@ void entry(unsigned long magic, unsigned long addr) {
     load_page_dir(page_directory);
     enable_paging(); // enable paging last
 
-
+    enable_cursor(13, 14);
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
@@ -198,3 +198,4 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }
+
