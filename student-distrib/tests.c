@@ -235,31 +235,33 @@ void mem_test_change_memory(int addr){
 
 /* Checkpoint 2 tests */
 
-//print characters at all of the frequencies they tell us to do
-//powers of 2 between 2 and 2024 
+//print characters at all of the frequencies that are powers of 2 between 2 and 2024 
+//tests RTC_open, RTC_close, RTC_read, RTC_write, and RTC_freqeuency
+//if all functions work they should return 0 so result will be 0 if all correct,
+//watching terminal display needed to fully test
 int RTC_freq_RW_test(){
 	TEST_HEADER;
-
 	//go through frequencies 
 	int32_t i, a;
 	int32_t fd;
 	int result = 0;
 	int final;
 	const void* buf;
-	clear_screen();
-	fd = RTC_open((uint8_t*)"RTC");		//open RTC
+	clear_screen();							//clear screen
+	fd = RTC_open((uint8_t*)"RTC");			//open RTC
 	result += fd; 
-	for (i = 2; i <=1024; i*=2){		//go through all specified frequencies (powers of 2)
+	for (i = 2; i <=1024; i*=2){			//go through all specified frequencies (powers of 2)
 		buf = (void*)i;
-		result += RTC_write(fd, buf, 4);			//set frequency
+		result += RTC_write(fd, buf, 4);	//set frequency
 		for (a = 0; a < i; a++){
-			result += RTC_read(fd,0,0);			//wait until interrupt occurs
+			result += RTC_read(fd,0,0);		//wait until interrupt occurs
 		}
-		printf("\n");					//seperate frequencies with a new line
+		printf("\n");						//seperate frequencies with a new line
 	}
-	result += RTC_close(fd);			//close RTC
+	result += RTC_close(fd);				//close RTC
 
-	if (result != 0){						//check open works
+	//test if everything works
+	if (result != 0){					
 		assertion_failure();
 		final = FAIL;
 	}
