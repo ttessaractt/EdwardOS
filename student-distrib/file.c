@@ -8,7 +8,7 @@ inode cur_file_det;
 data_block data_buffer;
 
 /* uint32_t file_open(const int8_t* fname);
- * Description: 
+ * Description: opens a file 
  * Inputs:
  * Return Value:
  * Function:
@@ -17,7 +17,7 @@ uint32_t file_open(const int8_t* fname){
     read_dentry_by_name(fname, &cur_file);
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
         (cur_file.inode_num * BLOCK_LENGTH);
-    memcpy(&cur_file_det.length, inode_addr, 4);
+    memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
     return 0;
 }
 
@@ -32,10 +32,10 @@ uint32_t file_close(){
 }
 
 /* uint32_t file_read(const int8_t* fname);
- * Description: 
- * Inputs:
- * Return Value:
- * Function:
+ * Description: reads a file and holds its contents
+ * Inputs: const int8_t* fname = file name 
+ * Return Value: 0
+ * Function: reads a file
  */
 uint32_t file_read(const int8_t* fname){
     file_open(fname);
@@ -47,10 +47,10 @@ uint32_t file_read(const int8_t* fname){
 }
 
 /* uint32_t file_write();
- * Description: 
- * Inputs:
- * Return Value:
- * Function:
+ * Description: writes a file
+ * Inputs: none
+ * Return Value: -1
+ * Function: nothing
  */
 uint32_t file_write(){
     return -1;
@@ -60,7 +60,7 @@ uint32_t file_write(){
  * Description: 
  * Inputs:
  * Return Value:
- * Function:
+ * Function: nothing
  */
 uint32_t directory_open(){
     return 0;
@@ -69,23 +69,23 @@ uint32_t directory_open(){
 /* uint32_t directory_close();
  * Description: 
  * Inputs:
- * Return Value:
- * Function:
+ * Return Value: 0
+ * Function: nothing
  */
 uint32_t directory_close(){
     return 0;
 }
 
 /* uint32_t directory_read();
- * Description: 
- * Inputs:
- * Return Value:
- * Function:
+ * Description: shows all the files, their file types and size in terminal
+ * Inputs: none
+ * Return Value: 0
+ * Function: shows files and their details
  */
 uint32_t directory_read(){
     unsigned int i;
     unsigned int num_dir_entries;
-    memcpy(&num_dir_entries, (int8_t*)boot_block_addr, 4);
+    memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
 
     clear_screen();
 
@@ -98,7 +98,7 @@ uint32_t directory_read(){
         int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
             (cur_dir.inode_num * BLOCK_LENGTH);
         uint32_t file_size;
-        memcpy(&file_size, inode_addr, 4);
+        memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
 
         /* print values to terminal */
         printf("file name: ");
@@ -114,44 +114,45 @@ uint32_t directory_read(){
 }
 
 /* uint32_t directory_write();
- * Description: 
- * Inputs:
- * Return Value:
- * Function:
+ * Description: write to directory
+ * Inputs: 
+ * Return Value: -1
+ * Function: nothing
  */
 uint32_t directory_write(){
     return -1;
 }
 
 /* uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
- * Description: 
- * Inputs:
+ * Description: fils in dentry based on file name
+ * Inputs:  const int8_t* fname = file name
+            dentry_t* dentry    = dentry to fill out 
  * Return Value:
  * Function:
  */
 uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry){
 
-    int8_t* dir_start_addr = (int8_t*)boot_block_addr + 64;
+    int8_t* dir_start_addr = (int8_t*)boot_block_addr + SYS_STATISTICS_SIZE;
     int i;
     /* 63 directory entries */
-    for(i = 0; i < 63; i++) {
+    for(i = 0; i < MAX_NUM_OF_DIR_ENTRIES; i++) {
         /* file names match */
-        if(strncmp(dir_start_addr, fname, 32) == 0) {
+        if(strncmp(dir_start_addr, fname, FILE_NAME_SIZE) == 0) {
             /* copy fields to dentry structure */
-            memcpy(&(dentry->file_name), dir_start_addr, 32);
-            dir_start_addr = dir_start_addr + 32;
+            memcpy(&(dentry->file_name), dir_start_addr, FILE_NAME_SIZE);
+            dir_start_addr = dir_start_addr + FILE_NAME_SIZE;
 
-            memcpy(&(dentry->file_type), dir_start_addr, 4);
-            dir_start_addr = dir_start_addr + 4;
+            memcpy(&(dentry->file_type), dir_start_addr, FILE_TYPE_SIZE);
+            dir_start_addr = dir_start_addr + FILE_TYPE_SIZE;
 
-            memcpy(&(dentry->inode_num), dir_start_addr, 4);
+            memcpy(&(dentry->inode_num), dir_start_addr, NUM_I_NODES_SIZE);
 
             /* successfully found file */
             return 0;
         }
 
         /* point to start of next directory entry */
-        dir_start_addr = dir_start_addr + 64;
+        dir_start_addr = dir_start_addr + DENTRY_SIZE;
     }
     
     /* could not find file name, return -1 */
@@ -168,24 +169,24 @@ uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry){
 uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
 
     /* only 63 dentries exist */
-    if(index < 0 || index > 62) {
+    if(index < 0 || index > MAX_NUM_OF_FILES) {
         return -1;
     }
 
     //get starting address of directories
-    int8_t* dir_start_addr = (int8_t*)boot_block_addr + 64;
-    dir_start_addr = dir_start_addr + (64 * index);
+    int8_t* dir_start_addr = (int8_t*)boot_block_addr + SYS_STATISTICS_SIZE;
+    dir_start_addr = dir_start_addr + (DENTRY_SIZE * index);
 
     //fill in file name in dentry
-    memcpy(&(dentry->file_name), dir_start_addr, 32);
-    dir_start_addr = dir_start_addr + 32;
+    memcpy(&(dentry->file_name), dir_start_addr, FILE_NAME_SIZE);
+    dir_start_addr = dir_start_addr + FILE_NAME_SIZE;
 
     //fill in file type in dentry
-    memcpy(&(dentry->file_type), dir_start_addr, 4);
-    dir_start_addr = dir_start_addr + 4;
+    memcpy(&(dentry->file_type), dir_start_addr, FILE_TYPE_SIZE);
+    dir_start_addr = dir_start_addr + FILE_TYPE_SIZE;
 
     //fill in inode number in dentry
-    memcpy(&(dentry->inode_num), dir_start_addr, 4);
+    memcpy(&(dentry->inode_num), dir_start_addr, I_NODE_NUM_SIZE);
 
     return 0;
     
@@ -214,7 +215,7 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
 
     //put #inodes from bootblock into num_inodes
     int32_t num_inodes;
-    memcpy(&num_inodes, (int8_t*)boot_block_addr+4, 4);
+    memcpy(&num_inodes, (int8_t*)boot_block_addr + NUM_DIR_ENTRIES_SIZE, NUM_I_NODES_SIZE);
 
     //check if index node is valid
     if(inode < 0 || inode > (num_inodes - 1)) {
@@ -223,17 +224,18 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
 
     //put #data blocks from bootblock into num_data_blocks
     int32_t num_data_blocks;
-    memcpy(&num_data_blocks, (int8_t*)boot_block_addr+8, 4);
+    memcpy(&num_data_blocks, (int8_t*)boot_block_addr + NUM_DIR_ENTRIES_SIZE + 
+        NUM_I_NODES_SIZE, NUM_DATA_BLOCKS_SIZE);
 
     //put inode_addr at location of index node we want to access
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + (inode * BLOCK_LENGTH);
     uint32_t data_block_num;
 
     //offset inode_addr to get index of 0th data block #
-    inode_addr = inode_addr + 4;
+    inode_addr = inode_addr + LENGTH_IN_BYTES_SIZE;
 
     //get data block # from inode_addr and check if it is valid
-    memcpy(&data_block_num, inode_addr, 4);
+    memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);
     if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
         return -1;
     }
@@ -257,8 +259,8 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
         if(cur_byte % BLOCK_LENGTH == 0) {
             //if we finish reading one block, go to the next block
             cur_byte = 0;
-            inode_addr = inode_addr + 4;
-            memcpy(&data_block_num, inode_addr, 4);
+            inode_addr = inode_addr + DATA_BLOCK_INDEX_SIZE;
+            memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);
             //check if data_block_num is valid
             if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
                 return -1;

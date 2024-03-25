@@ -3,6 +3,27 @@
 
 #define BLOCK_LENGTH 4096
 
+/* size is in bytes */
+
+#define MAX_NUM_OF_DIR_ENTRIES 63
+#define MAX_NUM_OF_FILES 62
+
+#define SYS_STATISTICS_SIZE 64
+#define NUM_DIR_ENTRIES_SIZE 4
+#define NUM_I_NODES_SIZE 4
+#define NUM_DATA_BLOCKS_SIZE 4
+
+#define DENTRY_SIZE 64
+#define FILE_NAME_SIZE 32
+#define FILE_TYPE_SIZE 4
+#define I_NODE_NUM_SIZE 4
+
+#define LENGTH_IN_BYTES_SIZE 4
+#define DATA_BLOCK_INDEX_SIZE 4
+
+
+
+
 typedef union dentry_t {
   struct {
     int8_t file_name[33];
