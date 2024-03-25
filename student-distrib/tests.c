@@ -350,7 +350,7 @@ void launch_tests(){
 	//terminal_key_write_test(); // works
 	//key_test(); // page fault exception
 	//terminal_key_write_read_test();
-	//terminal_wr_test1();
+	terminal_wr_test1();
 
 	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 }

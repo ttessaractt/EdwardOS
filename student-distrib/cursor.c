@@ -8,7 +8,19 @@
 
 // code from https://wiki.osdev.org/Text_Mode_Cursor
 
+/* enable_cursor
+ *  Functionality: Enables the cursor on screen with
+ *                 size depending on the start and end
+ *                 scanlines (rows).
+ *  Arguments: cursor_start: highest scanline for cursor
+ *             cursor_end: lowest scan ine for cursor
+ *  Return: none
+ *  References: https://wiki.osdev.org/Text_Mode_Cursor
+ */
 void enable_cursor(int cursor_start, int cursor_end){
+
+    /* highest scanline = 0, lowest scanline = 15 */
+
     outb(0x0A, 0x3D4);
 	outb((inb(0x3D5) & 0xC0) | cursor_start, 0x3D5);
  
@@ -16,6 +28,15 @@ void enable_cursor(int cursor_start, int cursor_end){
 	outb((inb(0x3D5) & 0xE0) | cursor_end, 0x3D5);
 }
 
+/* disable_cursor
+ *  Functionality: Enables the cursor on screen with
+ *                 size depending on the start and end
+ *                 scanlines (rows).
+ *  Arguments: cursor_start: highest scanline for cursor
+ *             cursor_end: lowest scan ine for cursor
+ *  Return: none
+ *  References: https://wiki.osdev.org/Text_Mode_Cursor
+ */
 void disable_cursor(){
     outb(0x0A, 0x3D4);
 	outb(0x20, 0x3D5);
