@@ -34,6 +34,7 @@ typedef union data_block {
 } data_block;
 
 extern dentry_t cur_file;
+extern inode cur_file_det;
 extern data_block data_buffer;
 
 uint32_t file_open();

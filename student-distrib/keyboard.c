@@ -287,7 +287,9 @@ int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes){
 int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes){
     int i = 0;
     for (i = 0; i < nbytes; i++){
-        putc(buf[i]);
+        if(buf[i] != '\0') {
+            putc(buf[i]);
+        }
     }
 
     return nbytes;

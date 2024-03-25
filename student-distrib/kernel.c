@@ -193,7 +193,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     // file system 
     //directory_read();
-    file_read("frame0.txt");
+    file_read("cat");
 
 
     /* Enable interrupts */

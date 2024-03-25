@@ -4,10 +4,13 @@
 #include "keyboard.h"
 
 dentry_t cur_file;
+inode cur_file_det;
 data_block data_buffer;
 
 uint32_t file_open(const int8_t* fname){
     read_dentry_by_name(fname, &cur_file);
+    int8_t* inode_addr = (int8_t*) boot_block_addr + 4096 + (cur_file.inode_num * 4096);
+    memcpy(&cur_file_det.length, inode_addr, 4);
     return 0;
 }
 
@@ -17,9 +20,10 @@ uint32_t file_close(){
 
 uint32_t file_read(const int8_t* fname){
     file_open(fname);
-    read_data(cur_file.inode_num, 0, data_buffer.data, 8000);
+    read_data(cur_file.inode_num, 0, data_buffer.data, cur_file_det.length);
     clear_screen();
-    terminal_key_write(0, &(data_buffer.data), 187);
+    terminal_key_write(0, (char*)data_buffer.data, cur_file_det.length);
+    printf("\nFile_name: %s", fname);
     return 0;
 }
 
@@ -40,7 +44,6 @@ uint32_t directory_close(){
 /* done */
 uint32_t directory_read(){
     unsigned int i;
-    unsigned int j;
     unsigned int num_dir_entries;
     memcpy(&num_dir_entries, (int8_t*)boot_block_addr, 4);
 
@@ -131,36 +134,53 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
     //uint32_t* inode_start_addr = boot_block_addr + 4096 + (inode * 4096);
     // inode = inode number
 
+    // return value 0 - indicates end of file has been reached
+    // return value -1 - improper inode number or data block number
+    // return value num_bytes - returns how many bytes were written into the buffer
+
     /* only 63 files exist */
-    if(inode < 0 || inode > 62) {
-        return -1;
-    }
-    int i;
 
     int32_t num_inodes;
     memcpy(&num_inodes, (int8_t*)boot_block_addr+4, 4);
+
+    if(inode < 0 || inode > (num_inodes - 1)) {
+        return -1;;
+    }
+
+    int32_t num_data_blocks;
+    memcpy(&num_data_blocks, (int8_t*)boot_block_addr+8, 4);
+
     int8_t* inode_addr = (int8_t*) boot_block_addr + 4096 + (inode * 4096);
     uint32_t data_block_num;
-    memcpy(&data_block_num, inode_addr + 4, 4);
+    inode_addr = inode_addr + 4;
+    memcpy(&data_block_num, inode_addr, 4);
+    if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
+        return -1;
+    }
 
     int8_t* data_start_addr = (int8_t*)boot_block_addr + 4096 + (num_inodes * 4096);
     int8_t* data_addr = data_start_addr + (data_block_num * 4096);
 
-    // uint32_t data_length;
-    // memcpy(&data_length, inode_addr, 4);
+    data_addr = data_addr + offset;
 
-    // inode_addr = inode_addr + 4;
+    uint32_t bytes_written = 0;
+    uint32_t cur_byte = offset;
 
-    //printf("Data %s", data_addr);
-    for(i = 0; i < length; i++) {
-        buf[i] = *data_addr;
-        data_addr++;
+    while(bytes_written != length) {
+        data_buffer.data[bytes_written] = *data_addr;
+        cur_byte = cur_byte + 1;
+        bytes_written = bytes_written + 1;
+        data_addr = data_addr + 1;
+        if(cur_byte % 4096 == 0) {
+            cur_byte = 0;
+            inode_addr = inode_addr + 4;
+            memcpy(&data_block_num, inode_addr, 4);
+            if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
+                return -1;
+            }
+            data_addr = data_start_addr + (data_block_num * 4096);
+        }
     }
-
-    //uint32_t data_start_block = offset / 4096;
-
-
-
-
-    return 0;
+ 
+    return bytes_written;
 }
