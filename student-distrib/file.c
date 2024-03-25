@@ -8,10 +8,12 @@ inode cur_file_det;
 data_block data_buffer;
 
 /* uint32_t file_open(const int8_t* fname);
- * Description: opens a file 
- * Inputs:
- * Return Value:
- * Function:
+ * Description: opens a file by 
+                1) stores dentry entries into cur_file based on fname
+                2) stores size into cur_file_det
+ * Inputs: const int8_t* fname = file name
+ * Return Value: 0 
+ * Function: opens a file
  */
 uint32_t file_open(const int8_t* fname){
     read_dentry_by_name(fname, &cur_file);
@@ -22,10 +24,10 @@ uint32_t file_open(const int8_t* fname){
 }
 
 /* uint32_t file_close();
- * Description: 
- * Inputs:
- * Return Value:
- * Function:
+ * Description: closes file
+ * Inputs: none
+ * Return Value: 0
+ * Function: nothing
  */
 uint32_t file_close(){
     return 0;
@@ -57,9 +59,9 @@ uint32_t file_write(){
 }
 
 /* uint32_t directory_open();
- * Description: 
- * Inputs:
- * Return Value:
+ * Description: opens directory
+ * Inputs: none
+ * Return Value: 0
  * Function: nothing
  */
 uint32_t directory_open(){
@@ -68,7 +70,7 @@ uint32_t directory_open(){
 
 /* uint32_t directory_close();
  * Description: 
- * Inputs:
+ * Inputs: none
  * Return Value: 0
  * Function: nothing
  */
@@ -115,7 +117,7 @@ uint32_t directory_read(){
 
 /* uint32_t directory_write();
  * Description: write to directory
- * Inputs: 
+ * Inputs: none
  * Return Value: -1
  * Function: nothing
  */
