@@ -2,7 +2,11 @@
 #include "file.h"
 #include "kernel.h"
 
+uint32_t num_of_dir_entries;
+
+
 uint32_t file_open(const uint8_t* fnamme, dentry_t* dentry){
+    //num_of_dir_entries = *(boot_block_addr);
     read_dentry_by_name(fnamme, dentry);
     return 0;
 }
@@ -11,10 +15,12 @@ uint32_t file_close(){
     return 0;
 }
 
-uint32_t file_read(const uint8_t* fname, dentry_t* dentry){
+uint32_t file_read(const uint8_t* fname){
 
     return 0;
 }
+
+
 
 /* done */
 uint32_t file_write(){
@@ -32,6 +38,17 @@ uint32_t directory_close(){
 
 
 uint32_t directory_read(){
+    unsigned long dir_entries = boot_block_addr + (64 * 8);
+    unsigned long 
+    int i, j;
+
+
+    for(i = 0; i < 63; ++i){
+        for(j = 0; j < 32; ++j){
+            //dir_en 
+        }
+    }
+
 
     return 0;
 }

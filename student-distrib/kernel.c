@@ -66,6 +66,8 @@ void entry(unsigned long magic, unsigned long addr) {
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
         boot_block_addr = mbi->mods_addr;
+        char hey[3] = {'h','e','y'};
+        puts(hey);
         while (mod_count < mbi->mods_count) {
             printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
             printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
