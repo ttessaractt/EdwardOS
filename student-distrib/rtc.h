@@ -3,9 +3,9 @@
 #define RTC_VECTOR     40  //RTC interrupt number
 #define RTC_PORT1       0x70    //I/O port used to specify index or register number & disable NMI
 #define RTC_PORT2       0x71    //I/O port used to read/write to/from byte of CMOS configuration space
-#define REG_A           0x0A    //RTC Status register A
-#define REG_B           0x0B    //RTC Status register B
-#define REG_C           0x0C    //RTC Status register C
+#define REG_A           0x8A    //RTC Status register A
+#define REG_B           0x8B    //RTC Status register B
+#define REG_C           0x8C    //RTC Status register C
 
 #define MAX_FREQ        1024    //max frequency in Hz
 #define MIN_FREQ        2       //min frequency in Hz 

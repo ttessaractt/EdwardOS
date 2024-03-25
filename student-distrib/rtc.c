@@ -10,31 +10,35 @@ int volatile freqency = 2;
 int volatile rtc_count = 0;
 //int volatile diff = MAX_FREQ/freqency;
 
-//initilize RTC
-//enable associated inerrupt on PIC
-/*
+
+/* RTC_init
+ *  Functionality: enables interrupt on IRQ8 on PIC for RTC (real time clock) functionality
+ *  Arguments: none
+ *  Return: none
 code taken from OSdev wiki - RTC - Turning on IRQ 8
 https://wiki.osdev.org/RTC
 */
 void RTC_init(){
     //enable RTC on PIC
-    cli();          //disable interrupts
-    NMI_disable();  //disable NMI
+    //cli();          //disable interrupts
+    //NMI_disable();  //disable NMI
     outb(REG_B, RTC_PORT1);
     char prev = inb(RTC_PORT2);     //read current value of register B
     outb(0x8B, 0x70);               //set the index again
     outb(prev | 0x40, 0x71);          //turn on bit 6
     outb(REG_C, RTC_PORT1);	// select register C
     inb(RTC_PORT2);		// just throw away contents
-    enable_irq(0x08);               //enable irq 8
-    //enable_irq(0x02);
-    //make sure we get another interrupt
-    
-    NMI_enable();   //enable NMI
-    sti(); 
+    enable_irq(8);               //enable irq 8
+
+    RTC_frequency(1024);
+    //NMI_enable();   //enable NMI
+    //sti(); 
 };
 
-/*
+/* RTC_handler
+ *  Functionality: when an RTC interrupt occurs set the interrupt_occured flag and print 1 to the terminal
+ *  Arguments: none
+ *  Return: none
 code taken from OSdev wiki - RTC - Interrupts and Register C
 https://wiki.osdev.org/RTC
 */
@@ -45,6 +49,7 @@ void RTC_handler(){
     //cli_and_save(flags); //might need to be cli_and_save() ? but not sure
     cli();
     NMI_disable();  //disable NMI
+
     outb(REG_C, RTC_PORT1);	// select register C
     inb(RTC_PORT2);		// just throw away contents
 
@@ -62,31 +67,23 @@ void RTC_handler(){
     printf("1");
     
     //make sure we get another interrupt
-    outb(REG_C, RTC_PORT1);	// select register C
-    inb(RTC_PORT2);		// just throw away contents
+    //outb(REG_C, RTC_PORT1);	// select register C
+    //inb(RTC_PORT2);		// just throw away contents
     //enable other interrupts
-    //restore_flags(flags);
+
     send_eoi(8);
-    //send_eoi(0x02);
-    //send_eoi(1);
+
     NMI_enable();   //enable NMI
     sti(); 
-    //send_eoi(0x08);
-    //send_eoi(0x02);
-    
+
 };
 
-//virtualization of RTC frequency
-//
-/*
-store frequency in a data structure that is accessed later
-  
-virtualization gives the illusion to the process that the RTC is set to their frequency whenin reality the RTC isn’t. 
-Instead you set the RTC to the highest possible frequency and wait until you receive
-x interrupts to return back to the process such that those x interrupts at the highest frequency is equivalent to 1
-interrupt at the frequency the process wants
-*/
-/*
+
+/* RTC_freqency
+ *  Functionality: checks if the input freqency is valid and if it is, calcuates and sets the rate needed
+ *                  for the RTC to have that freqency
+ *  Arguments: freq - the desired frequency to set the RTC to
+ *  Return: none
 some code taken from OSdev wiki - RTC - Changing Interrupt Rate
 https://wiki.osdev.org/RTC
 input is the desired frequency in Hz 
@@ -167,15 +164,12 @@ int32_t RTC_frequency(int32_t freq){
     return 0;
 };
 
-//reset frequency to 2Hz
-/*
-successful call returns 0
-uncessesful returns -1
 
-The open system call provides access to the file system. The call should find the directory entry corresponding to the
-named file, allocate an unused file descriptor, and set up any data necessary to handle the given type of file (directory,
-RTC device, or regular file). If the named file does not exist or no descriptors are free, the call returns -1.
-*/
+/* RTC_open
+ *  Functionality: enables interrupt on IRQ1 on PIC for keyboard functionality
+ *  Arguments: none
+ *  Return: none
+ */
 int32_t RTC_open(const uint8_t* filename){
     //set frequency to 2Hz
     interrupt_occured = 0;

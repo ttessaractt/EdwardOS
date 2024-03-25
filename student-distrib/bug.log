@@ -221,6 +221,6 @@ Creator:
 Description:
     only 1 1 prints for rtc test, looks like a 2nd interrupt never gets called
 Solution:
-    
+    our send end of interrupt function is wrong
 
 
