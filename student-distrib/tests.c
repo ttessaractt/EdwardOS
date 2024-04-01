@@ -5,6 +5,7 @@
 #include "rtc.h"
 #include "i8259.h"
 #include "keyboard.h"
+#include "terminal.h"
 #include "file.h"
 
 #define PASS 1
@@ -283,15 +284,15 @@ void terminal_wr_test1(){
 	
 	char read_buf[128];
 	
-	terminal_key_open();
+	terminal_open();
 
-	terminal_key_write(0, buf, 7);
+	terminal_write(0, buf, 7);
 
-	i = terminal_key_read(0, read_buf, 128);
+	i = terminal_read(0, read_buf, 128);
 
-	j = terminal_key_write(0, read_buf, 128);
+	j = terminal_write(0, read_buf, 128);
 
-	terminal_key_close();
+	terminal_close();
 
 }; 
 
@@ -301,15 +302,15 @@ void terminal_wr_test2(){
 	// buffer size 140
 	char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111118888here9999"; //140
 	
-	terminal_key_open();
+	terminal_open();
 
 	printf("test nbytes 128 \n");
-	terminal_key_write(0, buf, 128);
+	terminal_write(0, buf, 128);
 
 	printf("\ntest nbytes 140 \n");
-	terminal_key_write(0, buf, 140);
+	terminal_write(0, buf, 140);
 
-	terminal_key_close();
+	terminal_close();
 
 }; 
 
@@ -321,23 +322,42 @@ void terminal_wr_test3(){
 	
 	char read_buf[128];
 	
-	terminal_key_open();
+	terminal_open();
 
 	while(1){
-		terminal_key_write(0, buf, 10);
+		terminal_write(0, buf, 10);
 
-		terminal_key_read(0, read_buf, 128);
+		terminal_read(0, read_buf, 128);
 
-		terminal_key_write(0, read_buf, 128);
+		terminal_write(0, read_buf, 128);
 	}
-	terminal_key_close();
+	terminal_close();
+
+}; 
+
+void terminal_wr_test4(){
+	clear_screen();
+	printf("testing NULL buffers\n");
+	int i, j;
+	terminal_open();
+	i = terminal_read(0, NULL, 5);
+	j = terminal_write(0, NULL, 5);
+	terminal_close();
+
+	if ((i == -1) && (j == -1)){
+		printf("PASS");
+	}
+	else{
+		printf("FAIL");
+	}
 
 }; 
 
 void file_system_read(int8_t* name) {
+	clear_screen();
 	file_open(name);
 	file_read(name);
-	clear_screen();
+	//clear_screen();
     file_key_write(0, (char*)data_buffer.data, cur_file_det.length);
     printf("\nFile_name: %s", name);
 }
@@ -418,10 +438,13 @@ void launch_tests(){
 	/* terminal :) */
 	terminal_wr_test3();
 
+	/* null buffer */
+	//terminal_wr_test4();
+
 	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 
-
-	//file_system_read("ls");
+	// verylargetextwithverylongname.txt
+	//file_system_read("verylargetextwithverylongname.tx");
 	//directory_read_test_full();
 	//directory_read_test_single();
 
