@@ -104,7 +104,7 @@ void blank_page_dir(){
 }
 
 /*  allocate_tasks
- *  Functionality: allocates 8-12mB for task 1 and 8-12 mB for task 2 
+ *  Functionality: allocates 8-12mB for task 1 and 12-16 mB for task 2 
  *  as well as a page at 128 mB for executing
  *  Arguments: task - integer that specifies which task's physical memory 
  *  the executing virtual address should map to
