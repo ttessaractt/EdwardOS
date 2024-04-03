@@ -172,6 +172,33 @@ Solution:
     an extra 3 bytes, unlike int8_t pointers which are a     
     singular byte.
 
+<--------------------------------------------------------->
+                          BUG X                         
+<--------------------------------------------------------->
+Time:
+    2024.3.24.
+Creator:
+    Ian Watson
+Description:
+    Issue in compiling structs in file.h
+Solution:
+    Had to include typedef union and 
+    __attribute__((packed)) to make file.c access the structs
+    correctly
+
+<--------------------------------------------------------->
+                          BUG X                         
+<--------------------------------------------------------->
+Time:
+    2024.3.24.
+Creator:
+    Ian Watson
+Description:
+    Issues accessing members of structs
+Solution:
+    Instead of using a '.' had to use '->' since the struct
+    is a pointer
+
 
 
 
