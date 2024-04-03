@@ -7,7 +7,7 @@ void program_loader(int8_t* file_name, int32_t task_number) {
         return;
     }
 
-    int32_t* cur_addr;
+    int8_t* cur_addr;
 
     /* opens file and copies file data to data_buffer */
     file_open(file_name);
@@ -15,9 +15,9 @@ void program_loader(int8_t* file_name, int32_t task_number) {
 
     /* choose where in physical memory to copy file data */
     if(task_number == 1) {
-        cur_addr = (int32_t*)0x0800000; // 8 mB
+        cur_addr = (int8_t*)0x0800000; // 8 mB
     } else if(task_number == 2) {
-        cur_addr = (int32_t*)0x0C00000; // 12 mB
+        cur_addr = (int8_t*)0x0C00000; // 12 mB
     }
 
     int32_t i;

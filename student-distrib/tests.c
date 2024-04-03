@@ -6,6 +6,7 @@
 #include "i8259.h"
 #include "keyboard.h"
 #include "file.h"
+#include "syscall_helper.h"
 
 #define PASS 1
 #define FAIL 0
@@ -374,6 +375,13 @@ void directory_read_test_single() {
 }
 
 /* Checkpoint 3 tests */
+
+void parse_arguments_test() {
+	char main_buf[100] = "hello.txt bruh.txt  rwerhowiw   bruh";
+	char filename_buf[100];
+	char argument_buf[100];
+	parse_arguments(main_buf, filename_buf, argument_buf);
+}
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -424,5 +432,6 @@ void launch_tests(){
 	//file_system_read("frame1.txt");
 	//directory_read_test_full();
 	//directory_read_test_single();
+	parse_arguments_test();
 
 }

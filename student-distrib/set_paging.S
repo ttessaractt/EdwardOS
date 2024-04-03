@@ -14,6 +14,7 @@
     .globl load_page_dir
     .globl enable_paging
     .globl enable_4mb_pages
+    .globl flush_tlb
 
 /*  void load_page_dir(page_dir_entry_t* page_dir_base)
  *  Functionality: loads the directory of the page directory into CR3
@@ -63,6 +64,21 @@ enable_4mb_pages:
     movl %cr4, %eax       # temporarily move the value of cr4 into eax
     orl $BIT4, %eax # set bit 4 in CR4 to enable 4mB paging
     movl %eax, %cr4       # move modified value back into CR4
+    popl %eax
+    leave
+    ret
+
+/*  void flush_tlb()
+ *  Functionality: flushes the TLB by writing to CR3
+ *  Arguments: none
+ *  Return: none
+ */
+flush_tlb:
+    pushl %ebp
+    movl %esp, %ebp
+    pushl %eax
+    movl %cr3, %eax # move cr3 into eax (to maintain physical address of page directory structure)
+    movl %eax, %cr3 # move eax back into cr3, flushes tlb
     popl %eax
     leave
     ret
