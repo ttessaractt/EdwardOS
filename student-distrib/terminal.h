@@ -2,9 +2,6 @@
  * vim:ts=4 noexpandtab
  */
 
-
-// scan codes for numbers 0 to 9 and letters a to z
-
 #include "types.h"
 
 
