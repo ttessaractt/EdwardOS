@@ -102,8 +102,10 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    removec(p);
-                    buffer_position--;
+                    if (buffer_position > 0){
+                        removec(p);
+                        buffer_position--;
+                    }
             }
         }
         else{ // just capslock toggled
@@ -124,8 +126,10 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    removec(p);
-                    buffer_position--;
+                    if (buffer_position > 0){
+                        removec(p);
+                        buffer_position--;
+                    }
             }
         }
     }
@@ -149,8 +153,10 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    removec(p);
-                    buffer_position--;
+                    if (buffer_position > 0){
+                        removec(p);
+                        buffer_position--;
+                    }
             }
         }
         else{ // shift not pressed
@@ -171,8 +177,10 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    removec(p);
-                    buffer_position--;
+                    if (buffer_position > 0){
+                        removec(p);
+                        buffer_position--;
+                    }
             }
         }
     }
