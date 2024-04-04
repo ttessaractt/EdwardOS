@@ -1,5 +1,7 @@
 #include "types.h"
 #include "lib.h"
+#include "rtc.h"
+#include "keyboard.h"
 
 #define BLOCK_LENGTH 4096
 
@@ -58,20 +60,44 @@ typedef union data_block {
   } __attribute__((packed));
 } data_block;
 
+
+/* OPERATIONS */
+
 typedef union file_operations {
   struct {
     uint32_t (*file_open) (const int8_t* fname);
     uint32_t (*file_close) ();
     uint32_t (*file_read) (const int8_t* fname);
     uint32_t (*file_write) ();
+  } __attribute__((packed));
+} file_operations;
 
+typedef union dir_operations {
+  struct {
     uint32_t (*directory_open) ();
     uint32_t (*directory_close) ();
     uint32_t (*directory_read) ();
     uint32_t (*directory_write) ();
-
   } __attribute__((packed));
-} file_operations;
+} dir_operations;
+
+typedef union rtc_operations {
+  struct {
+    uint32_t (*RTC_open) (const uint8_t* filename);
+    uint32_t (*RTC_close) (int32_t fd, void* buf, int32_t nbytes);
+    uint32_t (*RTC_read) (int32_t fd, const void* buf, int32_t nbytes);
+    uint32_t (*RTC_write) (int32_t fd);
+  } __attribute__((packed));
+} rtc_operations;
+
+typedef union terminal_operations {
+  struct {
+    uint32_t (*terminal_key_open) ();
+    uint32_t (*terminal_key_read) (int32_t fd, char* buf, int32_t nbytes);
+    uint32_t (*terminal_key_write) (int32_t fd, char* buf, int32_t nbytes);
+    uint32_t (*terminal_key_close) ();
+  } __attribute__((packed));
+} terminal_operations;
 
 typedef void (*jump)(void);
 
