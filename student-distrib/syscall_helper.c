@@ -39,8 +39,10 @@ int32_t execute(char* command){
     // LOAD FILE INTO MEMORY
     program_loader(file_name, 1);
 
-    
+    // CREATE PCB 
 
+
+    // CONTEXT SWITCH AND IRET
 
 
     return -1;

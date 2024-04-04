@@ -7,6 +7,7 @@
 #include "keyboard.h"
 #include "file.h"
 #include "syscall_helper.h"
+#include "terminal.h"
 
 #define PASS 1
 #define FAIL 0
@@ -284,15 +285,15 @@ void terminal_wr_test1(){
 	
 	char read_buf[128];
 	
-	terminal_key_open();
+	terminal_open();
 
-	terminal_key_write(0, buf, 7);
+	terminal_write(0, buf, 7);
 
-	i = terminal_key_read(0, read_buf, 128);
+	i = terminal_read(0, read_buf, 128);
 
-	j = terminal_key_write(0, read_buf, 128);
+	j = terminal_write(0, read_buf, 128);
 
-	terminal_key_close();
+	terminal_close();
 
 }; 
 
@@ -302,15 +303,15 @@ void terminal_wr_test2(){
 	// buffer size 140
 	char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111118888here9999"; //140
 	
-	terminal_key_open();
+	terminal_open();
 
 	printf("test nbytes 128 \n");
-	terminal_key_write(0, buf, 128);
+	terminal_write(0, buf, 128);
 
 	printf("\ntest nbytes 140 \n");
-	terminal_key_write(0, buf, 140);
+	terminal_write(0, buf, 140);
 
-	terminal_key_close();
+	terminal_close();
 
 }; 
 
@@ -322,16 +323,16 @@ void terminal_wr_test3(){
 	
 	char read_buf[128];
 	
-	terminal_key_open();
+	terminal_open();
 
 	while(1){
-		terminal_key_write(0, buf, 10);
+		terminal_write(0, buf, 10);
 
-		terminal_key_read(0, read_buf, 128);
+		terminal_read(0, read_buf, 128);
 
-		terminal_key_write(0, read_buf, 128);
+		terminal_write(0, read_buf, 128);
 	}
-	terminal_key_close();
+	terminal_close();
 
 }; 
 

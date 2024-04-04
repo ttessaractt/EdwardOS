@@ -39,7 +39,11 @@ uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes){
  * Function: opens a file
  */
 uint32_t file_open(const int8_t* fname){
-    read_dentry_by_name(fname, &cur_file);
+    int i;
+    i = read_dentry_by_name(fname, &cur_file);
+    if(i == -1) {
+        return -1;
+    }
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
         (cur_file.inode_num * BLOCK_LENGTH);
     memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
@@ -141,6 +145,10 @@ uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry){
 
     int8_t* dir_start_addr = (int8_t*)boot_block_addr + SYS_STATISTICS_SIZE;
     int i;
+
+    if(strlen(fname) > 32) {
+        return -1;
+    }
     /* 63 directory entries */
     for(i = 0; i < MAX_NUM_OF_DIR_ENTRIES; i++) {
         /* file names match */
