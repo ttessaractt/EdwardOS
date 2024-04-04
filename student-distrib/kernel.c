@@ -14,6 +14,7 @@
 #include "kernel.h"
 #include "file.h"
 #include "cursor.h"
+#include "loader.h"
 
 #define RUN_TESTS
 

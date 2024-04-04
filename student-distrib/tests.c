@@ -382,6 +382,15 @@ void parse_arguments_test() {
 	char argument_buf[100];
 	parse_arguments(main_buf, filename_buf, argument_buf);
 }
+
+void test_file_validity(int8_t* fname) {
+	uint32_t returnval = check_file_validity(fname);
+	if(returnval == -1) {
+		printf("failed! not executable");
+	} else {
+		printf("success! executable file");
+	}
+}
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -432,6 +441,7 @@ void launch_tests(){
 	//file_system_read("frame1.txt");
 	//directory_read_test_full();
 	//directory_read_test_single();
-	parse_arguments_test();
+	//parse_arguments_test();
+	//test_file_validity("grep");
 
 }

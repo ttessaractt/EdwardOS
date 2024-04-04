@@ -279,3 +279,52 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
     return bytes_written;
 }
 
+/* returns -1 if file is invalid, else returns entry point address */
+uint32_t check_file_validity(int8_t* fname) {
+    /* want to make sure file is an executable file*/
+    /* header inside first 40 bytes */
+
+    /* put file data into data_buffer.data */
+    file_open(fname);
+    file_read(fname);
+
+    /* first 4 bytes represent a magic number that identifies file
+       as being executable */
+    /* if magic number is not present, execute should fail */
+    int8_t* data_ptr = data_buffer.data;
+    int i;
+    for(i = 0; i < 4; i++) {
+        if(i == 0) {
+            if(*data_ptr != 0x7F) {
+                return -1;
+            }
+        } else if(i == 1) {
+            if(*data_ptr != 0x45) {
+                return -1;
+            }
+        } else if(i == 2) {
+            if(*data_ptr != 0x4c) {
+                return -1;
+            }
+        } else if(i == 3) {
+            if(*data_ptr != 0x46) {
+                return -1;
+            }
+        }
+
+        data_ptr++;
+    }
+
+    /* at this point, we know the file is a valid executable */
+
+    /* bytes 24-27 contain the entry point into the program */
+    /* need to save this */
+
+    /* double check pointer stuff is accurate */
+    uint32_t* data_ptr2 = (uint32_t*)(data_buffer.data + 23);
+    uint32_t entry_point_addr = *data_ptr2;
+
+    return entry_point_addr;
+
+}
+
