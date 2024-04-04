@@ -5,18 +5,44 @@
 #include "syscall_helper.h"
 
 #include "lib.h"
+#include "file.h"
+#include "paging.h"
+#include "loader.h"
 
 
-int32_t execute(const uint8_t* command){
+int32_t execute(char* command){
 
-    // if (command == NULL){
-    //     return -1;
-    // }
+    if (command == NULL){
+        return -1;
+    }
 
-    // char file_name[32+1]; // 32+1?
-    // char arguments[128]; // check lengths?
+    char file_name[32+1]; // 32+1?
+    char arguments[128]; // check lengths?
 
-    // parse_arguments(command, file_name, arguments);
+    // PARSE ARGS
+    /* populates file_name */
+    parse_arguments(command, file_name, arguments);
+
+    // CHECK FILE VALIDITY
+    int32_t entry_addr = check_file_validity(file_name);
+    /* not an executable file */
+    if(entry_addr == -1) {
+        return -1;
+    }
+
+    /* entry_addr now stored in entry_addr */
+
+    // SET UP PAGING
+    // allocates memory for tasks 
+    allocate_tasks(1);
+
+    // LOAD FILE INTO MEMORY
+    program_loader(file_name, 1);
+
+    
+
+
+
     return -1;
 
 }
