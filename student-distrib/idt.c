@@ -7,6 +7,7 @@
 #include "idt.h"
 #include "keyboard.h"
 //#include "rtc.h"
+#include "syscalls.h"
 
 
 /*
@@ -135,25 +136,25 @@ void set_interrupt_gate(uint32_t num, uint32_t addr){
 };  
 
 /*
- * set_not_present_gate
- *  Description: set/change a interrupt gate to IDT at the specified interupt #, with present = 0
+ * set_syscall_gate
+ *  Description: set/change a syscall gate to IDT at the specified interupt #
  *  Input:  num -- IDT number
  *          addr -- address of the handler to call
  *  Output: none
  *  Return Value: none
  *  Side Effects: specified IDT entry is set
 */
-void set_not_present_gate(uint32_t num, uint32_t addr){
+void set_syscall_gate(uint32_t num, uint32_t addr){
     //idt[num].offset_15_00 = ;     //set by SET_IDT_ENTRY
     idt[num].seg_selector = KERNEL_CS;
     idt[num].reserved4 = EIGHTBIT;
-    idt[num].reserved3 = ZERO;
+    idt[num].reserved3 = ONE;
     idt[num].reserved2 = ONE;
     idt[num].reserved1 = ONE;
     idt[num].size = ONE;            //1 = 32 bits
     idt[num].reserved0 = ZERO;
-    idt[num].dpl = DPL_ZERO;            //privilege level 0
-    idt[num].present = ZERO;         //set to 1 so descriptor is valid
+    idt[num].dpl = DPL_THREE;            //privilege level 3, callable by user space
+    idt[num].present = ONE;         //set to 1 so descriptor is valid
     //idt[num].offset_31_16 = ;     //set by SET_IDT_ENTRY
     SET_IDT_ENTRY(idt[num], addr);
 };    
@@ -196,7 +197,9 @@ void idt_init(){
     //set_interrupt_gate(40, (uint32_t)&no_handler);
     set_interrupt_gate(33, (uint32_t)&key_handler_linkage);
     set_interrupt_gate(40, (uint32_t)&rtc_handler_linkage);
-    set_interrupt_gate(128, (uint32_t)&system_call);
+    //set_syscall_gate(128, (uint32_t)&system_call_linkage);
+    set_syscall_gate(128, (uint32_t)&syscall_handler);
+
 };
 
 //exception handlers
