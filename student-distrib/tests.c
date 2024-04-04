@@ -377,7 +377,7 @@ void directory_read_test_single() {
 /* Checkpoint 3 tests */
 
 void parse_arguments_test() {
-	char main_buf[100] = "hello.txt bruh.txt  rwerhowiw   bruh";
+	char main_buf[100] = "     hello.txt      bruh.txt  rwerhowiw   bruh";
 	char filename_buf[100];
 	char argument_buf[100];
 	parse_arguments(main_buf, filename_buf, argument_buf);
