@@ -58,6 +58,23 @@ typedef union data_block {
   } __attribute__((packed));
 } data_block;
 
+typedef union file_operations {
+  struct {
+    uint32_t (*file_open) (const int8_t* fname);
+    uint32_t (*file_close) ();
+    uint32_t (*file_read) (const int8_t* fname);
+    uint32_t (*file_write) ();
+
+    uint32_t (*directory_open) ();
+    uint32_t (*directory_close) ();
+    uint32_t (*directory_read) ();
+    uint32_t (*directory_write) ();
+
+  } __attribute__((packed));
+} file_operations;
+
+typedef void (*jump)(void);
+
 /* global variables that store state of current file */
 extern dentry_t cur_file;
 extern inode cur_file_det;
@@ -66,6 +83,7 @@ extern unsigned int num_dir_entries;
 extern dentry_t cur_dir;
 extern uint32_t dentry_index;
 extern uint32_t file_size;
+extern uint32_t (*jump_table[8])();
 
 uint32_t file_open();
 uint32_t file_close();
@@ -81,4 +99,8 @@ uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
 uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
 uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes);
+
+
+
+
 

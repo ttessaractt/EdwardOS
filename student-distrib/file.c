@@ -10,6 +10,7 @@ unsigned int num_dir_entries;
 dentry_t cur_dir;
 uint32_t dentry_index = -1;
 uint32_t file_size;
+uint32_t (*jump_table[8])();
 
 /* uint32_t file_key_write(int32_t fd, char* buf, int32_t nbytes);
  * Description: writes a file to the terminal using the buffer
@@ -43,6 +44,7 @@ uint32_t file_open(const int8_t* fname){
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
         (cur_file.inode_num * BLOCK_LENGTH);
     memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
+
     return 0;
 }
 
@@ -278,4 +280,17 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
  
     return bytes_written;
 }
+
+void init_file_system(){
+    jump_table[0] = file_open;
+    jump_table[1] = file_close;
+    jump_table[2] = file_read;
+    jump_table[3] = file_write;
+
+    jump_table[4] = directory_open;
+    jump_table[5] = directory_close;
+    jump_table[6] = directory_read;
+    jump_table[7] = directory_write;
+}
+
 
