@@ -3,6 +3,7 @@
 #define ONE         0x1       //one (for present & reserved bits)
 #define ZERO        0x0       //0 (for reserved bits)
 #define DPL_ZERO    0x00
+#define DPL_THREE   0x03
 #define EIGHTBIT        0x00000000
 
 /*#define MAKE_EXCEPTION      (name, num) \
@@ -15,7 +16,7 @@ void name(){    \
 
 void set_trap_gate(uint32_t num, uint32_t addr);           //add trap gate to IDT
 void set_interrupt_gate(uint32_t num, uint32_t addr);      //add interrupt gate to IDT
-void set_not_present_gate(uint32_t num, uint32_t addr);
+void set_syscall_gate(uint32_t num, uint32_t addr);        //add gate for system calls to IDT
 
 //initilize IDT
 extern void idt_init();
@@ -45,4 +46,5 @@ extern void no_handler();       //no handler
 
 void rtc_handler_linkage();
 void key_handler_linkage();
+//void system_call_linkage();
 

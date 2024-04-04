@@ -10,14 +10,14 @@
 #include "loader.h"
 
 
-int32_t execute(char* command){
+int32_t execute_help(unsigned char* command){
 
     if (command == NULL){
         return -1;
     }
 
-    char file_name[32+1]; // 32+1?
-    char arguments[128]; // check lengths?
+    unsigned char file_name[32+1]; // 32+1?
+    unsigned char arguments[128]; // check lengths?
 
     // PARSE ARGS
     /* populates file_name */
@@ -43,14 +43,14 @@ int32_t execute(char* command){
 
 
     // CONTEXT SWITCH AND IRET
-
+    
 
     return -1;
 
 }
 
 
-int32_t parse_arguments(char* buf, char* file_name, char* arguments){
+int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments){
 
     /* return -1 for fail */
     if (buf == NULL){
@@ -96,3 +96,8 @@ int32_t parse_arguments(char* buf, char* file_name, char* arguments){
 
 }
 
+int32_t initialize_pcb(){
+
+    
+
+} 
