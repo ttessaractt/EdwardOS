@@ -9,6 +9,8 @@
 #include "paging.h"
 #include "loader.h"
 
+current_pid = 0; // initial pid = 0
+current_parent_pid = 0;
 
 int32_t execute_help(unsigned char* command){
 
@@ -96,8 +98,19 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 
 }
 
-int32_t initialize_pcb(){
+int32_t initialize_pcb(unsigned char* file_name){
 
+    current_pid++;
+    process_control_block_t * pcb_new = 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
+
+    pcb_new->pid = current_pid; // becomes 1
+    pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
+
+    pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
     
+
+    /* initialzie file array */
+
+    return -1;
 
 } 

@@ -1,1 +1,2 @@
-void syscall_handler_link();
+extern void syscall_handler();
+extern void syscall_handler_link();

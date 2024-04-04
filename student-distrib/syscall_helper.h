@@ -21,12 +21,15 @@ typedef struct process_control_block_t{
 
 } process_control_block_t; 
 
-process_control_block_t PCB_1;
-process_control_block_t PCB_2;
+//process_control_block_t PCB_1;
+//process_control_block_t PCB_2;
+
+int32_t current_pid;
+int32_t current_parent_pid;
 
 int32_t execute_help(unsigned char* command);
 
 /* need to pass in file name and argument buffer of proper size */
 int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments);
 
-
+int32_t initialize_pcb(unsigne char* file_name);
