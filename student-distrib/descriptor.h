@@ -1,5 +1,6 @@
 #include "types.h"
 #include "lib.h"
+#
 
 typedef union file_info {
   struct {
@@ -13,5 +14,5 @@ typedef union file_info {
 
 
 
-uint32_t alloc_file(uint32_t fotp, uint32_t inode, uint32_t file_type);
-uint32_t free_file(uint32_t file_pos);
+int32_t alloc_file(operations* operation, int32_t inode, int32_t file_type);
+int32_t free_file(int32_t file_pos);

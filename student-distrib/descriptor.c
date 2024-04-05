@@ -19,10 +19,10 @@ void init_zero(){
     }
 }
 
-uint32_t alloc_file(uint32_t fotp, uint32_t inode, uint32_t file_type){
+int32_t alloc_file(operations* operation, int32_t inode, int32_t file_type){
     for(i = 2; i < 8; i++){
         if(files[i].flags == 0){
-            files[i].fotp = fotp;
+            files[i].fotp = &operation;
 
             //if filetype is not regular file, set inode to 0
             if(file_type != 2)
@@ -41,7 +41,7 @@ uint32_t alloc_file(uint32_t fotp, uint32_t inode, uint32_t file_type){
     return -1;
 }
 
-uint32_t free_file(uint32_t descriptor){
+int32_t free_file(int32_t descriptor){
     if(files[descriptor].flags != 0){
         return -1;
     } else if(files[descriptor].flags == 1){
@@ -49,6 +49,9 @@ uint32_t free_file(uint32_t descriptor){
         files[descriptor].inode = 0;
         files[descriptor].file_pos = 0;
         files[descriptor].flags = 0;
+        return 0;
     }
     return -1;
 }
+
+

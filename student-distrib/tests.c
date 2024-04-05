@@ -6,6 +6,8 @@
 #include "i8259.h"
 #include "keyboard.h"
 #include "file.h"
+#include "syscall_helper.h"
+#include "terminal.h"
 
 #define PASS 1
 #define FAIL 0
@@ -278,20 +280,24 @@ int RTC_freq_RW_test(){
 
 void terminal_wr_test1(){
 	clear_screen();
+
+	const uint8_t* filename;
+	int32_t fd;
+
 	int i, j;
-	char* buf = "391OS> "; 
+	const char* buf = "391OS> "; 
 	
 	char read_buf[128];
 	
-	terminal_key_open();
+	terminal_open(filename);
 
-	terminal_key_write(0, buf, 7);
+	terminal_write(0, buf, 7);
 
-	i = terminal_key_read(0, read_buf, 128);
+	i = terminal_read(0, read_buf, 128);
 
-	j = terminal_key_write(0, read_buf, 128);
+	j = terminal_write(0, read_buf, 128);
 
-	terminal_key_close();
+	terminal_close(fd);
 
 }; 
 
@@ -299,17 +305,20 @@ void terminal_wr_test2(){
 	clear_screen();
 	// to pass, should not print the 9's in string
 	// buffer size 140
+	const uint8_t* filename;
+	int32_t fd;
+
 	char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111118888here9999"; //140
 	
-	terminal_key_open();
+	terminal_open(filename);
 
 	printf("test nbytes 128 \n");
-	terminal_key_write(0, buf, 128);
+	terminal_write(0, buf, 128);
 
 	printf("\ntest nbytes 140 \n");
-	terminal_key_write(0, buf, 140);
+	terminal_write(0, buf, 140);
 
-	terminal_key_close();
+	terminal_close(fd);
 
 }; 
 
@@ -317,20 +326,23 @@ void terminal_wr_test2(){
 void terminal_wr_test3(){
 	clear_screen();
 
+	const uint8_t* filename;
+	int32_t fd;
+
 	char* buf = "EdwardOS> "; 
 	
 	char read_buf[128];
 	
-	terminal_key_open();
+	terminal_open(filename);
 
 	while(1){
-		terminal_key_write(0, buf, 10);
+		terminal_write(0, buf, 10);
 
-		terminal_key_read(0, read_buf, 128);
+		terminal_read(0, read_buf, 128);
 
-		terminal_key_write(0, read_buf, 128);
+		terminal_write(0, read_buf, 128);
 	}
-	terminal_key_close();
+	terminal_close(fd);
 
 }; 
 
@@ -374,6 +386,22 @@ void directory_read_test_single() {
 }
 
 /* Checkpoint 3 tests */
+
+void parse_arguments_test() {
+	unsigned char main_buf[100] = "     hello.txt      bruh.txt  rwerhowiw   bruh";
+	unsigned char filename_buf[100];
+	unsigned char argument_buf[100];
+	parse_arguments(main_buf, filename_buf, argument_buf);
+}
+
+void test_file_validity(int8_t* fname) {
+	uint32_t returnval = check_file_validity(fname);
+	if(returnval == -1) {
+		printf("failed! not executable");
+	} else {
+		printf("success! executable file");
+	}
+}
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
 
@@ -416,7 +444,7 @@ void launch_tests(){
 	//terminal_wr_test2();
 
 	/* terminal :) */
-	//terminal_wr_test3();
+	terminal_wr_test3();
 
 	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 
@@ -424,5 +452,7 @@ void launch_tests(){
 	//file_system_read("frame1.txt");
 	//directory_read_test_full();
 	//directory_read_test_single();
+	//parse_arguments_test();
+	//test_file_validity("grep");
 
 }

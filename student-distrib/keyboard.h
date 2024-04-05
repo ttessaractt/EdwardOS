@@ -69,16 +69,3 @@ extern void keyboard_handler();
 /* initialize keyboard by enabling interrupts IRQ1 on pic */
 extern void keyboard_init();
 
-
-// terminal_open
-int32_t terminal_key_open();
-
-// terminal_read
-int32_t terminal_key_read(int32_t fd, char* buf, int32_t nbytes);
-
-// terminal_write
-int32_t terminal_key_write(int32_t fd, char* buf, int32_t nbytes);
-
-// terminal_close
-int32_t terminal_key_close();
-

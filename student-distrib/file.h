@@ -63,6 +63,17 @@ typedef union data_block {
 
 /* OPERATIONS */
 
+typedef union operations {
+  struct {
+    int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);
+    int32_t (*write) (int32_t fd, const void* buf, int32_t nbytes);
+    int32_t (*open) (const uint8_t* filename);
+    int32_t (*close) (int32_t fd);
+  } __attribute__((packed));
+} operations;
+
+
+/*
 typedef union file_operations {
   struct {
     uint32_t (*file_open) (const int8_t* fname);
@@ -99,6 +110,20 @@ typedef union terminal_operations {
   } __attribute__((packed));
 } terminal_operations;
 
+typedef union stdin_operations {
+  struct {
+    uint32_t (*terminal_key_read) (int32_t fd, char* buf, int32_t nbytes);
+  } __attribute__((packed));
+} stdin_operations;
+
+typedef union stdout_operations {
+  struct {
+    uint32_t (*terminal_key_write) (int32_t fd, char* buf, int32_t nbytes);
+  } __attribute__((packed));
+} stdout_operations;
+*/
+
+
 typedef void (*jump)(void);
 
 /* global variables that store state of current file */
@@ -109,22 +134,26 @@ extern unsigned int num_dir_entries;
 extern dentry_t cur_dir;
 extern uint32_t dentry_index;
 extern uint32_t file_size;
-extern uint32_t (*jump_table[8])();
+extern operations file_operations;
+extern operations dir_operations;
+extern operations rtc_operations;
+extern operations stdin_operations;
+extern operations stdout_operations;
 
-uint32_t file_open();
-uint32_t file_close();
-uint32_t file_read();
-uint32_t file_write();
+int32_t file_read(int32_t fd, void* buf, int32_t nbytes);
+int32_t file_write(int32_t fd, const void* buf, int32_t nbytes);
+int32_t file_open(const uint8_t* filename);
+int32_t file_close(int32_t fd);
 
-uint32_t directory_open();
-uint32_t directory_close();
-uint32_t directory_read();
-uint32_t directory_write();
+int32_t directory_read(int32_t fd, void* buf, int32_t nbytes);
+int32_t directory_write(int32_t fd, const void* buf, int32_t nbytes);
+int32_t directory_open(const uint8_t* filename);
+int32_t directory_close(int32_t fd);
 
-uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
-uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
-uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
-uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes);
+int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
+int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
+int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
+int32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes);
 
 
 
