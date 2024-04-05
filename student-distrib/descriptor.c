@@ -3,6 +3,7 @@
 #include "kernel.h"
 #include "keyboard.h"
 #include "descriptor.h"
+#include "terminal.h"
 
 /*  filetypes:
  *  0: rtc
@@ -10,6 +11,11 @@
  *  2: regular file
  */
 
+operations file_operations;
+operations dir_operations;
+operations rtc_operations;
+operations stdin_operations;
+operations stdout_operations;
 file_info files[8]; 
 int i;
 
@@ -19,10 +25,10 @@ void init_zero(){
     }
 }
 
-int32_t alloc_file(operations* operation, int32_t inode, int32_t file_type){
+int32_t alloc_file(operations operation, int32_t inode, int32_t file_type){
     for(i = 2; i < 8; i++){
         if(files[i].flags == 0){
-            files[i].fotp = &operation;
+            files[i].fotp = operation;
 
             //if filetype is not regular file, set inode to 0
             if(file_type != 2)
@@ -31,6 +37,8 @@ int32_t alloc_file(operations* operation, int32_t inode, int32_t file_type){
                 files[i].inode = inode;
 
             files[i].file_pos = i;
+
+            //0 is NOT USED, 1 is IN USE
             files[i].flags = 1;
 
             //return 0 on success
@@ -45,13 +53,53 @@ int32_t free_file(int32_t descriptor){
     if(files[descriptor].flags != 0){
         return -1;
     } else if(files[descriptor].flags == 1){
-        files[descriptor].fotp = 0;
+        //files[descriptor].fotp = (*operations)0;
         files[descriptor].inode = 0;
         files[descriptor].file_pos = 0;
         files[descriptor].flags = 0;
         return 0;
     }
     return -1;
+}
+
+void init_file_operations(){
+    /* file operation */
+    file_operations.open = file_open;
+    file_operations.close = file_close;
+    file_operations.read = file_read;
+    file_operations.write = file_write;
+
+    /* dir operations */
+    dir_operations.open = directory_open;
+    dir_operations.close = directory_close;
+    dir_operations.read = directory_read;
+    dir_operations.write = directory_write;
+
+    /* rtc operations */
+    rtc_operations.open = RTC_open;
+    rtc_operations.close = RTC_close;  
+    rtc_operations.read = RTC_read;
+    rtc_operations.write = RTC_write;
+
+    /* stdin operations*/
+    stdin_operations.read = terminal_read;
+
+    /* stdout operations */
+    stdout_operations.write = terminal_write;
+}
+
+void init_std_op(){
+    /* initialize stdin */
+    files[0].fotp = stdin_operations;
+    files[0].inode = 0;
+    files[0].file_pos = 0;
+    files[0].flags = 1;
+
+    /*initialize stdout */
+    files[1].fotp = stdout_operations;
+    files[1].inode = 0;
+    files[1].file_pos = 0;
+    files[1].flags = 1;
 }
 
 

@@ -1,5 +1,7 @@
 #include "syscalls.h"
 #include "syscall_helper.h"
+#include "descriptor.h"
+#include "file.h"
 
 /*
 terminates a process & returns specified value to parent process
@@ -39,17 +41,16 @@ int32_t execute (uint8_t* command){
 /* int32_t read (int32_t fd, void* buf, int32_t nbytes);
  * Description: 
             int32_t fd      = file descriptor
-            void* buf       = 
-            int32_t nbytes  =
+            void* buf       = universal buffer
+            int32_t nbytes  = how many bytes to read
  * Inputs: 
  * Return Value: 
  * Function:
  */
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
-
-
-
-    return -1;
+    /* if initial file pos is at or beyond end of file return 0*/
+    if(files[fd].file_pos >= file_size){ return 0; }
+    return (int32_t)files[fd].fotp.read;
 };
 
 /* int32_t write (int32_t fd, const void* buf, int32_t nbytes);
@@ -59,7 +60,7 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
  * Function:
  */
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
-    return -1;
+    return (int32_t)files[fd].fotp.write;
 };
 
 /* int32_t open (const uint8_t* filename);
@@ -70,8 +71,18 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
  * Function:
  */
 int32_t open (const uint8_t* filename){
-    
+    /* open the file and check its valid*/
     if(file_open(filename) == -1){return -1;}
+
+    /* allocate an unused file descriptor */
+    if(cur_file.file_type == 0){
+        return alloc_file(rtc_operations, cur_file.inode_num, 0);
+    } else if (cur_file.file_type == 1){
+        return alloc_file(dir_operations,cur_file.inode_num, 1);
+    } else if (cur_file.file_type == 2){
+        return alloc_file(file_operations, cur_file.inode_num, 2);
+    }
+
     return 0;
 };
 
@@ -82,6 +93,8 @@ int32_t open (const uint8_t* filename){
  * Function:
  */
 int32_t close (int32_t fd){
+    /* return -1 if they try to close stdin/out */
+    if(fd == 0 || fd == 1){ return -1; }
     return free_file(fd);
 };
 

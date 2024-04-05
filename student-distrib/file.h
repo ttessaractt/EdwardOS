@@ -60,70 +60,6 @@ typedef union data_block {
   } __attribute__((packed));
 } data_block;
 
-
-/* OPERATIONS */
-
-typedef union operations {
-  struct {
-    int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);
-    int32_t (*write) (int32_t fd, const void* buf, int32_t nbytes);
-    int32_t (*open) (const uint8_t* filename);
-    int32_t (*close) (int32_t fd);
-  } __attribute__((packed));
-} operations;
-
-
-/*
-typedef union file_operations {
-  struct {
-    uint32_t (*file_open) (const int8_t* fname);
-    uint32_t (*file_close) ();
-    uint32_t (*file_read) (const int8_t* fname);
-    uint32_t (*file_write) ();
-  } __attribute__((packed));
-} file_operations;
-
-typedef union dir_operations {
-  struct {
-    uint32_t (*directory_open) ();
-    uint32_t (*directory_close) ();
-    uint32_t (*directory_read) ();
-    uint32_t (*directory_write) ();
-  } __attribute__((packed));
-} dir_operations;
-
-typedef union rtc_operations {
-  struct {
-    uint32_t (*RTC_open) (const uint8_t* filename);
-    uint32_t (*RTC_close) (int32_t fd, void* buf, int32_t nbytes);
-    uint32_t (*RTC_read) (int32_t fd, const void* buf, int32_t nbytes);
-    uint32_t (*RTC_write) (int32_t fd);
-  } __attribute__((packed));
-} rtc_operations;
-
-typedef union terminal_operations {
-  struct {
-    uint32_t (*terminal_key_open) ();
-    uint32_t (*terminal_key_read) (int32_t fd, char* buf, int32_t nbytes);
-    uint32_t (*terminal_key_write) (int32_t fd, char* buf, int32_t nbytes);
-    uint32_t (*terminal_key_close) ();
-  } __attribute__((packed));
-} terminal_operations;
-
-typedef union stdin_operations {
-  struct {
-    uint32_t (*terminal_key_read) (int32_t fd, char* buf, int32_t nbytes);
-  } __attribute__((packed));
-} stdin_operations;
-
-typedef union stdout_operations {
-  struct {
-    uint32_t (*terminal_key_write) (int32_t fd, char* buf, int32_t nbytes);
-  } __attribute__((packed));
-} stdout_operations;
-*/
-
-
 typedef void (*jump)(void);
 
 /* global variables that store state of current file */
@@ -134,11 +70,7 @@ extern unsigned int num_dir_entries;
 extern dentry_t cur_dir;
 extern uint32_t dentry_index;
 extern uint32_t file_size;
-extern operations file_operations;
-extern operations dir_operations;
-extern operations rtc_operations;
-extern operations stdin_operations;
-extern operations stdout_operations;
+
 
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes);
 int32_t file_write(int32_t fd, const void* buf, int32_t nbytes);
@@ -154,6 +86,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
 int32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes);
+int32_t check_file_validity(uint8_t* fname);
 
 
 

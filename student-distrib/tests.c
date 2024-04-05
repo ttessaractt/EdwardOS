@@ -347,8 +347,8 @@ void terminal_wr_test3(){
 }; 
 
 void file_system_read(int8_t* name) {
-	file_open(name);
-	file_read(name);
+	//file_open(name);
+	//file_read(name);
 	clear_screen();
     file_key_write(0, (char*)data_buffer.data, cur_file_det.length);
     printf("\nFile_name: %s", name);
@@ -357,9 +357,9 @@ void file_system_read(int8_t* name) {
 void directory_read_test_full() {
 	int i;
 	clear_screen();
-	directory_open();
+	//directory_open();
 	for(i = 0; i < num_dir_entries; i++) {
-		directory_read();
+		//directory_read();
 		printf("file name: ");
         printf("%s", cur_dir.file_name);
         printf(", file type: ");
@@ -367,14 +367,14 @@ void directory_read_test_full() {
         printf(", file size: ");
         printf("%d", file_size);
         printf("\n");
-		directory_open();
+		//directory_open();
 	}
 }
 
 void directory_read_test_single() {
 	clear_screen();
-	directory_open();
-	directory_read();
+	//directory_open();
+	//directory_read();
 	printf("file name: ");
 	printf("%s", cur_dir.file_name);
 	printf(", file type: ");
@@ -382,7 +382,7 @@ void directory_read_test_single() {
 	printf(", file size: ");
 	printf("%d", file_size);
 	printf("\n");
-	directory_open();
+	//directory_open();
 }
 
 /* Checkpoint 3 tests */

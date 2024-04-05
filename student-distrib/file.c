@@ -12,11 +12,7 @@ unsigned int num_dir_entries;
 dentry_t cur_dir;
 uint32_t dentry_index = -1;
 uint32_t file_size;
-operations file_operations;
-operations dir_operations;
-operations rtc_operations;
-operations stdin_operations;
-operations stdout_operations;
+
 
 /* uint32_t file_key_write(int32_t fd, char* buf, int32_t nbytes);
  * Description: writes a file to the terminal using the buffer
@@ -56,14 +52,7 @@ int32_t file_open(const uint8_t* fname){
         (cur_file.inode_num * BLOCK_LENGTH);
     memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
 
-    /* allocate an unused file descriptor */
-    if(cur_file.file_type == 0){
-        alloc_file(&rtc_operations, cur_file.inode_num, 0);
-    } else if (cur_file.file_type == 1){
-        alloc_file(&dir_operations,cur_file.inode_num, 1);
-    } else if (cur_file.file_type == 2){
-        alloc_file(&file_operations, cur_file.inode_num, 2);
-    }
+    
 
     return 0;
 }
@@ -301,31 +290,60 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     return bytes_written;
 }
 
-void init_file_system(){
-    /* file operation */
-    file_operations.open = file_open;
-    file_operations.close = file_close;
-    file_operations.read = file_read;
-    file_operations.write = file_write;
+/* returns -1 if file is invalid, else returns entry point address */
+int32_t check_file_validity(uint8_t* fname) {
+    /* want to make sure file is an executable file*/
+    /* header inside first 40 bytes */
 
-    /* dir operations */
-    dir_operations.open = directory_open;
-    dir_operations.close = directory_close;
-    dir_operations.read = directory_read;
-    dir_operations.write = directory_write;
+    /* put file data into data_buffer.data */
+    file_open(fname);
+    //file_read();
 
-    /* rtc operations */
-    rtc_operations.open = RTC_open;
-    rtc_operations.close = RTC_close;  
-    rtc_operations.read = RTC_read;
-    rtc_operations.write = RTC_write;
+    /* first 4 bytes represent a magic number that identifies file
+       as being executable */
+    /* if magic number is not present, execute should fail */
+    int8_t* data_ptr = data_buffer.data;
+    int i;
+    for(i = 0; i < 4; i++) {
+        if(i == 0) {
+            if(*data_ptr != 0x7F) {
+                return -1;
+            }
+        } else if(i == 1) {
+            if(*data_ptr != 0x45) {
+                return -1;
+            }
+        } else if(i == 2) {
+            if(*data_ptr != 0x4c) {
+                return -1;
+            }
+        } else if(i == 3) {
+            if(*data_ptr != 0x46) {
+                return -1;
+            }
+        }
 
-    /* stdin operations*/
-    stdin_operations.read = terminal_read;
+        data_ptr++;
+    }
 
-    /* stdout operations */
-    stdout_operations.write = terminal_write;
+    /* at this point, we know the file is a valid executable */
+
+    /* bytes 24-27 contain the entry point into the program */
+    /* need to save this */
+
+    /* double check pointer stuff is accurate */
+    uint32_t* data_ptr2 = (uint32_t*)(data_buffer.data + 23);
+    uint32_t entry_point_addr = *data_ptr2;
+
+    return entry_point_addr;
 
 }
+
+
+
+
+
+
+
 
 
