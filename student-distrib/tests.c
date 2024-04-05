@@ -280,12 +280,16 @@ int RTC_freq_RW_test(){
 
 void terminal_wr_test1(){
 	clear_screen();
+
+	const uint8_t* filename;
+	int32_t fd;
+
 	int i, j;
-	char* buf = "391OS> "; 
+	const char* buf = "391OS> "; 
 	
 	char read_buf[128];
 	
-	terminal_open();
+	terminal_open(filename);
 
 	terminal_write(0, buf, 7);
 
@@ -293,7 +297,7 @@ void terminal_wr_test1(){
 
 	j = terminal_write(0, read_buf, 128);
 
-	terminal_close();
+	terminal_close(fd);
 
 }; 
 
@@ -301,9 +305,12 @@ void terminal_wr_test2(){
 	clear_screen();
 	// to pass, should not print the 9's in string
 	// buffer size 140
+	const uint8_t* filename;
+	int32_t fd;
+
 	char* buf = "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111118888here9999"; //140
 	
-	terminal_open();
+	terminal_open(filename);
 
 	printf("test nbytes 128 \n");
 	terminal_write(0, buf, 128);
@@ -311,7 +318,7 @@ void terminal_wr_test2(){
 	printf("\ntest nbytes 140 \n");
 	terminal_write(0, buf, 140);
 
-	terminal_close();
+	terminal_close(fd);
 
 }; 
 
@@ -319,11 +326,14 @@ void terminal_wr_test2(){
 void terminal_wr_test3(){
 	clear_screen();
 
+	const uint8_t* filename;
+	int32_t fd;
+
 	char* buf = "EdwardOS> "; 
 	
 	char read_buf[128];
 	
-	terminal_open();
+	terminal_open(filename);
 
 	while(1){
 		terminal_write(0, buf, 10);
@@ -332,7 +342,7 @@ void terminal_wr_test3(){
 
 		terminal_write(0, read_buf, 128);
 	}
-	terminal_close();
+	terminal_close(fd);
 
 }; 
 

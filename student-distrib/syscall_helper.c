@@ -8,9 +8,11 @@
 #include "file.h"
 #include "paging.h"
 #include "loader.h"
+#include "x86_desc.h"
 
-current_pid = 0; // initial pid = 0
-current_parent_pid = 0;
+int32_t current_pid = 0; // initial pid = 0
+int32_t current_parent_pid = 0;
+process_control_block_t* current_process = NULL;
 
 int32_t execute_help(unsigned char* command){
 
@@ -26,7 +28,7 @@ int32_t execute_help(unsigned char* command){
     parse_arguments(command, file_name, arguments);
 
     // CHECK FILE VALIDITY
-    int32_t entry_addr = check_file_validity(file_name);
+    int32_t entry_addr = check_file_validity((char*)file_name);
     /* not an executable file */
     if(entry_addr == -1) {
         return -1;
@@ -39,7 +41,7 @@ int32_t execute_help(unsigned char* command){
     allocate_tasks(1);
 
     // LOAD FILE INTO MEMORY
-    program_loader(file_name, 1);
+    program_loader((char*)file_name, 1);
 
     // CREATE PCB 
 
@@ -50,6 +52,20 @@ int32_t execute_help(unsigned char* command){
     return -1;
 
 }
+
+int32_t halt_help(unsigned char* status){
+
+    /* get the esp0 of the parent */
+    process_control_block_t* pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+    tss.esp0 = pcb_parent->tss_esp0;
+    tss.ss0 = KERNEL_DS;
+
+    /* the 8 bit input is BL (register) which should then be expanded */
+    /* it is expanted to the return value of the parent program's execute */
+    return -1;
+}
+
+
 
 
 int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments){
@@ -82,7 +98,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     /* copy to arguments everything past first file name + spaces */
     int j;
     int l = 0;
-    for(j = cur_idx; j < strlen(buf); j++) {
+    for(j = cur_idx; j < strlen((char*)buf); j++) {
         arguments[l] = buf[j];
         l++;
     }
@@ -101,15 +117,16 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 int32_t initialize_pcb(unsigned char* file_name){
 
     current_pid++;
-    process_control_block_t * pcb_new = 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
+    process_control_block_t* pcb_new = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
 
-    pcb_new->pid = current_pid; // becomes 1
+    pcb_new->pid = current_pid; // becomes 1 (on first time)
     pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
 
     pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
     
-
     /* initialzie file array */
+
+
 
     return -1;
 

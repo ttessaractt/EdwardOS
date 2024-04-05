@@ -13,7 +13,7 @@
  *  Arguments: None
  *  Return: None
  */
-int32_t terminal_open(){
+int32_t terminal_open(const uint8_t* filename){
     return 0;
 }
 
@@ -25,9 +25,12 @@ int32_t terminal_open(){
  *             nbytes: number of bytes to read 
  *  Return: number of bytes read
  */
-int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
+int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
     int i = 0;
+
+    /* change to char* */
+    char* buffer = buf;
 
     if (buf == NULL){
         return -1; // or should it be -1?
@@ -43,13 +46,13 @@ int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
         }
 
         if (keyboard_buffer[i] != '\n'){
-            buf[i] = keyboard_buffer[i];
+            buffer[i] = keyboard_buffer[i];
             keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             terminal_can_read = 0;
             //printf("cleared");
         }
         else{
-            buf[i] = keyboard_buffer[i]; // returns when key buffer is enter
+            buffer[i] = keyboard_buffer[i]; // returns when key buffer is enter
             keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             //printf("cleared2");
             terminal_can_read = 0;
@@ -69,9 +72,12 @@ int32_t terminal_read(int32_t fd, char* buf, int32_t nbytes){
  *             nbytes: number of bytes to write 
  *  Return: number of bytes written
  */
-int32_t terminal_write(int32_t fd, char* buf, int32_t nbytes){
+int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     
     int i = 0;
+
+    /* change to char* */
+    const char* buffer = buf;
 
     if (buf == NULL){
         return -1; // or should it be -1?
@@ -81,11 +87,11 @@ int32_t terminal_write(int32_t fd, char* buf, int32_t nbytes){
         nbytes = MAX_BUF_SIZE;
     }
     for (i = 0; i < nbytes; i++){
-        if ((buf[i] != '\n') && (buf[i] != '\0')){ // only prints characters
-            putc(buf[i]);
+        if ((buffer[i] != '\n') && (buffer[i] != '\0')){ // only prints characters
+            putc(buffer[i]);
         }
-        else if (buf[i] == '\n'){ // returns when end of buffer (the new line)
-            putc(buf[i]);
+        else if (buffer[i] == '\n'){ // returns when end of buffer (the new line)
+            putc(buffer[i]);
             return i;
         }
     }
@@ -99,6 +105,6 @@ int32_t terminal_write(int32_t fd, char* buf, int32_t nbytes){
  *  Arguments: None
  *  Return: None
  */
-int32_t terminal_close(){
+int32_t terminal_close(int32_t fd){
     return -1;
 }

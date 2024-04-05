@@ -26,10 +26,13 @@ typedef struct process_control_block_t{
 
 int32_t current_pid;
 int32_t current_parent_pid;
+process_control_block_t* current_process;
 
 int32_t execute_help(unsigned char* command);
+
+int32_t halt_help(unsigned char* status);
 
 /* need to pass in file name and argument buffer of proper size */
 int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments);
 
-int32_t initialize_pcb(unsigne char* file_name);
+int32_t initialize_pcb(unsigned char* file_name);
