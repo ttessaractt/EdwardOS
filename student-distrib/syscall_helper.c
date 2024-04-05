@@ -16,6 +16,8 @@ process_control_block_t* current_process = NULL;
 
 int32_t execute_help(unsigned char* command){
 
+    //cli();
+
     if (command == NULL){
         return -1;
     }
@@ -35,16 +37,19 @@ int32_t execute_help(unsigned char* command){
     }
 
     /* entry_addr now stored in entry_addr */
+    current_parent_pid = current_pid;
+
+    // CREATE PCB 
+    initialize_pcb(file_name);
 
     // SET UP PAGING
     // allocates memory for tasks 
-    allocate_tasks(1);
+    allocate_tasks(current_process->pid);
 
     // LOAD FILE INTO MEMORY
     program_loader((char*)file_name, 1);
 
-    // CREATE PCB 
-
+    
 
     // CONTEXT SWITCH AND IRET
     
@@ -54,12 +59,13 @@ int32_t execute_help(unsigned char* command){
 }
 
 int32_t halt_help(unsigned char* status){
-
-    /* get the esp0 of the parent */
+    /* not done! */
+    /* get the esp0 of the parent */    
     process_control_block_t* pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
     tss.esp0 = pcb_parent->tss_esp0;
     tss.ss0 = KERNEL_DS;
 
+    current_pid = 0;
     /* the 8 bit input is BL (register) which should then be expanded */
     /* it is expanted to the return value of the parent program's execute */
     return -1;
@@ -116,8 +122,10 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 
 int32_t initialize_pcb(unsigned char* file_name){
 
-    current_pid++;
-    process_control_block_t* pcb_new = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
+    current_pid++; // stop at 6?
+    process_control_block_t* pcb_new; // = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
+    int8_t* pcb_start = (int8_t*) 0x800000 - (0x2000 * current_pid);
+
 
     pcb_new->pid = current_pid; // becomes 1 (on first time)
     pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
@@ -126,7 +134,9 @@ int32_t initialize_pcb(unsigned char* file_name){
     
     /* initialzie file array */
 
+    current_process = pcb_new;
 
+    memcpy(pcb_start, pcb_new, 16); // 16 bytes need to change when we have file array
 
     return -1;
 

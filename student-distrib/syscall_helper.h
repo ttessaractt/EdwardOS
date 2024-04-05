@@ -11,8 +11,8 @@ typedef struct process_control_block_t{
     uint32_t esp;
     uint32_t tss_esp0;
 
-    struct process_control_block_t * next;
-    struct process_control_block_t * parent;
+    //struct process_control_block_t * next;
+    //struct process_control_block_t * parent;
 
     /* need file discriptor array */
     //file_info file_d_array[length]; //need to make it!!
