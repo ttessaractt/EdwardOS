@@ -22,4 +22,5 @@ syscalls.o: syscalls.c syscalls.h types.h syscall_helper.h descriptor.h \
   lib.h cursor.h file.h rtc.h keyboard.h
 terminal.o: terminal.c terminal.h types.h keyboard.h lib.h cursor.h
 tests.o: tests.c tests.h x86_desc.h types.h lib.h cursor.h idt.h rtc.h \
-  i8259.h keyboard.h file.h syscall_helper.h terminal.h
+  i8259.h keyboard.h file.h syscall_helper.h terminal.h descriptor.h \
+  syscalls.h

@@ -20,3 +20,16 @@ Description:
     four bytes instead of one 
 Solution:
     Not a bug as of now
+
+<--------------------------------------------------------->
+                        BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    functions not copying over correctly when initializing 
+    file operations
+Solution:
+    

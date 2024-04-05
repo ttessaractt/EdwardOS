@@ -8,6 +8,8 @@
 #include "file.h"
 #include "syscall_helper.h"
 #include "terminal.h"
+#include "descriptor.h"
+#include "syscalls.h"
 
 #define PASS 1
 #define FAIL 0
@@ -406,6 +408,27 @@ void test_file_validity(uint8_t* fname) {
 /* Checkpoint 5 tests */
 
 
+void test_read_operation(){
+	void init_file_operations();
+	void init_std_op();
+	
+	char buffer[100];
+
+	open("frame1.txt");
+	read(3, buffer, 0);
+}
+
+/*
+void test_open_operation(uint8_t* fname){
+	void init_file_operations();
+	void init_std_op();
+
+	open("frame1.txt");
+	printf("%d", files[3].inode);
+}
+*/
+
+
 /* Test suite entry point */
 void launch_tests(){
 	//TEST_OUTPUT("idt_test", idt_test());
@@ -454,5 +477,9 @@ void launch_tests(){
 	//directory_read_test_single();
 	//parse_arguments_test();
 	//test_file_validity("grep");
+
+
+	/* open read tests*/
+	test_read_operation();
 
 }
