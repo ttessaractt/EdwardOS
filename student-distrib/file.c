@@ -38,7 +38,7 @@ int32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes){
  * Return Value: 0 
  * Function: opens a file
  */
-int32_t file_open(const int8_t* fname){
+int32_t file_open(const int8_t* fname){ // change to uint8
     int i;
     i = read_dentry_by_name(fname, &cur_file);
     if(i == -1) {
@@ -329,7 +329,7 @@ int32_t check_file_validity(int8_t* fname) {
     /* need to save this */
 
     /* double check pointer stuff is accurate */
-    uint32_t* data_ptr2 = (uint32_t*)(data_buffer.data + 23);
+    uint32_t* data_ptr2 = (uint32_t*)(data_buffer.data + 24);
     uint32_t entry_point_addr = *data_ptr2;
 
     return entry_point_addr;

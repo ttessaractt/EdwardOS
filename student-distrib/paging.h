@@ -72,3 +72,4 @@ extern void load_page_dir(page_dir_entry_t* page_dir_base);
 extern page_table_entry_t page_table[1024] __attribute__((aligned(OFFSET_4KB)));
 extern page_dir_entry_t page_directory[1024] __attribute__((aligned(OFFSET_4KB)));
 
+extern void flush_tlb();

@@ -133,5 +133,7 @@ void allocate_tasks(uint32_t task){
     } else if(task == 2) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_12MB >> 12) & KEEP_TOP10_BITS);
     }
+
+    flush_tlb(); // maybe?
 }
 

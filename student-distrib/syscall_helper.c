@@ -47,14 +47,16 @@ int32_t execute_help(unsigned char* command){
     // allocates memory for tasks 
     allocate_tasks(current_process->pid);
 
+    //flush_tlb();
     // LOAD FILE INTO MEMORY
     program_loader((char*)file_name, 1);
-
     
+    //printf("before jump\n");
+    //printf("%x\n", entry_addr);
 
     // CONTEXT SWITCH AND IRET
-    jump_to_user(entry_addr);
-    
+    jump_to_user(entry_addr); // 
+    printf("dont come back");
 
     return -1;
 
@@ -113,20 +115,20 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     arguments[l] = '\0';
 
     /* testing */
+    //printf("\n");
+    printf("%s HIIII", file_name);
     printf("\n");
-    printf("%s", file_name);
-    printf("\n");
-    printf("%s", arguments);
+    //printf("%s", arguments);
 
     return 1; //success
 
 }
 
 int32_t initialize_pcb(unsigned char* file_name){
-
+    //printf("PBC StART HEYY\n");
     current_pid++; // stop at 6?
-    process_control_block_t* pcb_new; // = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
-    int8_t* pcb_start = (int8_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_new = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
+    //int8_t* pcb_start = (int8_t*) 0x800000 - (0x2000 * current_pid);
 
 
     pcb_new->pid = current_pid; // becomes 1 (on first time)
@@ -137,9 +139,9 @@ int32_t initialize_pcb(unsigned char* file_name){
     /* initialzie file array */
 
     current_process = pcb_new;
-
-    memcpy(pcb_start, pcb_new, 16); // 16 bytes need to change when we have file array
-
-    return -1;
+    //printf("PBC mcpy HEYY\n");
+    //memcpy(pcb_start, pcb_new, 16); // 16 bytes need to change when we have file array
+    //printf("PBC end HEYY\n");
+    return 0;
 
 } 

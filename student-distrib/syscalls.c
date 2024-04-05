@@ -1,5 +1,6 @@
 #include "syscalls.h"
 #include "syscall_helper.h"
+#include "terminal.h"
 
 /*
 terminates a process & returns specified value to parent process
@@ -39,13 +40,13 @@ int32_t execute (uint8_t* command){
 /*
 */
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
-    return -1;
+    return terminal_read(fd, buf, nbytes);
 };
 
 /*
 */
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
-    return -1;
+    return terminal_write(fd, buf, nbytes);
 };
 
 
