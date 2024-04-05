@@ -9,6 +9,7 @@
 #include "paging.h"
 #include "loader.h"
 #include "x86_desc.h"
+#include "iret_helper.h"
 
 int32_t current_pid = 0; // initial pid = 0
 int32_t current_parent_pid = 0;
@@ -52,6 +53,7 @@ int32_t execute_help(unsigned char* command){
     
 
     // CONTEXT SWITCH AND IRET
+    jump_to_user(entry_addr);
     
 
     return -1;

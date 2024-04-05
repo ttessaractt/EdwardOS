@@ -12,7 +12,7 @@ The system call handler itself is responsible for expanding the 8-bit argument \
 
 */
 int32_t halt (uint8_t status){
-    return halt_help(status);
+    return halt_help(&status);
 };
 
 
