@@ -388,13 +388,13 @@ void directory_read_test_single() {
 /* Checkpoint 3 tests */
 
 void parse_arguments_test() {
-	unsigned char main_buf[100] = "     hello.txt      bruh.txt  rwerhowiw   bruh";
+	char main_buf[100] = "     hello.txt      bruh.txt  rwerhowiw   bruh";
 	unsigned char filename_buf[100];
 	unsigned char argument_buf[100];
 	parse_arguments(main_buf, filename_buf, argument_buf);
 }
 
-void test_file_validity(int8_t* fname) {
+void test_file_validity(uint8_t* fname) {
 	uint32_t returnval = check_file_validity(fname);
 	if(returnval == -1) {
 		printf("failed! not executable");
@@ -444,7 +444,7 @@ void launch_tests(){
 	//terminal_wr_test2();
 
 	/* terminal :) */
-	terminal_wr_test3();
+	//terminal_wr_test3();
 
 	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 

@@ -21,7 +21,7 @@ int32_t execute_help(unsigned char* command){
 
     // PARSE ARGS
     /* populates file_name */
-    parse_arguments(command, file_name, arguments);
+    parse_arguments((int8_t*)command, file_name, arguments);
 
     // CHECK FILE VALIDITY
     int32_t entry_addr = check_file_validity(file_name);
@@ -50,7 +50,7 @@ int32_t execute_help(unsigned char* command){
 }
 
 
-int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments){
+int32_t parse_arguments(char* buf, unsigned char* file_name, unsigned char* arguments){
 
     /* return -1 for fail */
     if (buf == NULL){
@@ -96,8 +96,10 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 
 }
 
+/*
 int32_t initialize_pcb(){
 
     
 
 } 
+*/

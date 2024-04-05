@@ -27,6 +27,6 @@ process_control_block_t PCB_2;
 int32_t execute_help(unsigned char* command);
 
 /* need to pass in file name and argument buffer of proper size */
-int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments);
+int32_t parse_arguments(char* buf, unsigned char* file_name, unsigned char* arguments);
 
 

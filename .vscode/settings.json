@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "descriptor.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "i8259.h": "c"
     }
 }
