@@ -1,0 +1,26 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+linker.o: linker.S
+set_paging.o: set_paging.S
+x86_desc.o: x86_desc.S x86_desc.h types.h
+cursor.o: cursor.c cursor.h types.h i8259.h lib.h
+descriptor.o: descriptor.c types.h file.h lib.h cursor.h rtc.h keyboard.h \
+  kernel.h descriptor.h terminal.h
+file.o: file.c types.h file.h lib.h cursor.h rtc.h keyboard.h kernel.h \
+  descriptor.h terminal.h
+i8259.o: i8259.c i8259.h types.h lib.h cursor.h
+idt.o: idt.c lib.h types.h cursor.h x86_desc.h idt.h keyboard.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h cursor.h i8259.h \
+  debug.h tests.h keyboard.h rtc.h paging.h kernel.h file.h loader.h
+keyboard.o: keyboard.c keyboard.h types.h i8259.h lib.h cursor.h
+lib.o: lib.c lib.h types.h cursor.h
+loader.o: loader.c types.h file.h lib.h cursor.h rtc.h keyboard.h
+paging.o: paging.c paging.h types.h
+rtc.o: rtc.c rtc.h types.h i8259.h lib.h cursor.h idt.h
+syscall_helper.o: syscall_helper.c syscall_helper.h types.h lib.h \
+  cursor.h file.h rtc.h keyboard.h paging.h loader.h
+syscalls.o: syscalls.c syscalls.h types.h syscall_helper.h descriptor.h \
+  lib.h cursor.h file.h rtc.h keyboard.h
+terminal.o: terminal.c terminal.h types.h keyboard.h lib.h cursor.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h cursor.h idt.h rtc.h \
+  i8259.h keyboard.h file.h syscall_helper.h terminal.h descriptor.h \
+  syscalls.h

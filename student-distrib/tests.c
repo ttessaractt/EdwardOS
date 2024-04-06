@@ -416,7 +416,7 @@ void test_read_operation(){
 
 	open("frame1.txt");
 
-	read(2, buffer, 0);
+	read(2, data_buffer.data, 0);
 	close(0);
 	close(2);
 }

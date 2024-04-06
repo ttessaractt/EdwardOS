@@ -50,8 +50,8 @@ int32_t alloc_file(operations operation, int32_t inode, int32_t file_type){
 }
 
 int32_t free_file(int32_t descriptor){
-    if(files[descriptor].flags != 0){
-        return -1;
+    if(files[descriptor].flags == 0){ 
+        return -1; // return -1 if you trying to close a file that is not in use
     } else if(files[descriptor].flags == 1){
         //files[descriptor].fotp = (*operations)0;
         files[descriptor].inode = 0;

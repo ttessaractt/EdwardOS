@@ -34,4 +34,17 @@ Description:
 Solution:
     because i put the word void before i called the functions!
     (gonna kms)
+
+<--------------------------------------------------------->
+                        BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    close function not working correctly
+Solution:
+    if statement was flags != 0 in descriptor.c
+    instead of flags == 0
     
