@@ -36,7 +36,7 @@ syscall_handler:
     jmp syscall_done
 
 syscall_error:
-    movl $-1, $eax
+    movl $-1, %eax
 
 syscall_done:       # return from system call, either call is finished or value not valid
     # return regs
