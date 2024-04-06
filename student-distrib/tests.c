@@ -347,8 +347,9 @@ void terminal_wr_test3(){
 }; 
 
 void file_system_read(int8_t* name) {
-	file_open(name);
-	file_read(name);
+	char* buf;
+	file_open((uint8_t*)name);
+	file_read(0, buf, 0);
 	clear_screen();
     file_key_write(0, (char*)data_buffer.data, cur_file_det.length);
     printf("\nFile_name: %s", name);
@@ -356,10 +357,12 @@ void file_system_read(int8_t* name) {
 
 void directory_read_test_full() {
 	int i;
+	char* buf;
+	uint8_t* file_name;
 	clear_screen();
-	directory_open();
+	directory_open(file_name);
 	for(i = 0; i < num_dir_entries; i++) {
-		directory_read();
+		directory_read(0, buf, 0);
 		printf("file name: ");
         printf("%s", cur_dir.file_name);
         printf(", file type: ");
@@ -367,14 +370,16 @@ void directory_read_test_full() {
         printf(", file size: ");
         printf("%d", file_size);
         printf("\n");
-		directory_open();
+		directory_open(file_name);
 	}
 }
 
 void directory_read_test_single() {
 	clear_screen();
-	directory_open();
-	directory_read();
+	char* buf;
+	uint8_t* file_name;
+	directory_open(file_name);
+	directory_read(0, buf, 0);
 	printf("file name: ");
 	printf("%s", cur_dir.file_name);
 	printf(", file type: ");
@@ -382,7 +387,7 @@ void directory_read_test_single() {
 	printf(", file size: ");
 	printf("%d", file_size);
 	printf("\n");
-	directory_open();
+	directory_open(file_name);
 }
 
 /* Checkpoint 3 tests */
@@ -395,7 +400,7 @@ void parse_arguments_test() {
 }
 
 void test_file_validity(int8_t* fname) {
-	uint32_t returnval = check_file_validity(fname);
+	uint32_t returnval = check_file_validity((uint8_t*)fname);
 	if(returnval == -1) {
 		printf("failed! not executable");
 	} else {

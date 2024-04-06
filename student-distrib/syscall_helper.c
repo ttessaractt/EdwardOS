@@ -10,6 +10,7 @@
 #include "loader.h"
 #include "x86_desc.h"
 #include "iret_helper.h"
+#include "descriptor.h"
 
 int32_t current_pid = 0; // initial pid = 0
 int32_t current_parent_pid = 0;
@@ -31,7 +32,7 @@ int32_t execute_help(unsigned char* command){
     parse_arguments(command, file_name, arguments);
 
     // CHECK FILE VALIDITY
-    int32_t entry_addr = check_file_validity((char*)file_name);
+    int32_t entry_addr = check_file_validity((unsigned char*)file_name);
     /* not an executable file */
     if(entry_addr == -1) {
         return -1;
@@ -137,6 +138,8 @@ int32_t initialize_pcb(unsigned char* file_name){
     pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
     
     /* initialzie file array */
+    init_std_op();
+    init_file_operations();
 
     current_process = pcb_new;
     //printf("PBC mcpy HEYY\n");
