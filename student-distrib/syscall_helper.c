@@ -56,23 +56,38 @@ int32_t execute_help(unsigned char* command){
 
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); // 
-    printf("dont come back");
 
     return -1;
 
 }
 
+//status is return value from main (if things worked)
 int32_t halt_help(unsigned char* status){
+    printf("start halt\n");
     /* not done! */
-    /* get the esp0 of the parent */    
+    //restore parent stack stuff
+    /* get the esp0 of the parent */
     process_control_block_t* pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
-    tss.esp0 = pcb_parent->tss_esp0;
-    tss.ss0 = KERNEL_DS;
+    tss.esp0 = 0x800000;
+    //pcb_parent->tss_esp0;        //change tss
+    tss.ss0 = KERNEL_DS;                    //shouldnt be changed but make sure it remains the same
 
     current_pid = 0;
+    //restore parent paging
+
+    //close relevent fd's
+
+    //make sure return val is in eax
+
+    //jump to execute return
+
     /* the 8 bit input is BL (register) which should then be expanded */
-    /* it is expanted to the return value of the parent program's execute */
+    /* it is expanded to the return value of the parent program's execute */
+    
+
+
     return -1;
+
 }
 
 

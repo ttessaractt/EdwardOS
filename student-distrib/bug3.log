@@ -110,3 +110,15 @@ Solution:
     we were calling our asm through a C function which led to the wrong value being at the top of the stack
     with iret. We just had to call the asm directly to fix this
 
+<--------------------------------------------------------->
+                          BUG 9                          
+<--------------------------------------------------------->
+Time:
+    2022.4.6.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when setting new esp0
+Solution:
+    due to way we were calculating the new esp0, 
+
