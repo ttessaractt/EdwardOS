@@ -1,0 +1,112 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP3
+CreateTime:
+    2024.4.6
+
+<--------------------------------------------------------->
+                        BUG 1                         
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    functions not copying over correctly when initializing 
+    file operations
+Solution:
+    because i put the word void before i called the functions!
+
+<--------------------------------------------------------->
+                        BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    close function not working correctly
+Solution:
+    if statement was flags != 0 in descriptor.c
+    instead of flags == 0
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2022.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault in iret.S
+Solution:
+    we redefined USER_DS in our file, had to explicitly put in numbers
+
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2022.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault in iret.S (a few lines down from the previous bug)
+Solution:
+    we manually moved segments but only needed to push the iret context
+
+<--------------------------------------------------------->
+                          BUG 5                          
+<--------------------------------------------------------->
+Time:
+    2022.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    validate_file did not get correct EIP 
+Solution:
+    we needed bytes 24-27 from data buffer and had to switch our +23 to +24
+
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2022.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault when we try to load a program/access memory 
+Solution:
+    we were marking 8-12 and 12-16 mB range present & loading into it in virtual memory
+    we needed to do this at 128mB + offset
+
+<--------------------------------------------------------->
+                          BUG 7                          
+<--------------------------------------------------------->
+Time:
+    2022.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault just after we reach main/iret into main
+Solution:
+    we never set the usersupervisor bit for 128mB to allow the user to access it
+    once we set that to 1 it fixed the page fault
+
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2022.4.5.
+Creator:
+    Tessa Samuels.
+Description:
+    In our syscall handler asm when we reach iret at the end we get a page fault
+Solution:
+    we were calling our asm through a C function which led to the wrong value being at the top of the stack
+    with iret. We just had to call the asm directly to fix this
+
