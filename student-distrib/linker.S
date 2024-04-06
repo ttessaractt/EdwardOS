@@ -15,3 +15,4 @@
 
 LINK(rtc_handler_linkage, RTC_handler);
 LINK(key_handler_linkage, keyboard_handler);
+# fd LINK(system_call_linkage, syscall_handler);

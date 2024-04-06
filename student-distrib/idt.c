@@ -8,8 +8,6 @@
 #include "keyboard.h"
 //#include "rtc.h"
 #include "syscalls.h"
-#include "syscalls_handler_helper.h"
-
 
 /*
  An interrupt descriptor entry (goes into the IDT) 
@@ -199,7 +197,7 @@ void idt_init(){
     set_interrupt_gate(33, (uint32_t)&key_handler_linkage);
     set_interrupt_gate(40, (uint32_t)&rtc_handler_linkage);
     //set_syscall_gate(128, (uint32_t)&system_call_linkage);
-    set_syscall_gate(128, (uint32_t)&syscall_handler_link);
+    set_syscall_gate(128, (uint32_t)&syscall_handler);
 
 };
 
