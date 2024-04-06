@@ -8,6 +8,7 @@
 syscall_handler:
     # don't save and restore EAX, will have return value (if there is one)
     # save regs
+    # gf pushf
     pushl %ebp  
     pushl %esi
     pushl %edi
@@ -21,10 +22,10 @@ syscall_handler:
     # value checking, check if call number in eax is between 1 & 10
     # when eax < 1
     cmpl $1, %eax        # eax < 1?
-    jl syscall_done     # eax is < 1, error
+    jl syscall_error     # eax is < 1, error
     # when eax > 10
     cmpl $10, %eax       # eax > 10?
-    jg syscall_done     # eax is > 10, error
+    jg syscall_error     # eax is > 10, error
 
     # call syscall
     call *syscall_table(,%eax,4)    # call system call using syscall jumptable
@@ -33,6 +34,9 @@ syscall_handler:
     popl %edx
     movl $0, %eax       # no error so return 0
     jmp syscall_done
+
+syscall_error:
+    movl $-1, $eax
 
 syscall_done:       # return from system call, either call is finished or value not valid
     # return regs
