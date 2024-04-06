@@ -36,7 +36,7 @@ int32_t alloc_file(operations operation, int32_t inode, int32_t file_type){
             else
                 files[i].inode = inode;
 
-            files[i].file_pos = i;
+            files[i].file_pos = 0;
 
             //0 is NOT USED, 1 is IN USE
             files[i].flags = 1;

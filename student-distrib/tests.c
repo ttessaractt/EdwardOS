@@ -409,13 +409,16 @@ void test_file_validity(uint8_t* fname) {
 
 
 void test_read_operation(){
-	void init_file_operations();
-	void init_std_op();
+	init_file_operations();
+	init_std_op();
 	
 	char buffer[100];
 
 	open("frame1.txt");
-	read(3, buffer, 0);
+
+	read(2, buffer, 0);
+	close(0);
+	close(2);
 }
 
 /*

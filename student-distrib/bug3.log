@@ -32,4 +32,6 @@ Description:
     functions not copying over correctly when initializing 
     file operations
 Solution:
+    because i put the word void before i called the functions!
+    (gonna kms)
     
