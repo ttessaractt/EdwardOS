@@ -28,9 +28,9 @@ syscall_handler:
 
     # call syscall
     call *syscall_table(,%eax,4)    # call system call using syscall jumptable
-    popl %edx
-    popl %ecx
     popl %ebx
+    popl %ecx
+    popl %edx
     movl $0, %eax       # no error so return 0
     jmp syscall_done
 
