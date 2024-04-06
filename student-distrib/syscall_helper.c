@@ -56,7 +56,7 @@ int32_t execute_help(unsigned char* command){
 
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); // 
-    printf("dont come back");
+    //printf("dont come back");
 
     return -1;
 
@@ -116,8 +116,8 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 
     /* testing */
     //printf("\n");
-    printf("%s HIIII", file_name);
-    printf("\n");
+    //printf("%s HIIII", file_name);
+    //printf("\n");
     //printf("%s", arguments);
 
     return 1; //success
