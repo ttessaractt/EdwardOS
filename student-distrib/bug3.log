@@ -156,4 +156,4 @@ Creator:
 Description:
     page fault on ret in halt
 Solution:
-    ....
+    ebp was wrong
