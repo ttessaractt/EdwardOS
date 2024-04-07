@@ -1,16 +1,12 @@
-
 .text
     .global halt_asm
 
 halt_asm:
     pushl %ebp
     movl %esp, %ebp
-
-    addl $8, %esp
     
-    popl %ebp
-    movl %ebp, %esp
+    movl 12(%ebp), %eax
+    movl 8(%ebp), %ebp
 
-    pushl %ebx
-
+    leave
     ret

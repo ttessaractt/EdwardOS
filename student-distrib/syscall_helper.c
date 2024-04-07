@@ -65,7 +65,9 @@ int32_t execute_help(unsigned char* command){
     
     //printf("before jump\n");
     //printf("%x\n", entry_addr);
-    //register uint32_t saved_ebp asm("ebp");
+    register uint32_t saved_ebp asm("ebp");
+
+    current_process->ebp = saved_ebp;
 
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); // 
@@ -106,6 +108,7 @@ int32_t halt_help(unsigned char status){
         current_process->file_d_array[b].flags = 0; // set all files to unused;
     }
 
+    current_process = pcb_parent;
     //make sure return val is in eax
 
     //jump to execute return
@@ -113,7 +116,9 @@ int32_t halt_help(unsigned char status){
     /* the 8 bit input is BL (register) which should then be expanded */
     /* it is expanded to the return value of the parent program's execute */
     
-    halt_asm(pcb_parent->ebp);
+    uint32_t stat = (uint32_t)status;
+    halt_asm(pcb_parent->ebp, stat);
+
 
     return -1;
 
@@ -182,7 +187,7 @@ int32_t initialize_pcb(unsigned char* file_name){
     pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
 
     pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
-    pcb_new->ebp = 0x800000 - (0x2000 * (current_pid-1));
+    //pcb_new->ebp = 0x800000 - (0x2000 * (current_pid-1));
     /* initialzie file array */
 
     file_info files[8]; 
