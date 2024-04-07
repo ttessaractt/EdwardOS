@@ -12,6 +12,8 @@
 #include "iret_helper.h"
 #include "terminal.h"
 #include "rtc.h"
+#include "halt.h"
+#include "types.h"
 
 int32_t current_pid = 0; // initial pid = 0
 int32_t current_parent_pid = 0;
@@ -63,6 +65,7 @@ int32_t execute_help(unsigned char* command){
     
     //printf("before jump\n");
     //printf("%x\n", entry_addr);
+    //register uint32_t saved_ebp asm("ebp");
 
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); // 
@@ -72,20 +75,49 @@ int32_t execute_help(unsigned char* command){
 
 }
 
-int32_t halt_help(unsigned char* status){
+//status is return value from main (if things worked)
+int32_t halt_help(unsigned char status){
+    printf("start halt\n");
     /* not done! */
-    /* get the esp0 of the parent */    
-    process_control_block_t* pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+    //restore parent stack stuff
+    /* get the esp0 of the parent */
+    process_control_block_t* pcb_parent;
+    if (current_process->parent_pid == 0){
+        pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid));
+    }
+    else{
+        pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+    }     
     tss.esp0 = pcb_parent->tss_esp0;
-    tss.ss0 = KERNEL_DS;
+    //0x800000;
+    //printf("%d\n", current_process->parent_pid);
+    //pcb_parent->tss_esp0;        //change tss
+    tss.ss0 = KERNEL_DS;                    //shouldnt be changed but make sure it remains the same
 
-    current_pid = 0;
+    //current_pid = 0;
+    //restore parent paging
+    if (current_process->parent_pid != 0){
+        allocate_tasks(pcb_parent->parent_pid);
+    }
+
+    //close relevent fd's
+    int b;
+    for(b = 2; b < 8; b++) {
+        current_process->file_d_array[b].flags = 0; // set all files to unused;
+    }
+
+    //make sure return val is in eax
+
+    //jump to execute return
+
     /* the 8 bit input is BL (register) which should then be expanded */
-    /* it is expanted to the return value of the parent program's execute */
+    /* it is expanded to the return value of the parent program's execute */
+    
+    halt_asm(pcb_parent->ebp);
+
     return -1;
+
 }
-
-
 
 
 int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments){
@@ -150,7 +182,7 @@ int32_t initialize_pcb(unsigned char* file_name){
     pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
 
     pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
-    
+    pcb_new->ebp = 0x800000 - (0x2000 * (current_pid-1));
     /* initialzie file array */
 
     file_info files[8]; 
