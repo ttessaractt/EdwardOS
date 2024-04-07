@@ -104,6 +104,10 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     /* at first file name */
     int i = 0;
     while(buf[cur_idx] != 0x20) {
+        if(cur_idx >= strlen((char*)buf)) {
+            file_name[cur_idx] = '\0';
+            return 1;
+        }
         file_name[i] = buf[cur_idx];
         i++;
         cur_idx++;
@@ -166,11 +170,11 @@ int32_t initialize_pcb(unsigned char* file_name){
 
 } 
 
-// void init_zero(file_info* files){
-//     for(location = 0; location < 8; location++){
-//         files[i].flags = 0;
-//     }
-// }
+void init_zero(file_info* files){
+     for(location = 0; location < 8; location++){
+         files[location].flags = 0;
+     }
+ }
 
 int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_info* files){
     for(location = 2; location < 8; location++){
@@ -189,7 +193,7 @@ int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_
             files[location].flags = 1;
 
             //return 0 on success
-            return 0;
+            return location;
         }
     }
     //return -1 if array is full;
@@ -237,6 +241,8 @@ void init_file_operations(){
 
 void init_std_op(file_info* files){
     /* initialize stdin */
+    init_zero(files);
+
     files[0].fotp = stdin_operations;
     files[0].inode = 0;
     files[0].file_pos = -1;

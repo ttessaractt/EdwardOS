@@ -78,16 +78,17 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
  */
 int32_t open (const uint8_t* filename){
     /* open the file and check its valid*/
-    // if(file_open(filename) == -1){return -1;}
+    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    if(file_open(filename) == -1){return -1;}
 
-    // /* allocate an unused file descriptor */
-    // if(cur_file.file_type == 0){            //if file is rtc
-    //     return alloc_file(rtc_operations, cur_file.inode_num, 0);
-    // } else if (cur_file.file_type == 1){    //if file is directory
-    //     return alloc_file(dir_operations,cur_file.inode_num, 1);
-    // } else if (cur_file.file_type == 2){    //if file is regular file
-    //     return alloc_file(file_operations, cur_file.inode_num, 2);
-    // }
+    /* allocate an unused file descriptor */
+    if(cur_file.file_type == 0){            //if file is rtc
+        return alloc_file(rtc_operations, cur_file.inode_num, 0, pcb_current->file_d_array);
+    } else if (cur_file.file_type == 1){    //if file is directory
+        return alloc_file(dir_operations,cur_file.inode_num, 1, pcb_current->file_d_array);
+    } else if (cur_file.file_type == 2){    //if file is regular file
+        return alloc_file(file_operations, cur_file.inode_num, 2, pcb_current->file_d_array);
+    }
 
     return 0;
 };
