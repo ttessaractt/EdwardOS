@@ -11,7 +11,7 @@ void program_loader(int8_t* file_name, int32_t task_number) {
 
     /* opens file and copies file data to data_buffer */
     char* buf;
-    file_open(file_name);
+    file_open((uint8_t*)file_name);
     file_read(0, buf, 0);
     //printf("loader mid HEYY\n");
     /* choose where in physical memory to copy file data */

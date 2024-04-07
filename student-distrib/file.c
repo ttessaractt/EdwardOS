@@ -2,7 +2,7 @@
 #include "file.h"
 #include "kernel.h"
 #include "keyboard.h"
-#include "descriptor.h" 
+//#include "descriptor.h" 
 #include "terminal.h"
 
 dentry_t cur_file;

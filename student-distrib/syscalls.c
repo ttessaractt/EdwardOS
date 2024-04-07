@@ -1,6 +1,6 @@
 #include "syscalls.h"
 #include "syscall_helper.h"
-#include "descriptor.h"
+//#include "descriptor.h"
 #include "file.h"
 #include "terminal.h"
 /*
@@ -49,8 +49,11 @@ int32_t execute (uint8_t* command){
  */
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
     /* if initial file pos is at or beyond end of file return 0*/
-    if(files[fd].file_pos >= file_size){ return 0; }
-    return (int32_t)files[fd].fotp.read(fd, buf, nbytes);
+
+
+    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    //if(pcb_current->file_d_array[fd].file_pos >= file_size){ return 0; }
+    return pcb_current->file_d_array[fd].fotp.read(fd, buf, nbytes);
     //return terminal_read(fd, buf, nbytes);
 };
 
@@ -61,7 +64,8 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
  * Function:
  */
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
-    return (int32_t)files[fd].fotp.write(fd, buf, nbytes);
+    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    return pcb_current->file_d_array[fd].fotp.write(fd, buf, nbytes);
     //return terminal_write(fd, buf, nbytes);
 };
 
@@ -74,16 +78,16 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
  */
 int32_t open (const uint8_t* filename){
     /* open the file and check its valid*/
-    if(file_open(filename) == -1){return -1;}
+    // if(file_open(filename) == -1){return -1;}
 
-    /* allocate an unused file descriptor */
-    if(cur_file.file_type == 0){            //if file is rtc
-        return alloc_file(rtc_operations, cur_file.inode_num, 0);
-    } else if (cur_file.file_type == 1){    //if file is directory
-        return alloc_file(dir_operations,cur_file.inode_num, 1);
-    } else if (cur_file.file_type == 2){    //if file is regular file
-        return alloc_file(file_operations, cur_file.inode_num, 2);
-    }
+    // /* allocate an unused file descriptor */
+    // if(cur_file.file_type == 0){            //if file is rtc
+    //     return alloc_file(rtc_operations, cur_file.inode_num, 0);
+    // } else if (cur_file.file_type == 1){    //if file is directory
+    //     return alloc_file(dir_operations,cur_file.inode_num, 1);
+    // } else if (cur_file.file_type == 2){    //if file is regular file
+    //     return alloc_file(file_operations, cur_file.inode_num, 2);
+    // }
 
     return 0;
 };
@@ -96,8 +100,9 @@ int32_t open (const uint8_t* filename){
  */
 int32_t close (int32_t fd){
     /* return -1 if they try to close stdin/out */
-    if(fd == 0 || fd == 1){ return -1; }
-    return free_file(fd);
+    // if(fd == 0 || fd == 1){ return -1; }
+    // return free_file(fd);
+    return -1;
 };
 
 

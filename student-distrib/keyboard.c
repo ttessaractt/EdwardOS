@@ -8,7 +8,7 @@
 
 #include "lib.h"
 
-
+int terminal_can_read = 0;
 
 /* keyboard_init
  *  Functionality: enables interrupt on IRQ1 on PIC for keyboard functionality
@@ -201,6 +201,7 @@ void keyboard_handler(){
                 if (p == '\n'){ // if pressed enter
                     terminal_can_read = 1; // allow terminal to read
                     buffer_position = 0; // reset buffer position to 0    
+                    printf("term read %d\n", terminal_can_read);
                 }
                 else{
                     terminal_can_read = 0;
@@ -221,7 +222,8 @@ void keyboard_handler(){
         
             if (p == '\n'){ // if pressed enter
                 terminal_can_read = 1; // allow terminal to read
-                buffer_position = 0; // reset buffer position to 0    
+                buffer_position = 0; // reset buffer position to 0
+                printf("term read %d\n", terminal_can_read);    
             }
             else{
                     terminal_can_read = 0;
