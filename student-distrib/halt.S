@@ -5,12 +5,14 @@
 halt_asm:
     pushl %ebp
     movl %esp, %ebp
-
-    addl $8, %esp
     
-    popl %ebp
-    movl %ebp, %esp
+    movl 8(%ebp), %ecx 
+    movl 12(%ebp), %edx
 
-    pushl %ebx
+    movl %ecx, %ebp
+    movl %ecx, %esp
+    
+    movl %edx, %eax
 
+    # leave
     ret
