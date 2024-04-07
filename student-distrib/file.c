@@ -310,15 +310,22 @@ int32_t check_file_validity(uint8_t* fname) {
     /* want to make sure file is an executable file*/
     /* header inside first 40 bytes */
     char* buf;
+    int i, j, k;
     /* put file data into data_buffer.data */
-    file_open(fname);
-    file_read(0, buf, 0);
+    
+    j = file_open(fname);
+    if (j == -1){
+        return -1;
+    }
+    k = file_read(0, buf, 0);
+    if (k == -1){
+        return -1;
+    }
 
     /* first 4 bytes represent a magic number that identifies file
        as being executable */
     /* if magic number is not present, execute should fail */
     int8_t* data_ptr = data_buffer.data;
-    int i;
     for(i = 0; i < 4; i++) {
         if(i == 0) {
             if(*data_ptr != 0x7F) {

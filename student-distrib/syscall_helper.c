@@ -80,7 +80,7 @@ int32_t execute_help(unsigned char* command){
     jump_to_user(entry_addr); // 
     //printf("dont come back");
 
-    return -1;
+    return 0;
 
 }
 
