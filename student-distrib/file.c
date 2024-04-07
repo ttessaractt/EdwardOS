@@ -10,7 +10,7 @@ inode cur_file_det;
 data_block data_buffer;
 unsigned int num_dir_entries;
 dentry_t cur_dir;
-uint32_t dentry_index = -1;
+int32_t dentry_index = -1;
 uint32_t file_size;
 
 
@@ -98,12 +98,15 @@ int32_t file_write(int32_t fd, const void* buf, int32_t nbytes){
  * Function: increments dentry_index pointer 
  */
 int32_t directory_open(const uint8_t* filename){
-    memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
-    dentry_index = dentry_index + 1;
-    if(dentry_index == num_dir_entries) {
-        dentry_index = 0;
-    }
-    return 0;
+    // memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
+    // dentry_index = dentry_index + 1;
+    // if(dentry_index == num_dir_entries) {
+    //     dentry_index = 0;
+    // }
+    // check for nulls plz
+    if(read_dentry_by_name(filename, &cur_file) == -1){return -1;}
+    dentry_index = 0;
+    return 0; // read dentry by name, index = 0
 }
 
 /* uint32_t directory_close();
@@ -125,10 +128,22 @@ int32_t directory_close(int32_t fd){
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes){
     read_dentry_by_index(dentry_index, &cur_dir);
     cur_dir.file_name[32] = '\0';
-    int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
-        (cur_dir.inode_num * BLOCK_LENGTH);
-    memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
-    return 0;
+    strncpy(buf, cur_dir.file_name, 32);
+    // int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+    //     (cur_dir.inode_num * BLOCK_LENGTH);
+    // memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
+    dentry_index = dentry_index + 1;
+    if(dentry_index == num_dir_entries) {
+         dentry_index = 0;
+    }
+
+    if (strlen(cur_dir.file_name) < 32){
+        return strlen(cur_dir.file_name);
+    }
+    else{
+        return 32;
+    }
+
 }
 
 /* uint32_t directory_write();

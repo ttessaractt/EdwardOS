@@ -79,18 +79,23 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
 int32_t open (const uint8_t* filename){
     /* open the file and check its valid*/
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
-    if(file_open(filename) == -1){return -1;}
+    dentry_t cur_d;
+    if(read_dentry_by_name(filename, &cur_d) == -1){return -1;}
 
+
+    int32_t location;
     /* allocate an unused file descriptor */
-    if(cur_file.file_type == 0){            //if file is rtc
-        return alloc_file(rtc_operations, cur_file.inode_num, 0, pcb_current->file_d_array);
-    } else if (cur_file.file_type == 1){    //if file is directory
-        return alloc_file(dir_operations,cur_file.inode_num, 1, pcb_current->file_d_array);
-    } else if (cur_file.file_type == 2){    //if file is regular file
-        return alloc_file(file_operations, cur_file.inode_num, 2, pcb_current->file_d_array);
+    if(cur_d.file_type == 0){            //if file is rtc
+        location = alloc_file(rtc_operations, cur_d.inode_num, 0, pcb_current->file_d_array);
+    } else if (cur_d.file_type == 1){    //if file is directory
+        location = alloc_file(dir_operations,cur_d.inode_num, 1, pcb_current->file_d_array);
+    } else if (cur_d.file_type == 2){    //if file is regular file
+        location = alloc_file(file_operations, cur_d.inode_num, 2, pcb_current->file_d_array);
     }
+    
+    pcb_current->file_d_array[location].fotp.open(filename);
 
-    return 0;
+    return location;
 };
 
 /* int32_t close (int32_t fd);

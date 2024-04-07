@@ -68,7 +68,7 @@ extern inode cur_file_det;
 extern data_block data_buffer;
 extern unsigned int num_dir_entries;
 extern dentry_t cur_dir;
-extern uint32_t dentry_index;
+extern int32_t dentry_index;
 extern uint32_t file_size;
 
 
