@@ -213,7 +213,7 @@ void entry(unsigned long magic, unsigned long addr) {
 #endif
     /* Execute the first program ("shell") ... */
     clear_screen();
-    execute((uint8_t*)"testprint");
+    execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

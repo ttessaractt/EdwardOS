@@ -55,6 +55,7 @@ int32_t execute_help(unsigned char* command){
     // CREATE PCB 
     initialize_pcb(file_name);
 
+    tss.esp0 = current_process->tss_esp0;
     // SET UP PAGING
     // allocates memory for tasks 
     allocate_tasks(current_process->pid);
@@ -63,12 +64,18 @@ int32_t execute_help(unsigned char* command){
     // LOAD FILE INTO MEMORY
     program_loader((char*)file_name, 1);
     
+
+    process_control_block_t* parent_pcb;
+
     //printf("before jump\n");
     //printf("%x\n", entry_addr);
     register uint32_t saved_ebp asm("ebp");
 
-    current_process->ebp = saved_ebp;
-
+    //uint32_t saved_ebp = 0x7fff80;
+    if (current_pid > 1){
+        parent_pcb = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid-1));
+        parent_pcb->ebp = saved_ebp;
+    }
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); // 
     //printf("dont come back");
@@ -118,9 +125,10 @@ int32_t halt_help(unsigned char status){
     /* the 8 bit input is BL (register) which should then be expanded */
     /* it is expanded to the return value of the parent program's execute */
     uint32_t stat = (uint32_t)status;
+
     halt_asm(pcb_parent->ebp, stat);
 
-    return -1;
+    return 1;
 
 }
 
