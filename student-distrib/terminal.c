@@ -35,7 +35,6 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     if (buf == NULL){
         return -1; // or should it be -1?
     }
-    printf("terminal read 38\n");
     while(terminal_can_read == 0){}; //wait until enter pressed
 
     for(i = 0; i < nbytes; i++){
@@ -56,15 +55,11 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             //printf("cleared2");
             terminal_can_read = 0;
-            terminal_write(fd, buffer, nbytes); // tests that buffer has ls in it
-            printf("%d\n", i); // prints 2 for 2 bytes
-            printf("%c\n", buffer[i-1]); // prints last value in buffer, should be \n
             return i;
         }
     }
 
     terminal_can_read = 0;
-    terminal_write(fd, buffer, nbytes);
     return nbytes;
 
 }

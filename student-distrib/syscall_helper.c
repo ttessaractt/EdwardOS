@@ -68,14 +68,24 @@ int32_t execute_help(unsigned char* command){
     jump_to_user(entry_addr); // 
     //printf("dont come back");
 
+
     return -1;
 
 }
 
-int32_t halt_help(unsigned char* status){
+int32_t halt_help(unsigned char status){
     /* not done! */
-    /* get the esp0 of the parent */    
-    process_control_block_t* pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+    /* get the esp0 of the parent */
+
+    process_control_block_t* pcb_parent;
+
+    if (current_process->parent_pid == 0){ // one process (no parent)
+        pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid));
+    }
+    else{
+        pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+    }
+
     tss.esp0 = pcb_parent->tss_esp0;
     tss.ss0 = KERNEL_DS;
 
@@ -150,7 +160,7 @@ int32_t initialize_pcb(unsigned char* file_name){
     pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
 
     pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
-    
+    pcb_new->ebp = 0x800000 - (0x2000 * (current_pid-1));
     /* initialzie file array */
 
     file_info files[8]; 
