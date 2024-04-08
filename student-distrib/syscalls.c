@@ -31,6 +31,9 @@ int32_t execute (uint8_t* command){
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
     /* if initial file pos is at or beyond end of file return 0*/
 
+    if (fd < 0 || fd > 7){
+        return -1;
+    }
 
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
     //if(pcb_current->file_d_array[fd].file_pos >= file_size){ return 0; }
@@ -47,6 +50,11 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
  *               -1 - failure/read only file
  */
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
+
+    if (fd < 0 || fd > 7){
+        return -1;
+    }
+
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
     return pcb_current->file_d_array[fd].fotp.write(fd, buf, nbytes);
     //return terminal_write(fd, buf, nbytes);

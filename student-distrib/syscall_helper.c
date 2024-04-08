@@ -26,6 +26,8 @@ operations stdout_operations;
 int location;
 int ex_it = 0;
 int pid_flag = 0;
+int exit_halt = 0;
+int32_t GOD = 0;
 
 /* execute_help
  * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
@@ -35,17 +37,24 @@ int pid_flag = 0;
  *               0-255 - program executes a halt system call, value given by halt
  */
 int32_t execute_help(unsigned char* command){
+
+    /*
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
-    //check that command is not NULL
+    */
+
+    /* check that command is not NULL */
+    if (command == NULL){
+        return -1;
+    }
+
+    /* resets to shell */
     if (pid_flag == 1){
         current_pid = 1;
         pid_flag = 0;
     }
 
-    if (command == NULL){
-        return -1;
-    }
+    
     //create variables
     unsigned char file_name[32+1]; 
     unsigned char arguments[128]; 
@@ -93,15 +102,27 @@ int32_t halt_help(unsigned char status){
     // create variables
     process_control_block_t* pcb_parent;
     int b;
-
+    
     // get the esp0 of the parent 
     if (current_process->parent_pid == 0){
-        pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid));
+        //pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid));
+        exit_halt = 1;
     }
     else{
         pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+        exit_halt = 0;
     } 
+
     
+    if (exit_halt){
+
+        pid_flag = 0;
+        exit_halt = 0;
+        current_pid = 0;
+        execute_help((uint8_t*)"shell");
+    }
+
+
     // set the new esp0    
     tss.esp0 = pcb_parent->tss_esp0;
     tss.ss0 = KERNEL_DS;                    
@@ -123,6 +144,12 @@ int32_t halt_help(unsigned char status){
     uint32_t stat = (uint32_t)status;
 
     pid_flag = 1;
+
+    if (GOD){
+        GOD = 0;
+        stat = (uint32_t)256;
+    }
+
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 
@@ -141,7 +168,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     if (buf == NULL){
         return -1;      /* return -1 for fail */
     }
-    printf("%s\n", buf);
+
     /* filter out spaces from first file name */
     int cur_idx = 0;
     int old_cur_idx = 0;
@@ -155,7 +182,6 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     while(buf[cur_idx] != 0x20) {
         if(cur_idx > (strlen((char*)buf))) {
             file_name[cur_idx] = '\0';
-            printf("%s\n", file_name);
             return 1;
         }
 
@@ -167,7 +193,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
         }
     }
     file_name[i] = '\0';
-    printf("%s\n", file_name);
+
     /* filter out spaces between first file name and next */
     while(buf[cur_idx] == 0x20) {
         cur_idx++;
