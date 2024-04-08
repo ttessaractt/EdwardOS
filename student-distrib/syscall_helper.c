@@ -38,6 +38,11 @@ int32_t execute_help(unsigned char* command){
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
     //check that command is not NULL
+    if (pid_flag == 1){
+        current_pid = 1;
+        pid_flag = 0;
+    }
+
     if (command == NULL){
         return -1;
     }
@@ -117,6 +122,7 @@ int32_t halt_help(unsigned char status){
     // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
 
+    pid_flag = 1;
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 

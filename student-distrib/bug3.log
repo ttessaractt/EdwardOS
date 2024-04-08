@@ -257,5 +257,16 @@ Solution:
     had to change parsing to accomidate this
 
 
+<--------------------------------------------------------->
+                          BUG 21                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    page fault at end of 2nd process
+Solution:
+    we were resetting current pid to 0 when it needed to be 1
 
 
