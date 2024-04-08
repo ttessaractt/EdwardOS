@@ -25,11 +25,17 @@ operations stdin_operations;
 operations stdout_operations;
 int location;
 int ex_it = 0;
+int pid_flag = 0;
 
 int32_t execute_help(unsigned char* command){
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
     //cli();
+
+    if(pid_flag == 1) {
+        current_pid = 0;
+        pid_flag = 0;
+    }
 
     if (command == NULL){
         return -1;
@@ -126,6 +132,9 @@ int32_t halt_help(unsigned char status){
     /* it is expanded to the return value of the parent program's execute */
     uint32_t stat = (uint32_t)status;
 
+    pid_flag = 1;
+
+
     halt_asm(pcb_parent->ebp, stat);
 
     return 1;
@@ -187,6 +196,7 @@ int32_t initialize_pcb(unsigned char* file_name){
     //printf("PBC StART HEYY\n");
     int i;
     current_pid++; // stop at 6?
+
     process_control_block_t* pcb_new = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
     //int8_t* pcb_start = (int8_t*) 0x800000 - (0x2000 * current_pid);
 
