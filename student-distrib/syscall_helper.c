@@ -40,8 +40,12 @@ int32_t execute_help(unsigned char* command){
 
     // PARSE ARGS
     /* populates file_name */
-    parse_arguments(command, file_name, arguments);
-
+    printf("before parse\n");
+    int32_t parse_check = parse_arguments(command, file_name, arguments);
+    if (parse_check == -1){
+        return -1;
+    }
+    printf("%s\n", file_name);
     // CHECK FILE VALIDITY
     int32_t entry_addr = check_file_validity((unsigned char*)file_name);
     /* not an executable file */
@@ -108,7 +112,7 @@ int32_t halt_help(unsigned char status){
     //current_pid = 0;
     //restore parent paging
     if (current_process->parent_pid != 0){
-        allocate_tasks(pcb_parent->parent_pid);
+        allocate_tasks(pcb_parent->parent_pid+1);
     }
 
     //close relevent fd's
@@ -145,20 +149,26 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     while(buf[cur_idx] == 0x20) {
         cur_idx++;
     }
-
+    printf("before second while\n");
     /* at first file name */
     int i = 0;
     while(buf[cur_idx] != 0x20) {
         if(cur_idx >= strlen((char*)buf)) {
+            printf("leaving little bro\n");
+            printf("%s\n", file_name);
             file_name[cur_idx] = '\0';
             return 1;
         }
         file_name[i] = buf[cur_idx];
         i++;
         cur_idx++;
+        if(i > 32){
+            printf("i over 32?\n");
+            return -1;
+        }
     }
     file_name[i] = '\0';
-    
+    printf("%s", file_name);
     /* filter out spaces between first file name and next */
     while(buf[cur_idx] == 0x20) {
         cur_idx++;
