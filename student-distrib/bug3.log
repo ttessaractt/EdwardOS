@@ -32,8 +32,7 @@ Description:
     functions not copying over correctly when initializing 
     file operations
 Solution:
-    because i put the word void before i called the functions!
-    (gonna kms)
+    because i put the word void before i called the functions
 
 <--------------------------------------------------------->
                         BUG X                          
@@ -47,4 +46,16 @@ Description:
 Solution:
     if statement was flags != 0 in descriptor.c
     instead of flags == 0
+
+<--------------------------------------------------------->
+                        BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    OS signatutre infinitely printing
+Solution:
+    comparison of file_pos and file_size was not correct
     
