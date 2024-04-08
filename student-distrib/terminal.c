@@ -93,6 +93,10 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
             putc(buffer[i]);
             return i;
         }
+        // else if (buffer[i] == '\0'){
+        //     putc('\n');
+        //     return i;
+        // }
     }
 
     return nbytes;

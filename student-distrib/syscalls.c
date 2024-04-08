@@ -31,12 +31,20 @@ int32_t execute (uint8_t* command){
 int32_t read (int32_t fd, void* buf, int32_t nbytes){
     /* if initial file pos is at or beyond end of file return 0*/
 
-    if (fd < 0 || fd > 7){
+    if(buf == NULL){
+        return -1;
+    }
+    
+    if (fd < 0 || fd > 7 || fd == 1){ // make sure to not run a write
         return -1;
     }
 
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
     //if(pcb_current->file_d_array[fd].file_pos >= file_size){ return 0; }
+    if(pcb_current->file_d_array[fd].flags == 0){
+        return -1;
+    }
+
     return pcb_current->file_d_array[fd].fotp.read(fd, buf, nbytes);
     //return terminal_read(fd, buf, nbytes);
 };
@@ -50,12 +58,19 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
  *               -1 - failure/read only file
  */
 int32_t write (int32_t fd, const void* buf, int32_t nbytes){
-
-    if (fd < 0 || fd > 7){
+    if(buf == NULL){
+        return -1;
+    }
+ 
+    if (fd < 0 || fd > 7 || fd == 0){ // make sure to not run a read
         return -1;
     }
 
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    
+    if(pcb_current->file_d_array[fd].flags == 0){
+        return -1;
+    }
     return pcb_current->file_d_array[fd].fotp.write(fd, buf, nbytes);
     //return terminal_write(fd, buf, nbytes);
 };
@@ -68,10 +83,13 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
  */
 int32_t open (const uint8_t* filename){
     /* open the file and check its valid*/
+    if(filename == NULL){return -1;}
+    if(filename == (uint8_t*)""){return -1;}
+    if(strlen((int8_t*)filename) == 0){return -1;}
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
     dentry_t cur_d;
     if(read_dentry_by_name(filename, &cur_d) == -1){return -1;}
-
+    
 
     int32_t location;
     /* allocate an unused file descriptor */
@@ -83,7 +101,9 @@ int32_t open (const uint8_t* filename){
         location = alloc_file(file_operations, cur_d.inode_num, 2, pcb_current->file_d_array);
     }
     
-    pcb_current->file_d_array[location].fotp.open(filename);
+    if (location != -1){
+        pcb_current->file_d_array[location].fotp.open(filename);
+    }
 
     return location;
 };
@@ -96,8 +116,12 @@ int32_t open (const uint8_t* filename){
  */
 int32_t close (int32_t fd){
     /* return -1 if they try to close stdin/out */
-    if(fd == 0 || fd == 1 || fd > 8){ return -1; }
+    if(fd == 0 || fd == 1 || fd > 8 || fd < 0){ return -1; }
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    if(pcb_current->file_d_array[fd].flags == 0){
+        return -1;
+    }
+    pcb_current->file_d_array[fd].flags = 0;
     return free_file(fd, &(pcb_current->file_d_array[fd]));
 };
 

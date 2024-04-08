@@ -102,7 +102,7 @@ int32_t halt_help(unsigned char status){
     // create variables
     process_control_block_t* pcb_parent;
     int b;
-    
+
     // get the esp0 of the parent 
     if (current_process->parent_pid == 0){
         //pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid));
@@ -181,7 +181,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     old_cur_idx = cur_idx;
     while(buf[cur_idx] != 0x20) {
         if(cur_idx > (strlen((char*)buf))) {
-            file_name[cur_idx] = '\0';
+            file_name[i] = '\0';
             return 1;
         }
 

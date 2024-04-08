@@ -12,17 +12,17 @@ syscall_handler:
     pushl %esi
     pushl %edi
     pushl %esp
-    
+
+    # value checking, check if call number in eax is between 1 & 10
+    cmpl $1, %eax        # eax < 1?
+    jb syscall_error      # eax is < 1, error
+    cmpl $10, %eax       # eax > 10?
+    ja syscall_error      # eax is > 10, error
+
     # push function argurmnts
     pushl %edx
     pushl %ecx
     pushl %ebx   # 1st arguemnt
-
-    # value checking, check if call number in eax is between 1 & 10
-    cmpl $1, %eax        # eax < 1?
-    jl syscall_done      # eax is < 1, error
-    cmpl $10, %eax       # eax > 10?
-    jg syscall_done      # eax is > 10, error
 
     # call syscall
     call *syscall_table(,%eax,4)    # call system call using syscall jumptable
