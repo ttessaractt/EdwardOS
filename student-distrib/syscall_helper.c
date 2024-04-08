@@ -146,14 +146,17 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 
     /* filter out spaces from first file name */
     int cur_idx = 0;
+    int old_cur_idx = 0;
     while(buf[cur_idx] == 0x20) {
         cur_idx++;
     }
     printf("before second while\n");
     /* at first file name */
     int i = 0;
-    while(buf[cur_idx] != 0x20) {
-        if(cur_idx >= strlen((char*)buf)) {
+    old_cur_idx = cur_idx;
+    while((buf[cur_idx] != 0x20)) {
+        //printf("%d\n", strlen((char*)buf));
+        if(cur_idx > (strlen((char*)buf))) {
             printf("leaving little bro\n");
             printf("%s\n", file_name);
             file_name[cur_idx] = '\0';
@@ -162,6 +165,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
         file_name[i] = buf[cur_idx];
         i++;
         cur_idx++;
+        
         if(i > 32){
             printf("i over 32?\n");
             return -1;
