@@ -35,6 +35,11 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     if (buf == NULL){
         return -1; // or should it be -1?
     }
+
+    if (nbytes > MAX_BUF_SIZE){
+        nbytes = MAX_BUF_SIZE;
+    }
+
     while(terminal_can_read == 0){}; //wait until enter pressed
 
     for(i = 0; i < nbytes; i++){
@@ -55,7 +60,8 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             //printf("cleared2");
             terminal_can_read = 0;
-            return i;
+            //printf("%d\n", i);
+            return i+1;
         }
     }
 
@@ -91,7 +97,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         }
         else if (buffer[i] == '\n'){ // returns when end of buffer (the new line)
             putc(buffer[i]);
-            return i;
+            return i+1;
         }
         // else if (buffer[i] == '\0'){
         //     putc('\n');
