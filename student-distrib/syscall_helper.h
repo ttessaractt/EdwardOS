@@ -6,9 +6,18 @@
 #include "lib.h"
 // #include "descriptor.h"
 
-/* OPERATIONS */
+#define MB_8 0x800000
+#define KB_8 0x2000
+#define SPACE_CHAR 0x20
+#define MAX_FILE_NAME_LENGTH 32
+#define MAX_ARG_LENGTH 128
+#define EXCEPTION 256
+#define FD_ARRAY_LEN 8
+#define FIRST_FILE_OFFSET 2
+#define NORMAL_FILE_NUM 2
 
-/**/
+
+/* OPERATIONS */
 typedef union operations {
   struct {
     int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);

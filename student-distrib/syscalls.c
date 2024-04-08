@@ -39,7 +39,7 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
         return -1;
     }
 
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     //if(pcb_current->file_d_array[fd].file_pos >= file_size){ return 0; }
     if(pcb_current->file_d_array[fd].flags == 0){
         return -1;
@@ -66,7 +66,7 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
         return -1;
     }
 
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     
     if(pcb_current->file_d_array[fd].flags == 0){
         return -1;
@@ -86,7 +86,7 @@ int32_t open (const uint8_t* filename){
     if(filename == NULL){return -1;}
     if(filename == (uint8_t*)""){return -1;}
     if(strlen((int8_t*)filename) == 0){return -1;}
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     dentry_t cur_d;
     if(read_dentry_by_name(filename, &cur_d) == -1){return -1;}
     
@@ -117,7 +117,7 @@ int32_t open (const uint8_t* filename){
 int32_t close (int32_t fd){
     /* return -1 if they try to close stdin/out */
     if(fd == 0 || fd == 1 || fd > 8 || fd < 0){ return -1; }
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     if(pcb_current->file_d_array[fd].flags == 0){
         return -1;
     }

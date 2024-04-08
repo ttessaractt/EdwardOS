@@ -1,6 +1,9 @@
 #include "types.h"
 
 
+#define MB_8 0x800000
+#define KB_8 0x2000
+
 extern void syscall_handler();
 
 //functions given in appendix B

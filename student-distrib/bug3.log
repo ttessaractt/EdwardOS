@@ -268,5 +268,64 @@ Description:
     page fault at end of 2nd process
 Solution:
     we were resetting current pid to 0 when it needed to be 1
+<--------------------------------------------------------->
+                          BUG 22
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Tessa Samuels.
+Description:
+    general protection fault and segmentation fault in syserr 8
+Solution:
+    not everything was being popped when it was not a valid syscall, rearranged asm to fix
+
+<--------------------------------------------------------->
+                          BUG 23
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank.
+Description:
+    syserr 5 not working, page fault when running individually
+Solution:
+    had to reset flag in close
+
+<--------------------------------------------------------->
+                          BUG 24
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank & Tessa Samuels.
+Description:
+    page fault or gen protection fault with input with a LOT of spaces, inconsistent
+Solution:
+    we were accidently setting outside the size of our file name at the index in the source buffer
+
+<--------------------------------------------------------->
+                          BUG 25
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank & Tessa Samuels.
+Description:
+    hello does not work after exit, actually 2nd hello doesnt work at all
+Solution:
+    ....
+
+<--------------------------------------------------------->
+                          BUG 26
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank & Tessa Samuels.
+Description:
+    can't call shell twice in a row
+Solution:
+    ....
 
 
