@@ -3,6 +3,9 @@
 #include "file.h"
 #include "terminal.h"
 
+#define MB_8 0x800000
+#define KB_8 0x2000
+
 /* halt
  * Description: calls halt_help, which performs the halt
  * Inputs: status - 8-bit arguemnt from BL
@@ -35,7 +38,7 @@ int32_t read (int32_t fd, void* buf, int32_t nbytes){
         return -1;
     }
 
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     //if(pcb_current->file_d_array[fd].file_pos >= file_size){ return 0; }
     return pcb_current->file_d_array[fd].fotp.read(fd, buf, nbytes);
     //return terminal_read(fd, buf, nbytes);
@@ -55,7 +58,7 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
         return -1;
     }
 
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     return pcb_current->file_d_array[fd].fotp.write(fd, buf, nbytes);
     //return terminal_write(fd, buf, nbytes);
 };
@@ -68,7 +71,7 @@ int32_t write (int32_t fd, const void* buf, int32_t nbytes){
  */
 int32_t open (const uint8_t* filename){
     /* open the file and check its valid*/
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     dentry_t cur_d;
     if(read_dentry_by_name(filename, &cur_d) == -1){return -1;}
 
@@ -97,7 +100,7 @@ int32_t open (const uint8_t* filename){
 int32_t close (int32_t fd){
     /* return -1 if they try to close stdin/out */
     if(fd == 0 || fd == 1 || fd > 8){ return -1; }
-    process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
     return free_file(fd, &(pcb_current->file_d_array[fd]));
 };
 

@@ -29,6 +29,15 @@ int pid_flag = 0;
 int exit_halt = 0;
 int32_t GOD = 0;
 
+#define MB_8 0x800000
+#define KB_8 0x2000
+#define SPACE_CHAR 0x20
+#define MAX_FILE_NAME_LENGTH 32
+#define EXCEPTION 256
+#define FD_ARRAY_LEN 8
+#define FIRST_FILE_OFFSET 2
+#define NORMAL_FILE_NUM 2
+
 /* execute_help
  * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
  * Inputs: command - space seperated sequence of words, 1st word = file name, rest = provided on request to getargs
@@ -56,7 +65,7 @@ int32_t execute_help(unsigned char* command){
 
     
     //create variables
-    unsigned char file_name[32+1]; 
+    unsigned char file_name[MAX_FILE_NAME_LENGTH+1]; 
     unsigned char arguments[128]; 
     process_control_block_t* parent_pcb;
 
@@ -83,7 +92,7 @@ int32_t execute_help(unsigned char* command){
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
     if (current_pid > 1){                   // save ebp in PCB for use later
-        parent_pcb = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid-1));
+        parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
     }
 
@@ -109,7 +118,7 @@ int32_t halt_help(unsigned char status){
         exit_halt = 1;
     }
     else{
-        pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
+        pcb_parent = (process_control_block_t*) MB_8 - (KB_8 * (current_process->parent_pid));
         exit_halt = 0;
     } 
 
@@ -133,7 +142,7 @@ int32_t halt_help(unsigned char status){
     }
 
     // close relevent fd's
-    for(b = 2; b < 8; b++) {
+    for(b = FIRST_FILE_OFFSET; b < FD_ARRAY_LEN; b++) {
         current_process->file_d_array[b].flags = 0; // set all files to unused;
     }
 
@@ -147,7 +156,7 @@ int32_t halt_help(unsigned char status){
 
     if (GOD){
         GOD = 0;
-        stat = (uint32_t)256;
+        stat = (uint32_t)EXCEPTION;
     }
 
     //call halt assembly code 
@@ -172,14 +181,14 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     /* filter out spaces from first file name */
     int cur_idx = 0;
     int old_cur_idx = 0;
-    while(buf[cur_idx] == 0x20) {
+    while(buf[cur_idx] == SPACE_CHAR) {
         cur_idx++;
     }
 
     /* get first file name */
     int i = 0;
     old_cur_idx = cur_idx;
-    while(buf[cur_idx] != 0x20) {
+    while(buf[cur_idx] != SPACE_CHAR) {
         if(cur_idx > (strlen((char*)buf))) {
             file_name[cur_idx] = '\0';
             return 1;
@@ -188,14 +197,14 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
         file_name[i] = buf[cur_idx];
         i++;
         cur_idx++;
-        if (i > 32){
+        if (i > FILE_NAME_SIZE){
             return -1;
         }
     }
     file_name[i] = '\0';
 
     /* filter out spaces between first file name and next */
-    while(buf[cur_idx] == 0x20) {
+    while(buf[cur_idx] == SPACE_CHAR) {
         cur_idx++;
     }
 
@@ -222,16 +231,16 @@ int32_t initialize_pcb(){
     current_pid++; 
 
     // make new PCB
-    process_control_block_t* pcb_new = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
+    process_control_block_t* pcb_new = (process_control_block_t*) MB_8 - (KB_8 * current_pid); //(should be 0x800000 - PID * x)
     pcb_new->pid = current_pid;                 // becomes 1 (on first time)
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet
-    pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
+    pcb_new->tss_esp0 = MB_8 - (KB_8 * (current_pid-1));
 
     /* initialzie file array */
-    file_info files[8]; 
+    file_info files[FD_ARRAY_LEN]; 
     init_file_operations();
     init_std_op(files);
-    for(i = 0; i < 8; i++){
+    for(i = 0; i < FD_ARRAY_LEN; i++){
         pcb_new->file_d_array[i] = files[i];
     }
     current_process = pcb_new;
@@ -244,7 +253,7 @@ int32_t initialize_pcb(){
  * Return Value: none
  */
 void init_zero(file_info* files){
-     for(location = 0; location < 8; location++){
+     for(location = 0; location < FD_ARRAY_LEN; location++){
          files[location].flags = 0;
      }
  }
@@ -259,12 +268,12 @@ void init_zero(file_info* files){
  *               -1 - array full/error
  */
 int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_info* files){
-    for(location = 2; location < 8; location++){
+    for(location = FIRST_FILE_OFFSET; location < FD_ARRAY_LEN; location++){
         if(files[location].flags == 0){
             files[location].fotp = operation;
 
             //if filetype is not regular file, set inode to 0
-            if(file_type != 2)
+            if(file_type != NORMAL_FILE_NUM)
                 files[location].inode = 0;
             else
                 files[location].inode = inode;
