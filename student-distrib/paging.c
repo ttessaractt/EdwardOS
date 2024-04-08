@@ -103,3 +103,37 @@ void blank_page_dir(){
     }
 }
 
+/*  allocate_tasks
+ *  Functionality: allocates 8-12mB for task 1 and 8-12 mB for task 2 
+ *  as well as a page at 128 mB for executing
+ *  Arguments: task - integer that specifies which task's physical memory 
+ *  the executing virtual address should map to
+ *  Return: none
+ */
+void allocate_tasks(uint32_t task){
+    /* by default, from blank_page_dir we know pages are 4 mB size already */
+    /* therefore, don't need to modify pagesize field */
+    /* just need to modify present bit */
+
+    // /* set 8-12 mB present, for first task */
+    // page_directory[2].present = 1;
+    // /* map directly to 8mB in physical memory */
+    // page_directory[2].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
+
+    // /* set 12-16 mB present, for second task */
+    // page_directory[3].present = 1;
+    // /* map directly to 12 mB in physical memory */
+    // page_directory[3].addr_31_12_or_addr_31_22 = ((OFFSET_12MB >> 12) & KEEP_TOP10_BITS);
+
+    /* set 128 mB present for execution of programs */
+    page_directory[32].present = 1;
+    /* map executing program to corresponding task's physical memory address */
+    if(task == 1) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
+    } else if(task == 2) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_12MB >> 12) & KEEP_TOP10_BITS);
+    }
+    page_directory[32].usersupervisor = 1; // need or else page faults
+    flush_tlb(); // maybe?
+}
+

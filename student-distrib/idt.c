@@ -7,8 +7,10 @@
 #include "idt.h"
 #include "keyboard.h"
 //#include "rtc.h"
+#include "syscalls.h"
+#include "syscall_helper.h"
 
-
+extern int32_t GOD;
 /*
  An interrupt descriptor entry (goes into the IDT) 
 typedef union idt_desc_t {
@@ -135,25 +137,25 @@ void set_interrupt_gate(uint32_t num, uint32_t addr){
 };  
 
 /*
- * set_not_present_gate
- *  Description: set/change a interrupt gate to IDT at the specified interupt #, with present = 0
+ * set_syscall_gate
+ *  Description: set/change a syscall gate to IDT at the specified interupt #
  *  Input:  num -- IDT number
  *          addr -- address of the handler to call
  *  Output: none
  *  Return Value: none
  *  Side Effects: specified IDT entry is set
 */
-void set_not_present_gate(uint32_t num, uint32_t addr){
+void set_syscall_gate(uint32_t num, uint32_t addr){
     //idt[num].offset_15_00 = ;     //set by SET_IDT_ENTRY
     idt[num].seg_selector = KERNEL_CS;
     idt[num].reserved4 = EIGHTBIT;
-    idt[num].reserved3 = ZERO;
+    idt[num].reserved3 = ONE;
     idt[num].reserved2 = ONE;
     idt[num].reserved1 = ONE;
     idt[num].size = ONE;            //1 = 32 bits
     idt[num].reserved0 = ZERO;
-    idt[num].dpl = DPL_ZERO;            //privilege level 0
-    idt[num].present = ZERO;         //set to 1 so descriptor is valid
+    idt[num].dpl = DPL_THREE;            //privilege level 3, callable by user space
+    idt[num].present = ONE;         //set to 1 so descriptor is valid
     //idt[num].offset_31_16 = ;     //set by SET_IDT_ENTRY
     SET_IDT_ENTRY(idt[num], addr);
 };    
@@ -196,114 +198,137 @@ void idt_init(){
     //set_interrupt_gate(40, (uint32_t)&no_handler);
     set_interrupt_gate(33, (uint32_t)&key_handler_linkage);
     set_interrupt_gate(40, (uint32_t)&rtc_handler_linkage);
-    set_interrupt_gate(128, (uint32_t)&system_call);
+    //set_syscall_gate(128, (uint32_t)&system_call_linkage);
+    set_syscall_gate(128, (uint32_t)&syscall_handler);
+
 };
 
 //exception handlers
 void divide_error(){
     cli();      //prevent further interrupts from occuring
     printf("Divide Error Exception (#DE) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };     
 void debug(){
     cli();      //prevent further interrupts from occuring
     printf("Debug Exception (#DB) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };            
 void NMI(){
     cli();      //prevent further interrupts from occuring
     printf("Nonmaskable Interrupt (NMI) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };              
 void breakpoint(){
     cli();      //prevent further interrupts from occuring
     printf("Breakpoint Exception (#BP) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };       
 void overflow(){
     cli();      //prevent further interrupts from occuring
     printf("Overflow Exception (#OF) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };         
 void BOUND_range(){
     cli();      //prevent further interrupts from occuring
     printf("BOUND Range Exceeded Exception (#BR) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };        
 void invalid_opcode(){
     cli();      //prevent further interrupts from occuring
     printf("Invalid Opcode Exception (#UD) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };   
 void device_not_availible(){
     cli();      //prevent further interrupts from occuring
     printf("Device Not Available Exception (#NM) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };
 void double_fault(){
     cli();      //prevent further interrupts from occuring
     printf("Double Fault Exception (#DF) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };     
 void segment_overrun(){
     cli();      //prevent further interrupts from occuring
     printf("Coprocessor Segment Overrun \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };  
 void invalid_TSS(){
     cli();      //prevent further interrupts from occuring
     printf("Invalid TSS Exception (#TS) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };      
 void segment_not_present(){
     cli();      //prevent further interrupts from occuring
     printf("Segment Not Present (#NP) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };
 void stack_fault(){
     cli();      //prevent further interrupts from occuring
     printf("Stack Fault Exception (#SS) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };      
 void gen_protection(){
     cli();      //prevent further interrupts from occuring
     printf("General Protection Exception (#GP) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };   
 void page_fault(){
     cli();      //prevent further interrupts from occuring
     printf("Page-Fault Exception (#PF) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };       
 void x86_FP(){
     cli();      //prevent further interrupts from occuring
     printf("x87 FPU Floating-Point Error (#MF) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };           
 void alignment_check(){
     cli();      //prevent further interrupts from occuring
     printf("Alignment Check Exception (#AC) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };  
 void machine_check(){
     cli();      //prevent further interrupts from occuring
     printf("Machine-Check Exception (#MC) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };    
 void SIMD_FP(){
     cli();      //prevent further interrupts from occuring
     printf("SIMD Floating-Point Exception (#XF) \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };          
 
 
 void system_call(){
     //cli();      //prevent further interrupts from occuringprintf("System call was called \n");
     printf("Sytem call called\n");
-    //while(1);
+    //GOD = 1;
+    //halt(0);
 };
 void no_handler(){
     cli();      //prevent further interrupts from occuring
     printf("no handler \n");
-    while(1);
+    GOD = 1;
+    halt(0);
 };

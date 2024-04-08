@@ -2,14 +2,17 @@
 #include "file.h"
 #include "kernel.h"
 #include "keyboard.h"
+//#include "descriptor.h" 
+#include "terminal.h"
 
 dentry_t cur_file;
 inode cur_file_det;
 data_block data_buffer;
 unsigned int num_dir_entries;
 dentry_t cur_dir;
-uint32_t dentry_index = -1;
+int32_t dentry_index = -1;
 uint32_t file_size;
+
 
 /* uint32_t file_key_write(int32_t fd, char* buf, int32_t nbytes);
  * Description: writes a file to the terminal using the buffer
@@ -17,7 +20,7 @@ uint32_t file_size;
  * Return Value: 0 
  * Function: writes to terminal
  */
-uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes){
+int32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes){
     int i = 0;
     for (i = 0; i < nbytes; i++){
         if(buf[i] != '\0') {
@@ -38,11 +41,19 @@ uint32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes){
  * Return Value: 0 
  * Function: opens a file
  */
-uint32_t file_open(const int8_t* fname){
-    read_dentry_by_name(fname, &cur_file);
+int32_t file_open(const uint8_t* fname){
+    /*  filetypes:
+    *  0: rtc
+    *  1: directory
+    *  2: regular file
+    */
+    if(read_dentry_by_name(fname, &cur_file) == -1){return -1;}
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
         (cur_file.inode_num * BLOCK_LENGTH);
     memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
+
+    
+
     return 0;
 }
 
@@ -52,7 +63,7 @@ uint32_t file_open(const int8_t* fname){
  * Return Value: 0
  * Function: nothing
  */
-uint32_t file_close(){
+int32_t file_close(int32_t fd){
     return 0;
 }
 
@@ -62,7 +73,7 @@ uint32_t file_close(){
  * Return Value: 0
  * Function: reads a file
  */
-uint32_t file_read(const int8_t* fname){
+int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     if(cur_file.file_type == 2) {
 		read_data(cur_file.inode_num, 0, data_buffer.data, cur_file_det.length);
         return 0;
@@ -76,7 +87,7 @@ uint32_t file_read(const int8_t* fname){
  * Return Value: -1
  * Function: nothing
  */
-uint32_t file_write(){
+int32_t file_write(int32_t fd, const void* buf, int32_t nbytes){
     return -1;
 }
 
@@ -86,13 +97,16 @@ uint32_t file_write(){
  * Return Value: 0
  * Function: increments dentry_index pointer 
  */
-uint32_t directory_open(){
-    memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
-    dentry_index = dentry_index + 1;
-    if(dentry_index == num_dir_entries) {
-        dentry_index = 0;
-    }
-    return 0;
+int32_t directory_open(const uint8_t* filename){
+    // memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
+    // dentry_index = dentry_index + 1;
+    // if(dentry_index == num_dir_entries) {
+    //     dentry_index = 0;
+    // }
+    // check for nulls plz
+    if(read_dentry_by_name(filename, &cur_file) == -1){return -1;}
+    dentry_index = 0;
+    return 0; // read dentry by name, index = 0
 }
 
 /* uint32_t directory_close();
@@ -101,7 +115,7 @@ uint32_t directory_open(){
  * Return Value: 0
  * Function: nothing
  */
-uint32_t directory_close(){
+int32_t directory_close(int32_t fd){
     return 0;
 }
 
@@ -111,13 +125,25 @@ uint32_t directory_close(){
  * Return Value: 0
  * Function: reads a dentry 
  */
-uint32_t directory_read(){
+int32_t directory_read(int32_t fd, void* buf, int32_t nbytes){
     read_dentry_by_index(dentry_index, &cur_dir);
     cur_dir.file_name[32] = '\0';
-    int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
-        (cur_dir.inode_num * BLOCK_LENGTH);
-    memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
-    return 0;
+    strncpy(buf, cur_dir.file_name, 32);
+    // int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+    //     (cur_dir.inode_num * BLOCK_LENGTH);
+    // memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
+    dentry_index = dentry_index + 1;
+    if(dentry_index == num_dir_entries) {
+         dentry_index = 0;
+    }
+
+    if (strlen(cur_dir.file_name) < 32){
+        return strlen(cur_dir.file_name);
+    }
+    else{
+        return 32;
+    }
+
 }
 
 /* uint32_t directory_write();
@@ -126,25 +152,25 @@ uint32_t directory_read(){
  * Return Value: -1
  * Function: nothing
  */
-uint32_t directory_write(){
+int32_t directory_write(int32_t fd, const void* buf, int32_t nbytes){
     return -1;
 }
 
-/* uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry);
+/* uint32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
  * Description: fills in dentry based on file name
  * Inputs:  const int8_t* fname = file name
             dentry_t* dentry    = dentry to fill out 
  * Return Value:
  * Function:
  */
-uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry){
+int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
 
     int8_t* dir_start_addr = (int8_t*)boot_block_addr + SYS_STATISTICS_SIZE;
     int i;
     /* 63 directory entries */
     for(i = 0; i < MAX_NUM_OF_DIR_ENTRIES; i++) {
         /* file names match */
-        if(strncmp(dir_start_addr, fname, FILE_NAME_SIZE) == 0) {
+        if(strncmp(dir_start_addr, (int8_t*)fname, FILE_NAME_SIZE) == 0) {
             /* copy fields to dentry structure */
             memcpy(&(dentry->file_name), dir_start_addr, FILE_NAME_SIZE);
             dir_start_addr = dir_start_addr + FILE_NAME_SIZE;
@@ -173,7 +199,7 @@ uint32_t read_dentry_by_name(const int8_t* fname, dentry_t* dentry){
  * Return Value: 0 on success, -1 if index is invalid
  * Function: fills in dentry
  */
-uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
+int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
 
     /* only 63 dentries exist */
     if(index < 0 || index > MAX_NUM_OF_FILES) {
@@ -210,7 +236,7 @@ uint32_t read_dentry_by_index(uint32_t index, dentry_t* dentry){
                 return value num_bytes - returns how many bytes were written into the buffer
  * Function:
  */
-uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length){
+int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length){
     //uint32_t* inode_start_addr = boot_block_addr + 4096 + (inode * 4096);
     // inode = inode number
 
@@ -278,4 +304,69 @@ uint32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length
  
     return bytes_written;
 }
+
+/* returns -1 if file is invalid, else returns entry point address */
+int32_t check_file_validity(uint8_t* fname) {
+    /* want to make sure file is an executable file*/
+    /* header inside first 40 bytes */
+    char* buf;
+    int i, j, k;
+    /* put file data into data_buffer.data */
+    
+    j = file_open(fname);
+    if (j == -1){
+        return -1;
+    }
+    k = file_read(0, buf, 0);
+    if (k == -1){
+        return -1;
+    }
+
+    /* first 4 bytes represent a magic number that identifies file
+       as being executable */
+    /* if magic number is not present, execute should fail */
+    int8_t* data_ptr = data_buffer.data;
+    for(i = 0; i < 4; i++) {
+        if(i == 0) {
+            if(*data_ptr != 0x7F) {
+                return -1;
+            }
+        } else if(i == 1) {
+            if(*data_ptr != 0x45) {
+                return -1;
+            }
+        } else if(i == 2) {
+            if(*data_ptr != 0x4c) {
+                return -1;
+            }
+        } else if(i == 3) {
+            if(*data_ptr != 0x46) {
+                return -1;
+            }
+        }
+
+        data_ptr++;
+    }
+
+    /* at this point, we know the file is a valid executable */
+
+    /* bytes 24-27 contain the entry point into the program */
+    /* need to save this */
+
+    /* double check pointer stuff is accurate */
+    uint32_t* data_ptr2 = (uint32_t*)(data_buffer.data + 24);
+    uint32_t entry_point_addr = *data_ptr2;
+
+    return entry_point_addr;
+
+}
+
+
+
+
+
+
+
+
+
 

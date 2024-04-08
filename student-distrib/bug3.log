@@ -1,0 +1,331 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP3
+CreateTime:
+    2024.4.6
+
+<--------------------------------------------------------->
+                        BUG 1                         
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    functions not copying over correctly when initializing 
+    file operations
+Solution:
+    because i put the word void before i called the functions!
+
+<--------------------------------------------------------->
+                        BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    close function not working correctly
+Solution:
+    if statement was flags != 0 in descriptor.c
+    instead of flags == 0
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault in iret.S
+Solution:
+    we redefined USER_DS in our file, had to explicitly put in numbers
+
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault in iret.S (a few lines down from the previous bug)
+Solution:
+    we manually moved segments but only needed to push the iret context
+
+<--------------------------------------------------------->
+                          BUG 5                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    validate_file did not get correct EIP 
+Solution:
+    we needed bytes 24-27 from data buffer and had to switch our +23 to +24
+
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault when we try to load a program/access memory 
+Solution:
+    we were marking 8-12 and 12-16 mB range present & loading into it in virtual memory
+    we needed to do this at 128mB + offset
+
+<--------------------------------------------------------->
+                          BUG 7                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault just after we reach main/iret into main
+Solution:
+    we never set the usersupervisor bit for 128mB to allow the user to access it
+    once we set that to 1 it fixed the page fault
+
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Tessa Samuels.
+Description:
+    In our syscall handler asm when we reach iret at the end we get a page fault
+Solution:
+    we were calling our asm through a C function which led to the wrong value being at the top of the stack
+    with iret. We just had to call the asm directly to fix this
+
+<--------------------------------------------------------->
+                          BUG 9                          
+<--------------------------------------------------------->
+Time:
+    2024.4.6.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when setting new esp0
+Solution:
+    due to way we were calculating the new esp0, 
+
+<--------------------------------------------------------->
+                          BUG 10                          
+<--------------------------------------------------------->
+Time:
+    2024.4.6.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    page fault in syscall handler
+Solution:
+    we had mov 0 into eax in our handler (due to missunderstanding of return value) 
+    which was overwritting the return address
+
+<--------------------------------------------------------->
+                          BUG 11                          
+<--------------------------------------------------------->
+Time:
+    2024.4.6.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    stuck in while loop forever with input
+Solution:
+    our logic was wrong, function was made assuming there would always be a space after command
+
+<--------------------------------------------------------->
+                          BUG 12                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    page fault
+Solution:
+    init zero needed to be used for the FD array
+
+<--------------------------------------------------------->
+                          BUG 13                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    page fault
+Solution:
+    alloc file needed to return location, not 0
+
+<--------------------------------------------------------->
+                          BUG 14                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Tessa Samuels
+Description:
+    page fault when accessing the pcb_parent in halt
+Solution:
+    had to take into account when there was only one process running
+
+<--------------------------------------------------------->
+                          BUG 15                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault when setting ebp in halt, says it cannot access memory
+Solution:
+    we were not saving ebp in execute correctly
+
+<--------------------------------------------------------->
+                          BUG 16                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault on ret in halt
+Solution:
+    ebp was wrong
+
+<--------------------------------------------------------->
+                          BUG 17                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    when you typed in a wrong command it wouldnt print no such command
+Solution:
+    out file validating didn't actually check that the file existed
+
+<--------------------------------------------------------->
+                          BUG 18                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    page fault if there are more than 50 characters typed in shell
+Solution:
+    needed a check for if the filename is too long
+
+
+<--------------------------------------------------------->
+                          BUG 19                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Sairaj Shetye.
+Description:
+    page fault when we try to return from main, it thinks rval is 256 despite eax being 0
+Solution:
+    our allocate tasks is 1 indexed but we were using 0 in other parts of our code
+
+<--------------------------------------------------------->
+                          BUG 20                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    shell does not read if there are spaces before
+Solution:
+    had to change parsing to accomidate this
+
+
+<--------------------------------------------------------->
+                          BUG 21                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    page fault at end of 2nd process
+Solution:
+    we were resetting current pid to 0 when it needed to be 1
+<--------------------------------------------------------->
+                          BUG 22
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Tessa Samuels.
+Description:
+    general protection fault and segmentation fault in syserr 8
+Solution:
+    not everything was being popped when it was not a valid syscall, rearranged asm to fix
+
+<--------------------------------------------------------->
+                          BUG 23
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank.
+Description:
+    syserr 5 not working, page fault when running individually
+Solution:
+    had to reset flag in close
+
+<--------------------------------------------------------->
+                          BUG 24
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank & Tessa Samuels.
+Description:
+    page fault or gen protection fault with input with a LOT of spaces, inconsistent
+Solution:
+    we were accidently setting outside the size of our file name at the index in the source buffer
+
+<--------------------------------------------------------->
+                          BUG 25
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank & Tessa Samuels.
+Description:
+    hello does not work after exit, actually 2nd hello doesnt work at all
+Solution:
+    ....
+
+<--------------------------------------------------------->
+                          BUG 26
+<--------------------------------------------------------->
+Time:
+    2024.4.8.
+Creator:
+    Elizabeth Shank & Tessa Samuels.
+Description:
+    can't call shell twice in a row
+Solution:
+    ....
+
+

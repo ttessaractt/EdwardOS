@@ -9,6 +9,8 @@
 #define VIDEO_MEMORY 184
 #define OFFSET_4KB 4096
 #define OFFSET_4MB 4194304
+#define OFFSET_8MB 8388608
+#define OFFSET_12MB 12582912
 #define KEEP_TOP10_BITS 0xFFC00
 
 /* sets the 0-4mB page table and links the page directory to this page table and the 4mB kernel page */
@@ -16,6 +18,9 @@ extern void set_page_table();
 
 /* sets the 0-4gB range as all non-present by default */
 extern void blank_page_dir();
+
+/* sets up the 8-16 mB range to hold two tasks, with a 4mB page at 128 mB for execution */
+extern void allocate_tasks(uint32_t task);
 
 /* enables paging in the IA-32 */
 extern void enable_paging();
@@ -67,3 +72,4 @@ extern void load_page_dir(page_dir_entry_t* page_dir_base);
 extern page_table_entry_t page_table[1024] __attribute__((aligned(OFFSET_4KB)));
 extern page_dir_entry_t page_directory[1024] __attribute__((aligned(OFFSET_4KB)));
 
+extern void flush_tlb();
