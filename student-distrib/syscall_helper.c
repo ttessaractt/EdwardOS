@@ -108,7 +108,7 @@ int32_t halt_help(unsigned char status){
     //current_pid = 0;
     //restore parent paging
     if (current_process->parent_pid != 0){
-        allocate_tasks(pcb_parent->parent_pid);
+        allocate_tasks(pcb_parent->parent_pid + 1);
     }
 
     //close relevent fd's
