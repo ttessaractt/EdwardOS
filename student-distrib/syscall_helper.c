@@ -3,7 +3,6 @@
  */
 
 #include "syscall_helper.h"
-
 #include "lib.h"
 #include "file.h"
 #include "paging.h"
@@ -15,9 +14,10 @@
 #include "halt.h"
 #include "types.h"
 
-int32_t current_pid = 0; // initial pid = 0
-int32_t current_parent_pid = 0;
-process_control_block_t* current_process = NULL;
+//global variables for functions
+int32_t current_pid = 0;            // initial pid = 0
+int32_t current_parent_pid = 0;     // initial parent pid = 0
+process_control_block_t* current_process = NULL;    //initial PCB does not exist
 operations file_operations;
 operations dir_operations;
 operations rtc_operations;
@@ -26,71 +26,69 @@ operations stdout_operations;
 int location;
 int ex_it = 0;
 
+/* execute_help
+ * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
+ * Inputs: command - space seperated sequence of words, 1st word = file name, rest = provided on request to getargs
+ * Return Value: -1 - command cannot be executed
+ *               256 - program dies by exception
+ *               0-255 - program executes a halt system call, value given by halt
+ */
 int32_t execute_help(unsigned char* command){
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
-    //cli();
-
+    //check that command is not NULL
     if (command == NULL){
         return -1;
     }
-
-    unsigned char file_name[32+1]; // 32+1?
-    unsigned char arguments[128]; // check lengths?
-
-    // PARSE ARGS
-    /* populates file_name */
-    parse_arguments(command, file_name, arguments);
-
-    // CHECK FILE VALIDITY
-    int32_t entry_addr = check_file_validity((unsigned char*)file_name);
-    /* not an executable file */
-    if(entry_addr == -1) {
-        return -1;
-    }
-
-    /* entry_addr now stored in entry_addr */
-    current_parent_pid = current_pid;
-
-    // CREATE PCB 
-    initialize_pcb(file_name);
-
-    tss.esp0 = current_process->tss_esp0;
-    // SET UP PAGING
-    // allocates memory for tasks 
-    allocate_tasks(current_process->pid);
-
-    //flush_tlb();
-    // LOAD FILE INTO MEMORY
-    program_loader((char*)file_name, 1);
-    
-
+    //create variables
+    unsigned char file_name[32+1]; 
+    unsigned char arguments[128]; 
     process_control_block_t* parent_pcb;
 
-    //printf("before jump\n");
-    //printf("%x\n", entry_addr);
-    register uint32_t saved_ebp asm("ebp");
+    // PARSE ARGS
+    parse_arguments(command, file_name, arguments); /* populates file_name */
 
-    //uint32_t saved_ebp = 0x7fff80;
-    if (current_pid > 1){
+    // CHECK FILE VALIDITY
+    int32_t entry_addr = check_file_validity((unsigned char*)file_name); /* entry_addr now stored in entry_addr */
+    if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
+
+    current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
+
+    // CREATE PCB 
+    initialize_pcb();
+
+    tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
+    
+    // SET UP PAGING
+    allocate_tasks(current_process->pid);   // allocates memory for tasks 
+
+    // LOAD FILE INTO MEMORY
+    program_loader((char*)file_name, 1);
+
+    // SAVE EBP
+    register uint32_t saved_ebp asm("ebp"); // get ebp
+    if (current_pid > 1){                   // save ebp in PCB for use later
         parent_pcb = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
     }
+
     // CONTEXT SWITCH AND IRET
-    jump_to_user(entry_addr); // 
-    //printf("dont come back");
-
-    return -1;
-
+    jump_to_user(entry_addr); 
+ 
+    return 0;
 }
 
-//status is return value from main (if things worked)
+/* halt_help
+ * Description: terminates a process (if not base shell) & returns status to the parent process 
+ * Inputs: status - 8-bit arguemnt from BL
+ * Return Value: 1
+ */
 int32_t halt_help(unsigned char status){
-    printf("start halt\n");
-    /* not done! */
-    //restore parent stack stuff
-    /* get the esp0 of the parent */
+    // create variables
     process_control_block_t* pcb_parent;
+    int b;
+
+    // get the esp0 of the parent 
     if (current_process->parent_pid == 0){
         pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_pid));
     }
@@ -98,46 +96,43 @@ int32_t halt_help(unsigned char status){
         pcb_parent = (process_control_block_t*) 0x800000 - (0x2000 * (current_process->parent_pid));
     } 
     
-        
+    // set the new esp0    
     tss.esp0 = pcb_parent->tss_esp0;
-    //0x800000;
-    //printf("%d\n", current_process->parent_pid);
-    //pcb_parent->tss_esp0;        //change tss
-    tss.ss0 = KERNEL_DS;                    //shouldnt be changed but make sure it remains the same
+    tss.ss0 = KERNEL_DS;                    
 
-    //current_pid = 0;
-    //restore parent paging
+    // restore parent paging
     if (current_process->parent_pid != 0){
-        allocate_tasks(pcb_parent->parent_pid);
+        allocate_tasks(pcb_parent->parent_pid + 1);
     }
 
-    //close relevent fd's
-    int b;
+    // close relevent fd's
     for(b = 2; b < 8; b++) {
         current_process->file_d_array[b].flags = 0; // set all files to unused;
     }
 
+    // current process becomes parent
     current_process = pcb_parent;
-    //make sure return val is in eax
 
-    //jump to execute return
-
-    /* the 8 bit input is BL (register) which should then be expanded */
-    /* it is expanded to the return value of the parent program's execute */
+    // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
 
+    //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 
     return 1;
-
 }
 
-
+/* parse_arguments
+ * Description: get the file name to be executed & strip the rest of command of leading spaces
+ * Inputs: buf - buffer with the command to be parsed
+ *         file_name - buffer to place the file name into
+ *         arguemnts - buffer to place the rest of command into
+ * Return Value: 1 - success
+ */
 int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments){
-
-    /* return -1 for fail */
+    /* check for NULL buffer */
     if (buf == NULL){
-        return -1;
+        return -1;      /* return -1 for fail */
     }
 
     /* filter out spaces from first file name */
@@ -146,7 +141,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
         cur_idx++;
     }
 
-    /* at first file name */
+    /* get first file name */
     int i = 0;
     while(buf[cur_idx] != 0x20) {
         if(cur_idx >= strlen((char*)buf)) {
@@ -173,54 +168,56 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     }
     arguments[l] = '\0';
 
-    /* testing */
-    //printf("\n");
-    //printf("%s HIIII", file_name);
-    //printf("\n");
-    //printf("%s", arguments);
-
     return 1; //success
-
 }
 
-int32_t initialize_pcb(unsigned char* file_name){
-    //printf("PBC StART HEYY\n");
+/* initialize_pcb
+ * Description: initilizes the PCB for execute
+ * Inputs: none
+ * Return Value: 0 - success
+ */
+int32_t initialize_pcb(){
+    // create variables
     int i;
-    current_pid++; // stop at 6?
+    current_pid++; 
+
+    // make new PCB
     process_control_block_t* pcb_new = (process_control_block_t*) 0x800000 - (0x2000 * current_pid); //(should be 0x800000 - PID * x)
-    //int8_t* pcb_start = (int8_t*) 0x800000 - (0x2000 * current_pid);
-
-
-    pcb_new->pid = current_pid; // becomes 1 (on first time)
-    pcb_new->parent_pid = current_parent_pid; // 0 - no parent yet
-
+    pcb_new->pid = current_pid;                 // becomes 1 (on first time)
+    pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet
     pcb_new->tss_esp0 = 0x800000 - (0x2000 * (current_pid-1));
-    //pcb_new->ebp = 0x800000 - (0x2000 * (current_pid-1));
+
     /* initialzie file array */
-
     file_info files[8]; 
-
     init_file_operations();
     init_std_op(files);
-    
     for(i = 0; i < 8; i++){
         pcb_new->file_d_array[i] = files[i];
     }
-
     current_process = pcb_new;
-    //printf("PBC mcpy HEYY\n");
-    //memcpy(pcb_start, pcb_new, 16); // 16 bytes need to change when we have file array
-    //printf("PBC end HEYY\n");
     return 0;
-
 } 
 
+/* init_zero
+ * Description: clear file descriptor array
+ * Inputs: files - file descriptor array
+ * Return Value: none
+ */
 void init_zero(file_info* files){
      for(location = 0; location < 8; location++){
          files[location].flags = 0;
      }
  }
 
+/* alloc_file
+ * Description: finds next open spot in file descriptor array & adds entry with necessary information
+ * Inputs: operation - operation of file
+ *         indoe - inode of file
+ *         file_type - type of file
+ *         files - file descriptor array
+ * Return Value: location - position in file descriptor array
+ *               -1 - array full/error
+ */
 int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_info* files){
     for(location = 2; location < 8; location++){
         if(files[location].flags == 0){
@@ -237,7 +234,7 @@ int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_
             //0 is NOT USED, 1 is IN USE
             files[location].flags = 1;
 
-            //return 0 on success
+            //return location on success
             return location;
         }
     }
@@ -245,6 +242,13 @@ int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_
     return -1;
 }
 
+/* free_file
+ * Description: frees entry in file descriptor array
+ * Inputs: descriptor - location in file descriptor array
+ *         files - file descriptor array
+ * Return Value: 0 - success
+ *               -1 - trying to close file not in use/error
+ */
 int32_t free_file(int32_t descriptor, file_info* files){
     if(files[descriptor].flags == 0){ 
         return -1; // return -1 if you trying to close a file that is not in use
@@ -258,6 +262,11 @@ int32_t free_file(int32_t descriptor, file_info* files){
     return -1;
 }
 
+/* init_file_operations
+ * Description: initilizes file descriptor array for file, dir, rtc, and parts of stdin and stdout
+ * Inputs: none
+ * Return Value: none
+ */
 void init_file_operations(){
     /* file operation */
     file_operations.open = file_open;
@@ -284,6 +293,11 @@ void init_file_operations(){
     stdout_operations.write = terminal_write;
 }
 
+/* init_std_op
+ * Description: finished initialization of stdin and stdout for the file descriptor array
+ * Inputs: files - file descriptor array
+ * Return Value: none
+ */
 void init_std_op(file_info* files){
     /* initialize stdin */
     init_zero(files);
@@ -299,3 +313,4 @@ void init_std_op(file_info* files){
     files[1].file_pos = -1;
     files[1].flags = 1;
 }
+

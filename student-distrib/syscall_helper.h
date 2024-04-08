@@ -3,10 +3,12 @@
  */
 
 #include "types.h"
+#include "lib.h"
 // #include "descriptor.h"
 
 /* OPERATIONS */
 
+/**/
 typedef union operations {
   struct {
     int32_t (*read) (int32_t fd, void* buf, int32_t nbytes);
@@ -16,6 +18,7 @@ typedef union operations {
   } __attribute__((packed));
 } operations;
 
+/*holer for file information*/
 typedef union file_info {
   struct {
     operations fotp; //files operation table pointer
@@ -25,7 +28,7 @@ typedef union file_info {
   } __attribute__((packed));
 } file_info;
 
-
+/*holder for PCB information*/
 typedef struct process_control_block_t{
     int32_t pid;
     int32_t parent_pid;
@@ -51,14 +54,17 @@ int32_t current_pid;
 int32_t current_parent_pid;
 process_control_block_t* current_process;
 
+/*function that actually does execute*/
 int32_t execute_help(unsigned char* command);
 
+/*function that actually does halt*/
 int32_t halt_help(unsigned char status);
 
-/* need to pass in file name and argument buffer of proper size */
+/*function to parse the inputs in execute*/
 int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned char* arguments);
 
-int32_t initialize_pcb(unsigned char* file_name);
+/*function to initilize the PCB in execute*/
+int32_t initialize_pcb(void);
 
 
 // extern file_info files[8];

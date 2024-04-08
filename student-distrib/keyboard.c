@@ -201,7 +201,6 @@ void keyboard_handler(){
                 if (p == '\n'){ // if pressed enter
                     terminal_can_read = 1; // allow terminal to read
                     buffer_position = 0; // reset buffer position to 0    
-                    printf("term read %d\n", terminal_can_read);
                 }
                 else{
                     terminal_can_read = 0;
@@ -222,8 +221,7 @@ void keyboard_handler(){
         
             if (p == '\n'){ // if pressed enter
                 terminal_can_read = 1; // allow terminal to read
-                buffer_position = 0; // reset buffer position to 0
-                printf("term read %d\n", terminal_can_read);    
+                buffer_position = 0; // reset buffer position to 0   
             }
             else{
                     terminal_can_read = 0;
@@ -234,4 +232,5 @@ void keyboard_handler(){
     send_eoi(1); //sends end of interrupt on IRQ1
    
 };
+
 

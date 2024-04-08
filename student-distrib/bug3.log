@@ -38,7 +38,7 @@ Solution:
                           BUG 3                          
 <--------------------------------------------------------->
 Time:
-    2022.4.5.
+    2024.4.5.
 Creator:
     Tessa Samuels & Elizabeth Shank.
 Description:
@@ -50,7 +50,7 @@ Solution:
                           BUG 4                          
 <--------------------------------------------------------->
 Time:
-    2022.4.5.
+    2024.4.5.
 Creator:
     Tessa Samuels & Elizabeth Shank.
 Description:
@@ -62,7 +62,7 @@ Solution:
                           BUG 5                          
 <--------------------------------------------------------->
 Time:
-    2022.4.5.
+    2024.4.5.
 Creator:
     Tessa Samuels & Elizabeth Shank.
 Description:
@@ -74,7 +74,7 @@ Solution:
                           BUG 6                          
 <--------------------------------------------------------->
 Time:
-    2022.4.5.
+    2024.4.5.
 Creator:
     Tessa Samuels & Elizabeth Shank.
 Description:
@@ -87,7 +87,7 @@ Solution:
                           BUG 7                          
 <--------------------------------------------------------->
 Time:
-    2022.4.5.
+    2024.4.5.
 Creator:
     Tessa Samuels & Elizabeth Shank.
 Description:
@@ -101,7 +101,7 @@ Solution:
                           BUG 8                          
 <--------------------------------------------------------->
 Time:
-    2022.4.5.
+    2024.4.5.
 Creator:
     Tessa Samuels.
 Description:
@@ -114,7 +114,7 @@ Solution:
                           BUG 9                          
 <--------------------------------------------------------->
 Time:
-    2022.4.6.
+    2024.4.6.
 Creator:
     Tessa Samuels.
 Description:
@@ -126,10 +126,133 @@ Solution:
                           BUG 10                          
 <--------------------------------------------------------->
 Time:
-    2022.4.7.
+    2024.4.6.
 Creator:
-    First Last.
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    page fault in syscall handler
+Solution:
+    we had mov 0 into eax in our handler (due to missunderstanding of return value) 
+    which was overwritting the return address
+
+<--------------------------------------------------------->
+                          BUG 11                          
+<--------------------------------------------------------->
+Time:
+    2024.4.6.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    stuck in while loop forever with input
+Solution:
+    our logic was wrong, function was made assuming there would always be a space after command
+
+<--------------------------------------------------------->
+                          BUG 12                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    page fault
+Solution:
+    init zero needed to be used for the FD array
+
+<--------------------------------------------------------->
+                          BUG 13                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank & Sairaj Shetye.
+Description:
+    page fault
+Solution:
+    alloc file needed to return location, not 0
+
+<--------------------------------------------------------->
+                          BUG 14                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Tessa Samuels
 Description:
     page fault when accessing the pcb_parent in halt
 Solution:
     had to take into account when there was only one process running
+
+<--------------------------------------------------------->
+                          BUG 15                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault when setting ebp in halt, says it cannot access memory
+Solution:
+    we were not saving ebp in execute correctly
+
+<--------------------------------------------------------->
+                          BUG 16                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Tessa Samuels & Elizabeth Shank.
+Description:
+    page fault on ret in halt
+Solution:
+    ebp was wrong
+
+<--------------------------------------------------------->
+                          BUG 17                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    when you typed in a wrong command it wouldnt print no such command
+Solution:
+    out file validating didn't actually check that the file existed
+
+<--------------------------------------------------------->
+                          BUG 18                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    page fault if there are more than 50 characters typed in shell
+Solution:
+    needed a check for if the filename is too long
+
+
+<--------------------------------------------------------->
+                          BUG 19                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Sairaj Shetye.
+Description:
+    page fault when we try to return from main, it thinks rval is 256 despite eax being 0
+Solution:
+    our allocate tasks is 1 indexed but we were using 0 in other parts of our code
+
+<--------------------------------------------------------->
+                          BUG 20                          
+<--------------------------------------------------------->
+Time:
+    2024.4.7.
+Creator:
+    Elizabeth Shank.
+Description:
+    shell does not read if there are spaces before
+Solution:
+    ....
+

@@ -19,22 +19,22 @@ syscall_handler:
     pushl %ebx   # 1st arguemnt
 
     # value checking, check if call number in eax is between 1 & 10
-    # when eax < 1
-    # cmpl $1, %eax        # eax < 1?
-    # jl syscall_done     # eax is < 1, error
-    # when eax > 10
-    # cmpl $10, %eax       # eax > 10?
-    # jg syscall_done     # eax is > 10, error
+    cmpl $1, %eax        # eax < 1?
+    jl syscall_done      # eax is < 1, error
+    cmpl $10, %eax       # eax > 10?
+    jg syscall_done      # eax is > 10, error
 
     # call syscall
     call *syscall_table(,%eax,4)    # call system call using syscall jumptable
     popl %ebx
     popl %ecx
     popl %edx
-    # movl $0, %eax       # no error so return 0
     jmp syscall_done
 
-syscall_done:       # return from system call, either call is finished or value not valid
+syscall_error:          # for value checking
+    movl $-1, %eax      # error in call number, return -1
+
+syscall_done:           # return from system call, either call is finished or value not valid
     # return regs
     popl %esp
     popl %edi

@@ -3,6 +3,7 @@
 .text
     .globl jump_to_user
 
+# switch to user 
 jump_to_user:
     pushl %ebp
     movl %esp, %ebp
