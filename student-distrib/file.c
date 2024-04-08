@@ -50,7 +50,11 @@ int32_t file_open(const uint8_t* fname){
     if(read_dentry_by_name(fname, &cur_file) == -1){return -1;}
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
         (cur_file.inode_num * BLOCK_LENGTH);
+    // if(strncmp("hello", fname, 5) == 0) {
+    //     cur_file_det.length = 5349;
+    // } else {
     memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
+    //}
 
     
 
@@ -168,6 +172,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry){
     int8_t* dir_start_addr = (int8_t*)boot_block_addr + SYS_STATISTICS_SIZE;
     int i;
     /* 63 directory entries */
+    //uint8_t* fname_ap;
     for(i = 0; i < MAX_NUM_OF_DIR_ENTRIES; i++) {
         /* file names match */
         if(strncmp(dir_start_addr, (int8_t*)fname, FILE_NAME_SIZE) == 0) {
