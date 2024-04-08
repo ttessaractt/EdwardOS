@@ -50,7 +50,12 @@ int32_t file_open(const uint8_t* fname){
     if(read_dentry_by_name(fname, &cur_file) == -1){return -1;}
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
         (cur_file.inode_num * BLOCK_LENGTH);
+
+    // if(strncmp("hello", fname, 5) == 0) {
+    //    cur_file_det.length = 5349;
+    // } else {
     memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
+    //}
 
     
 
@@ -321,6 +326,7 @@ int32_t check_file_validity(uint8_t* fname) {
     if (k == -1){
         return -1;
     }
+
 
     /* first 4 bytes represent a magic number that identifies file
        as being executable */

@@ -220,11 +220,16 @@ int32_t initialize_pcb(){
     // create variables
     int i;
     current_pid++; 
+    // fixes shell page fault but causes boot loop on next command 
+    if(current_pid % 3 == 0) {
+        current_pid = 1;
+        current_parent_pid = 0;
+    }
 
     // make new PCB
     process_control_block_t* pcb_new = (process_control_block_t*) MB_8 - (KB_8 * current_pid); //(should be MB_8 - PID * x)
-    pcb_new->pid = current_pid;                 // becomes 1 (on first time)
-    pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet
+    pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
+    pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     pcb_new->tss_esp0 = MB_8 - (KB_8 * (current_pid-1));
 
     /* initialzie file array */
