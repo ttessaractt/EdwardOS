@@ -254,5 +254,8 @@ Creator:
 Description:
     shell does not read if there are spaces before
 Solution:
-    ....
+    had to change parsing to accomidate this
+
+
+
 

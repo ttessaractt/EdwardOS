@@ -25,6 +25,7 @@ operations stdin_operations;
 operations stdout_operations;
 int location;
 int ex_it = 0;
+int pid_flag = 0;
 
 /* execute_help
  * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
@@ -46,8 +47,8 @@ int32_t execute_help(unsigned char* command){
     process_control_block_t* parent_pcb;
 
     // PARSE ARGS
-    parse_arguments(command, file_name, arguments); /* populates file_name */
-
+    int32_t parse_check = parse_arguments(command, file_name, arguments); /* populates file_name */
+    if (parse_check == -1){return -1;}
     // CHECK FILE VALIDITY
     int32_t entry_addr = check_file_validity((unsigned char*)file_name); /* entry_addr now stored in entry_addr */
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
@@ -134,26 +135,33 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     if (buf == NULL){
         return -1;      /* return -1 for fail */
     }
-
+    printf("%s\n", buf);
     /* filter out spaces from first file name */
     int cur_idx = 0;
+    int old_cur_idx = 0;
     while(buf[cur_idx] == 0x20) {
         cur_idx++;
     }
 
     /* get first file name */
     int i = 0;
+    old_cur_idx = cur_idx;
     while(buf[cur_idx] != 0x20) {
-        if(cur_idx >= strlen((char*)buf)) {
+        if(cur_idx > (strlen((char*)buf))) {
             file_name[cur_idx] = '\0';
+            printf("%s\n", file_name);
             return 1;
         }
+
         file_name[i] = buf[cur_idx];
         i++;
         cur_idx++;
+        if (i > 32){
+            return -1;
+        }
     }
     file_name[i] = '\0';
-    
+    printf("%s\n", file_name);
     /* filter out spaces between first file name and next */
     while(buf[cur_idx] == 0x20) {
         cur_idx++;

@@ -90,7 +90,7 @@ int32_t close (int32_t fd){
     /* return -1 if they try to close stdin/out */
     if(fd == 0 || fd == 1 || fd > 8){ return -1; }
     process_control_block_t* pcb_current = (process_control_block_t*) 0x800000 - (0x2000 * current_pid);
-    return free_file(fd, pcb_current);
+    return free_file(fd, &(pcb_current->file_d_array[fd]));
 };
 
 /* getargs
