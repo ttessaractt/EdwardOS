@@ -137,3 +137,22 @@ void allocate_tasks(uint32_t task){
     flush_tlb(); // maybe?
 }
 
+
+void add_vid_mem_page() {
+    /* need to specify virtual memory address that maps to video memory */
+    /* video memory is 0xb8000 -> 0xb9000 */
+
+    /* 4 MB * 256 = 1024 MB = 1 GB */
+    /* arbitrarily choose 1 GB page to map to video memory */
+    /* the location of this page doesn't really matter as long */
+    /* as it doesn't interfere with the program image and the */
+    /* kernel */
+    page_directory[256].present = 1;
+    page_directory[256].addr_31_12_or_addr_31_22 = ((OFFSET_VID_MEM_START >> 12) & KEEP_TOP10_BITS);
+    page_directory[256].usersupervisor = 1;
+    //page_directory[256].pagesize = 0; 
+
+    /* braindead TLB flush just in case */
+    flush_tlb();
+}
+

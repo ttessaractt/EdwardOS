@@ -156,6 +156,35 @@ int32_t halt_help(unsigned char status){
     return 1;
 }
 
+/*
+The vidmap call maps the text-mode video memory into user space at a pre-set virtual address. Although the address
+returned is always the same (see the memory map section later in this handout), it should be written into the memory
+location provided by the caller (which must be checked for validity). If the location is invalid, the call should return -1.
+To avoid adding kernel-side exception handling for this sort of check, you can simply check whether the address falls
+within the address range covered by the single user-level page. Note that the video memory will require you to add
+another page mapping for the program, in this case a 4 kB page. It is not ok to simply change the permissions of the
+video page located < 4MB and pass that address
+*/
+int32_t vidmap_helper(uint8_t** screen_start) {
+    /* OFFSET_VID_MEM_START = 0xB8000 */
+    *(screen_start) = (uint8_t*) OFFSET_1GB;
+    uint8_t* screen_iter = *(screen_start);
+    uint8_t* vid_mem_start = (uint8_t*) OFFSET_VID_MEM_START;
+
+    /* sets a page at 1 GB present to point to the start of vid mem */
+    add_vid_mem_page();
+
+    int i;
+    int vid_mem_size = (int) (OFFSET_VID_MEM_END - OFFSET_VID_MEM_START);
+    for(i = 0; i < vid_mem_size; i++) {
+        *screen_iter = *vid_mem_start;
+        vid_mem_start++;
+        screen_iter++;
+    }
+    printf("\n%d",*screen_start);
+    return 0;
+}
+
 /* parse_arguments
  * Description: get the file name to be executed & strip the rest of command of leading spaces
  * Inputs: buf - buffer with the command to be parsed

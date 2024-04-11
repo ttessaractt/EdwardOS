@@ -28,7 +28,7 @@ void program_loader(int8_t* file_name, int32_t task_number) {
     //printf("loader mid2.0 HEYY\n");
     int32_t i;
 
-    for(i = 0; i < 4096; i++) {
+    for(i = 0; i < cur_file_det.length; i++) {
         *cur_addr = buffer[i];
         cur_addr = cur_addr + 1;
     }

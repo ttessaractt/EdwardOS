@@ -11,6 +11,9 @@
 #define OFFSET_4MB 4194304
 #define OFFSET_8MB 8388608
 #define OFFSET_12MB 12582912
+#define OFFSET_1GB 0x40000000
+#define OFFSET_VID_MEM_START 0xB8000
+#define OFFSET_VID_MEM_END 0xB9000
 #define KEEP_TOP10_BITS 0xFFC00
 
 /* sets the 0-4mB page table and links the page directory to this page table and the 4mB kernel page */
@@ -27,6 +30,9 @@ extern void enable_paging();
 
 /* enables 4mB pages to be used */
 extern void enable_4mb_pages();
+
+/* adds a virtual page that maps to video memory so user space can access it */
+extern void add_vid_mem_page();
 
 /* struct defining bit correspondence for page table entries */
 typedef union page_table_entry_t {

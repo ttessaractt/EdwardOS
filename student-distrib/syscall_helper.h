@@ -77,6 +77,9 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 /*function to initilize the PCB in execute*/
 int32_t initialize_pcb(void);
 
+/*function to actually do vidmap*/
+int32_t vidmap_helper(uint8_t** screen_start);
+
 
 // extern file_info files[8];
 extern operations file_operations;
