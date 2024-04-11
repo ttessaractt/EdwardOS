@@ -72,6 +72,10 @@ int32_t execute_help(unsigned char* command){
     // CREATE PCB 
     initialize_pcb();
 
+    current_process->arguments = arguments; //set arguments in PCB
+    current_process->arg_length = strlen((char*)arguments);
+    //printf("a2 %x\n",current_process->arguments);  //saves correctly here
+
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
     
     // SET UP PAGING
@@ -202,6 +206,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
     /* copy to arguments everything past first file name + spaces */
     int j;
     int l = 0;
+    
     for(j = cur_idx; j < strlen((char*)buf); j++) {
         arguments[l] = buf[j];
         l++;
@@ -231,6 +236,9 @@ int32_t initialize_pcb(){
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     pcb_new->tss_esp0 = MB_8 - (KB_8 * (current_pid-1));
+
+    pcb_new->arg_length = 0;
+    pcb_new->arguments = NULL;
 
     /* initialzie file array */
     file_info files[FD_ARRAY_LEN]; 
@@ -358,4 +366,27 @@ void init_std_op(file_info* files){
     files[1].file_pos = -1;
     files[1].flags = 1;
 }
+
+int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
+    int i;
+    printf("start getargs\n");
+    printf("args %s\n", current_process->arguments);
+    printf("len %x\n", current_process->arg_length);
+
+    if(current_process->arguments == NULL){return -1;}
+    if(current_process->arg_length <= 0){return -1;}
+    if(current_process->arg_length > 8){return -1;}
+
+    for (i = 0; i < current_process->arg_length; i++){
+        buf[i] = (current_process->arguments)[i];
+    }
+
+    buf[i] = '\0';
+
+    printf("%d\n", current_process->arg_length);
+    printf("%s\n", buf);
+
+    return 0;
+
+};
 

@@ -9,7 +9,7 @@ CreateTime:
     2024.4.11
 
 <--------------------------------------------------------->
-                        BUG X                         
+                        BUG 1                         
 <--------------------------------------------------------->
 Time:
     2024.4.5.
@@ -23,3 +23,28 @@ Solution:
     edited and every time file_open is called, a char buffer
     of size cur_file_det.length has to be allocated because before 
     the implementation was causing other memory to be overwritten
+
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2024.4.11.
+Creator:
+    Tessa Samuels.
+Description:
+    getargs always returning -1
+Solution:
+    i was null checking buffer before anything was put in buffer
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2024.4.11.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when running sigtest
+Solution:
+    i accidently broke parse arguments trying to fix getargs when the only issue was there was there was no
+    input for argument

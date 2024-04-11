@@ -131,7 +131,7 @@ int32_t close (int32_t fd){
  * Return Value: -1
  */
 int32_t getargs (uint8_t* buf, int32_t nbytes){
-    return -1;
+    return getargs_helper(buf, nbytes);
 };
 
 /* vidmap

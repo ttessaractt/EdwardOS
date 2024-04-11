@@ -45,6 +45,8 @@ typedef struct process_control_block_t{
     uint32_t esp;
     uint32_t tss_esp0;
     uint32_t ebp;
+    unsigned char* arguments;
+    uint32_t arg_length;
 
     //struct process_control_block_t * next;
     //struct process_control_block_t * parent;
@@ -76,6 +78,9 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 
 /*function to initilize the PCB in execute*/
 int32_t initialize_pcb(void);
+
+/*function that actually does getargs*/
+int32_t getargs_helper(uint8_t* buf, int32_t nbytes);
 
 
 // extern file_info files[8];
