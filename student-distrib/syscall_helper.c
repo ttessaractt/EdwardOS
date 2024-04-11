@@ -72,6 +72,10 @@ int32_t execute_help(unsigned char* command){
     // CREATE PCB 
     initialize_pcb();
 
+    printf("a %x\n",arguments);
+    current_process->arguments = arguments; //set arguments in PCB
+    //printf("a2 %x\n",current_process->arguments);  //saves correctly here
+    
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
     
     // SET UP PAGING
@@ -231,7 +235,6 @@ int32_t initialize_pcb(){
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     pcb_new->tss_esp0 = MB_8 - (KB_8 * (current_pid-1));
-
     /* initialzie file array */
     file_info files[FD_ARRAY_LEN]; 
     init_file_operations();
@@ -359,3 +362,17 @@ void init_std_op(file_info* files){
     files[1].flags = 1;
 }
 
+int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
+    int i;
+    printf("%x\n", current_process->arguments);
+    printf("%x\n", sizeof((int8_t*)(current_process->arguments)));
+
+    if(current_process->arguments == NULL){return -1;}
+    if(sizeof((int8_t*)(current_process->arguments)) == 0){return -1;}
+    if(sizeof((int8_t*)(current_process->arguments)) > 8){return -1;}
+
+    for (i = 0; i < sizeof((int8_t*)buf); i++){
+        buf[i] = (current_process->arguments)[i];
+    }
+    return 0;
+};
