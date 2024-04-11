@@ -1,0 +1,25 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP3
+CreateTime:
+    2024.4.11
+
+<--------------------------------------------------------->
+                        BUG X                         
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    hello fails after second iteration
+Solution:
+    data blocks had size of 40000 bytes instead of regular 
+    block size of 4096 bytes. to fix, multiple functions had to be 
+    edited and every time file_open is called, a char buffer
+    of size cur_file_det.length has to be allocated because before 
+    the implementation was causing other memory to be overwritten

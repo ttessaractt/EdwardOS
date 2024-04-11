@@ -347,8 +347,8 @@ void terminal_wr_test3(){
 }; 
 
 void file_system_read(int8_t* name) {
-	char* buf;
 	file_open((uint8_t*)name);
+	char buf[cur_file_det.length];
 	file_read(0, buf, 0);
 	clear_screen();
     file_key_write(0, (char*)data_buffer.data, cur_file_det.length);

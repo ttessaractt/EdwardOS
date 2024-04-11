@@ -80,7 +80,7 @@ int32_t file_close(int32_t fd){
  */
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     if(cur_file.file_type == 2) {
-		read_data(cur_file.inode_num, 0, data_buffer.data, cur_file_det.length);
+		read_data(cur_file.inode_num, 0, buf, cur_file_det.length);
         return 0;
 	}
     return -1;
@@ -290,7 +290,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 
     //put data in data_buffer
     while(bytes_written != length) {
-        data_buffer.data[bytes_written] = *data_addr;
+        buf[bytes_written] = *data_addr;
         cur_byte = cur_byte + 1;
         bytes_written = bytes_written + 1;
         data_addr = data_addr + 1;
@@ -314,15 +314,16 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 int32_t check_file_validity(uint8_t* fname) {
     /* want to make sure file is an executable file*/
     /* header inside first 40 bytes */
-    char* buf;
     int i, j, k;
     /* put file data into data_buffer.data */
     
     j = file_open(fname);
+    char buffer[cur_file_det.length];
+
     if (j == -1){
         return -1;
     }
-    k = file_read(0, buf, 0);
+    k = file_read(0, buffer, 0);
     if (k == -1){
         return -1;
     }
@@ -331,7 +332,7 @@ int32_t check_file_validity(uint8_t* fname) {
     /* first 4 bytes represent a magic number that identifies file
        as being executable */
     /* if magic number is not present, execute should fail */
-    int8_t* data_ptr = data_buffer.data;
+    int8_t* data_ptr = buffer;
     for(i = 0; i < 4; i++) {
         if(i == 0) {
             if(*data_ptr != 0x7F) {
@@ -360,7 +361,7 @@ int32_t check_file_validity(uint8_t* fname) {
     /* need to save this */
 
     /* double check pointer stuff is accurate */
-    uint32_t* data_ptr2 = (uint32_t*)(data_buffer.data + 24);
+    uint32_t* data_ptr2 = (uint32_t*)(buffer + 24);
     uint32_t entry_point_addr = *data_ptr2;
 
     return entry_point_addr;

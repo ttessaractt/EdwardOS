@@ -56,7 +56,7 @@ typedef union inode {
 /* buffer to hold data */
 typedef union data_block {
   struct {
-    int8_t data[40000];
+    int8_t data[4096];
   } __attribute__((packed));
 } data_block;
 
