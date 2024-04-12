@@ -27,6 +27,7 @@ int location;
 int ex_it = 0;
 int pid_flag = 0;
 int exit_halt = 0;
+int program_counter = 0;
 int32_t GOD = 0;
 
 /* execute_help
@@ -42,7 +43,7 @@ int32_t execute_help(unsigned char* command){
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
     */
-
+    
     /* check that command is not NULL */
     if (command == NULL){
         return -1;
@@ -66,6 +67,15 @@ int32_t execute_help(unsigned char* command){
     // CHECK FILE VALIDITY
     int32_t entry_addr = check_file_validity((unsigned char*)file_name); /* entry_addr now stored in entry_addr */
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
+
+    if(!strncmp((int8_t*)command, "shell\0", 6)){
+        if(program_counter == 2){
+            printf("Maximum number of programs\n");
+            return -1;
+        } else {
+            ++program_counter;
+        }
+    }
 
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
 
@@ -118,8 +128,9 @@ int32_t halt_help(unsigned char status){
     } 
 
     
+    
     if (exit_halt){
-
+        --program_counter;
         pid_flag = 0;
         exit_halt = 0;
         current_pid = 0;
@@ -153,6 +164,8 @@ int32_t halt_help(unsigned char status){
         GOD = 0;
         stat = (uint32_t)EXCEPTION;
     }
+    
+    --program_counter;
 
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
@@ -369,13 +382,16 @@ void init_std_op(file_info* files){
 
 int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
     int i;
-    printf("start getargs\n");
-    printf("args %s\n", current_process->arguments);
-    printf("len %x\n", current_process->arg_length);
+    //printf("start getargs\n");
+    //printf("args %s\n", current_process->arguments);
+    //printf("len %x\n", current_process->arg_length);
 
     if(current_process->arguments == NULL){return -1;}
     if(current_process->arg_length <= 0){return -1;}
-    if(current_process->arg_length > 8){return -1;}
+    if(current_process->arg_length > 7){
+        printf("argument too long\n");
+        return -1;
+        }
 
     for (i = 0; i < current_process->arg_length; i++){
         buf[i] = (current_process->arguments)[i];
@@ -383,8 +399,8 @@ int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
 
     buf[i] = '\0';
 
-    printf("%d\n", current_process->arg_length);
-    printf("%s\n", buf);
+    //printf("%d\n", current_process->arg_length);
+    //printf("%s\n", buf);
 
     return 0;
 
