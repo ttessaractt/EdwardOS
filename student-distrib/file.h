@@ -70,7 +70,7 @@ extern unsigned int num_dir_entries;
 extern dentry_t cur_dir;
 extern int32_t dentry_index;
 extern uint32_t file_size;
-
+//extern int32_t current_pid;
 
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes);
 int32_t file_write(int32_t fd, const void* buf, int32_t nbytes);

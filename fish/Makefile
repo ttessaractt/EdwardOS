@@ -1,3 +1,5 @@
+CFLAGS += -g -Wall -nostdlib -ffreestanding
+LDFLAGS += -g -nostdlib -ffreestanding
 all: fish
 
 # Note that you must be superuser to run the emulated version of the

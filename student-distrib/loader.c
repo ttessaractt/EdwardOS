@@ -1,6 +1,6 @@
 #include "types.h"
 #include "file.h"
-void program_loader(int8_t* file_name, int32_t task_number) {
+void program_loader(int8_t* file_name, int32_t task_number, int32_t fd) {
     //printf("loader start HEYY\n");
     /* check for appropriate task number */
     if(task_number < 1 || task_number > 2) {
@@ -11,11 +11,12 @@ void program_loader(int8_t* file_name, int32_t task_number) {
 
     /* opens file and copies file data to data_buffer */
     
-    file_open((uint8_t*)file_name);
+    //file_open((uint8_t*)file_name); // read dentry
+    read_dentry_by_name(file_name, DENTRYYYYY);
 
     char buffer[cur_file_det.length];
 
-    file_read(0, buffer, 0);
+    file_read(0, buffer, 0); // read data
     //printf("loader mid HEYY\n");
     /* choose where in physical memory to copy file data */
     // if(task_number == 1) {

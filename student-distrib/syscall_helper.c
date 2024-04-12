@@ -78,7 +78,7 @@ int32_t execute_help(unsigned char* command){
     allocate_tasks(current_process->pid);   // allocates memory for tasks 
 
     // LOAD FILE INTO MEMORY
-    program_loader((char*)file_name, 1);
+    program_loader((char*)file_name, 1, );
 
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
@@ -378,13 +378,13 @@ void init_std_op(file_info* files){
 
     files[0].fotp = stdin_operations;
     files[0].inode = 0;
-    files[0].file_pos = -1;
+    files[0].file_pos = 0; // changed to 0
     files[0].flags = 1;
 
     /*initialize stdout */
     files[1].fotp = stdout_operations;
     files[1].inode = 0;
-    files[1].file_pos = -1;
+    files[1].file_pos = 0;
     files[1].flags = 1;
 }
 

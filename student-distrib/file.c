@@ -4,6 +4,7 @@
 #include "keyboard.h"
 //#include "descriptor.h" 
 #include "terminal.h"
+#include "syscall_helper.h"
 
 dentry_t cur_file;
 inode cur_file_det;
@@ -79,8 +80,13 @@ int32_t file_close(int32_t fd){
  * Function: reads a file
  */
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
+    printf("%d", current_pid);
+    int32_t pos;
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+
     if(cur_file.file_type == 2) {
-		read_data(cur_file.inode_num, 0, buf, cur_file_det.length);
+		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
+        pcb_current->file_d_array[fd].file_pos += pos;
         return 0;
 	}
     return -1;
