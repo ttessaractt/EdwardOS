@@ -328,7 +328,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
             data_addr = data_start_addr + (data_block_num * BLOCK_LENGTH);
         }
     }
- 
+    
     return bytes_written;
 }
 

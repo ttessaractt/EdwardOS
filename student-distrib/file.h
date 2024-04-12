@@ -139,6 +139,7 @@ typedef struct process_control_block_t{
     uint32_t esp;
     uint32_t tss_esp0;
     uint32_t ebp;
+    uint32_t base_shell;
 
     dentry_t cur_file_dentry;
 
