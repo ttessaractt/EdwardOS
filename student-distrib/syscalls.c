@@ -135,11 +135,12 @@ int32_t getargs (uint8_t* buf, int32_t nbytes){
 };
 
 /* vidmap
- * Description: not implemented yet
+ * Description: 
  * Inputs: 
  * Return Value: -1
  */
 int32_t vidmap (uint8_t** screen_start){
+    
     return -1;
 };
 

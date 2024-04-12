@@ -351,7 +351,7 @@ void file_system_read(int8_t* name) {
 	char buf[cur_file_det.length];
 	file_read(0, buf, 0);
 	clear_screen();
-    file_key_write(0, (char*)data_buffer.data, cur_file_det.length);
+    file_key_write(0, buf, cur_file_det.length);
     printf("\nFile_name: %s", name);
 }
 
@@ -441,6 +441,7 @@ void launch_tests(){
 	//mem_test_kernel_outside_1();
 	//mem_test_kernel_outside_2();
 	//mem_test_kernel_outside_3();
+	ece391sigtest();
 	
 	// launch your tests here
 

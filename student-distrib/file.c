@@ -7,7 +7,6 @@
 
 dentry_t cur_file;
 inode cur_file_det;
-data_block data_buffer;
 unsigned int num_dir_entries;
 dentry_t cur_dir;
 int32_t dentry_index = -1;
