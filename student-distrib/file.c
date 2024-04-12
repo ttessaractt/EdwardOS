@@ -4,7 +4,7 @@
 #include "keyboard.h"
 //#include "descriptor.h" 
 #include "terminal.h"
-#include "syscall_helper.h"
+//#include "syscall_helper.h"
 
 dentry_t cur_file;
 inode cur_file_det;
@@ -48,11 +48,13 @@ int32_t file_open(const uint8_t* fname){
     *  1: directory
     *  2: regular file
     */
-    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+    int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
+    
 
     if(read_dentry_by_name(fname, &(pcb_current->cur_file_dentry)) == -1){return -1;}
-    int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
-        (pcb_current->cur_file_dentry.inode_num * BLOCK_LENGTH);
+    // int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+    //     (pcb_current->cur_file_dentry.inode_num * BLOCK_LENGTH);
 
     // if(strncmp("hello", fname, 5) == 0) {
     //    cur_file_det.length = 5349;
@@ -84,7 +86,10 @@ int32_t file_close(int32_t fd){
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     printf("%d", current_pid);
     int32_t pos;
-    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+
+    int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
+    //process_control_block_t* pcb_current = (process_control_block_t*) (MB_8 - (KB_8 * current_pid));
 
     if(pcb_current->cur_file_dentry.file_type == 2) {
 		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
@@ -117,7 +122,9 @@ int32_t directory_open(const uint8_t* filename){
     //     dentry_index = 0;
     // }
     // check for nulls plz
-    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+    int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
+    //process_control_block_t* pcb_current = (process_control_block_t*) (MB_8 - (KB_8 * current_pid));
 
     if(read_dentry_by_name(filename, &(pcb_current->cur_file_dentry)) == -1){return -1;}
     dentry_index = 0; // put in pcb ?
@@ -142,7 +149,9 @@ int32_t directory_close(int32_t fd){
  */
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes){
 
-    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+    int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
+    // process_control_block_t* pcb_current = (process_control_block_t*) (MB_8 - (KB_8 * current_pid));
 
     read_dentry_by_index(dentry_index, &(pcb_current->cur_file_dentry));
     pcb_current->cur_file_dentry.file_name[32] = '\0';
@@ -332,12 +341,12 @@ int32_t check_file_validity(uint8_t* fname, dentry_t* dentry) {
     
     j = read_dentry_by_name(fname, dentry);
     
-    char buffer[4];
+    char buffer[32];
 
     if (j == -1){
         return -1;
     }
-    k = read_data(dentry->inode_num, 0, buffer, 4); // offset 0 because no file pos yet
+    k = read_data(dentry->inode_num, 0, buffer, 32); // offset 0 because no file pos yet
     if (k == -1){
         return -1;
     }
@@ -380,6 +389,10 @@ int32_t check_file_validity(uint8_t* fname, dentry_t* dentry) {
 
     return entry_point_addr;
 
+}
+
+int32_t calculate_pcb_addr(int32_t cur_pid) {
+    return (MB_8 - (KB_8 * cur_pid));
 }
 
 

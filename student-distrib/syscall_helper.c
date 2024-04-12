@@ -2,9 +2,10 @@
  * vim:ts=4 noexpandtab
  */
 
-#include "syscall_helper.h"
+
 #include "lib.h"
 #include "file.h"
+#include "syscall_helper.h"
 #include "paging.h"
 #include "loader.h"
 #include "x86_desc.h"
@@ -86,7 +87,9 @@ int32_t execute_help(unsigned char* command){
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
     if (current_pid > 1){                   // save ebp in PCB for use later
-        parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
+        int32_t parent_pcb_addr2 = calculate_pcb_addr(current_process->pid - 1);
+        parent_pcb = (process_control_block_t*) parent_pcb_addr2;
+        //parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
     }
 
@@ -112,7 +115,9 @@ int32_t halt_help(unsigned char status){
         exit_halt = 1;
     }
     else{
-        pcb_parent = (process_control_block_t*) MB_8 - (KB_8 * (current_process->parent_pid));
+        int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
+        pcb_parent = (process_control_block_t*) pcb_parent_addr;
+        //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
         exit_halt = 0;
     } 
 
@@ -259,10 +264,15 @@ int32_t initialize_pcb(){
     }
 
     // make new PCB
-    process_control_block_t* pcb_new = (process_control_block_t*) MB_8 - (KB_8 * current_pid); //(should be MB_8 - PID * x)
+
+
+    int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    process_control_block_t* pcb_new = (process_control_block_t*) pcb_addr;
+
+    // process_control_block_t* pcb_new = (process_control_block_t*) (MB_8 - (KB_8 * current_pid)); //(should be MB_8 - PID * x)
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
-    pcb_new->tss_esp0 = MB_8 - (KB_8 * (current_pid-1));
+    pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1)));
 
     /* initialzie file array */
     file_info files[FD_ARRAY_LEN]; 

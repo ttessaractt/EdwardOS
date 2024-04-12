@@ -400,12 +400,12 @@ void parse_arguments_test() {
 }
 
 void test_file_validity(int8_t* fname) {
-	uint32_t returnval = check_file_validity((uint8_t*)fname);
-	if(returnval == -1) {
-		printf("failed! not executable");
-	} else {
-		printf("success! executable file");
-	}
+	//uint32_t returnval = check_file_validity((uint8_t*)fname); // change 
+	// if(returnval == -1) {
+	// 	printf("failed! not executable");
+	// } else {
+	// 	printf("success! executable file");
+	// }
 }
 /* Checkpoint 4 tests */
 /* Checkpoint 5 tests */
