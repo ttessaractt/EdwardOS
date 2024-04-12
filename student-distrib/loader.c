@@ -1,6 +1,8 @@
 #include "types.h"
 #include "file.h"
-void program_loader(int8_t* file_name, int32_t task_number, int32_t fd) {
+#include "kernel.h"
+
+void program_loader(int8_t* file_name, int32_t task_number, dentry_t* dentry) {
     //printf("loader start HEYY\n");
     /* check for appropriate task number */
     if(task_number < 1 || task_number > 2) {
@@ -12,11 +14,17 @@ void program_loader(int8_t* file_name, int32_t task_number, int32_t fd) {
     /* opens file and copies file data to data_buffer */
     
     //file_open((uint8_t*)file_name); // read dentry
-    read_dentry_by_name(file_name, DENTRYYYYY);
+    //read_dentry_by_name(file_name, DENTRYYYYY);
+    int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+        (dentry->inode_num * BLOCK_LENGTH);
+    
+    int32_t length = 0;
 
-    char buffer[cur_file_det.length];
+    memcpy(&length, inode_addr, 4);
 
-    file_read(0, buffer, 0); // read data
+    char buffer[length];
+
+    read_data(dentry->inode_num, 0, buffer, length); // read entire file data
     //printf("loader mid HEYY\n");
     /* choose where in physical memory to copy file data */
     // if(task_number == 1) {
@@ -29,7 +37,7 @@ void program_loader(int8_t* file_name, int32_t task_number, int32_t fd) {
     //printf("loader mid2.0 HEYY\n");
     int32_t i;
 
-    for(i = 0; i < cur_file_det.length; i++) {
+    for(i = 0; i < length; i++) {
         *cur_addr = buffer[i];
         cur_addr = cur_addr + 1;
     }

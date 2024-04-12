@@ -48,14 +48,16 @@ int32_t file_open(const uint8_t* fname){
     *  1: directory
     *  2: regular file
     */
-    if(read_dentry_by_name(fname, &cur_file) == -1){return -1;}
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+
+    if(read_dentry_by_name(fname, &(pcb_current->cur_file_dentry)) == -1){return -1;}
     int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
-        (cur_file.inode_num * BLOCK_LENGTH);
+        (pcb_current->cur_file_dentry.inode_num * BLOCK_LENGTH);
 
     // if(strncmp("hello", fname, 5) == 0) {
     //    cur_file_det.length = 5349;
     // } else {
-    memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
+    //memcpy(&cur_file_det.length, inode_addr, LENGTH_IN_BYTES_SIZE);
     //}
 
     
@@ -84,7 +86,7 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     int32_t pos;
     process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
 
-    if(cur_file.file_type == 2) {
+    if(pcb_current->cur_file_dentry.file_type == 2) {
 		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
         pcb_current->file_d_array[fd].file_pos += pos;
         return 0;
@@ -115,8 +117,10 @@ int32_t directory_open(const uint8_t* filename){
     //     dentry_index = 0;
     // }
     // check for nulls plz
-    if(read_dentry_by_name(filename, &cur_file) == -1){return -1;}
-    dentry_index = 0;
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+
+    if(read_dentry_by_name(filename, &(pcb_current->cur_file_dentry)) == -1){return -1;}
+    dentry_index = 0; // put in pcb ?
     return 0; // read dentry by name, index = 0
 }
 
@@ -137,9 +141,12 @@ int32_t directory_close(int32_t fd){
  * Function: reads a dentry 
  */
 int32_t directory_read(int32_t fd, void* buf, int32_t nbytes){
-    read_dentry_by_index(dentry_index, &cur_dir);
-    cur_dir.file_name[32] = '\0';
-    strncpy(buf, cur_dir.file_name, 32);
+
+    process_control_block_t* pcb_current = (process_control_block_t*) MB_8 - (KB_8 * current_pid);
+
+    read_dentry_by_index(dentry_index, &(pcb_current->cur_file_dentry));
+    pcb_current->cur_file_dentry.file_name[32] = '\0';
+    strncpy(buf, pcb_current->cur_file_dentry.file_name, 32);
     // int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
     //     (cur_dir.inode_num * BLOCK_LENGTH);
     // memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
@@ -148,8 +155,8 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes){
          dentry_index = 0;
     }
 
-    if (strlen(cur_dir.file_name) < 32){
-        return strlen(cur_dir.file_name);
+    if (strlen(pcb_current->cur_file_dentry.file_name) < 32){
+        return strlen(pcb_current->cur_file_dentry.file_name);
     }
     else{
         return 32;
@@ -317,19 +324,20 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 }
 
 /* returns -1 if file is invalid, else returns entry point address */
-int32_t check_file_validity(uint8_t* fname) {
+int32_t check_file_validity(uint8_t* fname, dentry_t* dentry) {
     /* want to make sure file is an executable file*/
     /* header inside first 40 bytes */
     int i, j, k;
     /* put file data into data_buffer.data */
     
-    j = file_open(fname);
-    char buffer[cur_file_det.length];
+    j = read_dentry_by_name(fname, dentry);
+    
+    char buffer[4];
 
     if (j == -1){
         return -1;
     }
-    k = file_read(0, buffer, 0);
+    k = read_data(dentry->inode_num, 0, buffer, 4); // offset 0 because no file pos yet
     if (k == -1){
         return -1;
     }

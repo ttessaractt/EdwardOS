@@ -86,7 +86,7 @@ int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
 int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length);
 int32_t file_key_write(uint32_t fd, char* buf, uint32_t nbytes);
-int32_t check_file_validity(uint8_t* fname);
+int32_t check_file_validity(uint8_t* fname, dentry_t* dentry);
 
 
 

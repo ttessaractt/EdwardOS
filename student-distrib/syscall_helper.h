@@ -5,6 +5,7 @@
 #include "types.h"
 #include "lib.h"
 // #include "descriptor.h"
+//#include "file.h"
 
 #define MB_8 0x800000
 #define KB_8 0x2000
@@ -15,7 +16,6 @@
 #define FD_ARRAY_LEN 8
 #define FIRST_FILE_OFFSET 2
 #define NORMAL_FILE_NUM 2
-
 
 /* OPERATIONS */
 typedef union operations {
@@ -37,6 +37,16 @@ typedef union file_info {
   } __attribute__((packed));
 } file_info;
 
+// /* dentry structure */
+// typedef union dentry_t {
+//   struct {
+//     int8_t file_name[33];
+//     uint32_t file_type;
+//     uint32_t inode_num;
+//     char reserved[24]; 
+//   } __attribute__((packed));
+// } dentry_t;
+
 /*holder for PCB information*/
 typedef struct process_control_block_t{
     int32_t pid;
@@ -46,8 +56,7 @@ typedef struct process_control_block_t{
     uint32_t tss_esp0;
     uint32_t ebp;
 
-    //struct process_control_block_t * next;
-    //struct process_control_block_t * parent;
+    dentry_t cur_file_dentry;
 
     /* need file discriptor array */
     file_info file_d_array[8]; //need to make it!!

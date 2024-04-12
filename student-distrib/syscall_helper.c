@@ -59,12 +59,13 @@ int32_t execute_help(unsigned char* command){
     unsigned char file_name[MAX_FILE_NAME_LENGTH+1]; 
     unsigned char arguments[MAX_ARG_LENGTH]; 
     process_control_block_t* parent_pcb;
+    dentry_t new_dentry;
 
     // PARSE ARGS
     int32_t parse_check = parse_arguments(command, file_name, arguments); /* populates file_name */
     if (parse_check == -1){return -1;}
     // CHECK FILE VALIDITY
-    int32_t entry_addr = check_file_validity((unsigned char*)file_name); /* entry_addr now stored in entry_addr */
+    int32_t entry_addr = check_file_validity((unsigned char*)file_name, &new_dentry); /* entry_addr now stored in entry_addr */
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
 
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
@@ -72,13 +73,15 @@ int32_t execute_help(unsigned char* command){
     // CREATE PCB 
     initialize_pcb();
 
+    current_process->cur_file_dentry = new_dentry;
+
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
     
     // SET UP PAGING
     allocate_tasks(current_process->pid);   // allocates memory for tasks 
 
     // LOAD FILE INTO MEMORY
-    program_loader((char*)file_name, 1, );
+    program_loader((char*)file_name, 1, &(current_process->cur_file_dentry)) ;
 
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
