@@ -311,6 +311,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     uint32_t cur_byte = offset;
 
     //put data in data_buffer
+
+    /* clobbering first PCB here */
     while(bytes_written != length) {
         buf[bytes_written] = *data_addr;
         cur_byte = cur_byte + 1;

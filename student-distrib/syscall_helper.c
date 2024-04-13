@@ -132,8 +132,8 @@ int32_t halt_help(unsigned char status){
 
 
     // set the new esp0   
-    tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
-    //tss.esp0 = pcb_parent->tss_esp0;
+    // tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
+    tss.esp0 = pcb_parent->tss_esp0;
     tss.ss0 = KERNEL_DS;                    
 
     // restore parent paging

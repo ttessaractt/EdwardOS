@@ -184,3 +184,7 @@ void add_vid_mem_page() {
     flush_tlb();
 }
 
+// void add_variables_page() {
+
+// }
+
