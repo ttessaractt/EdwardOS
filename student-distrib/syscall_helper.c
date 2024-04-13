@@ -78,8 +78,12 @@ int32_t execute_help(unsigned char* command){
     // CREATE PCB 
     initialize_pcb();
 
-    current_process->cur_file_dentry = new_dentry;
+    // set PCB entires for getargs
+    current_process->arguments = arguments; //set arguments in PCB
+    current_process->arg_length = strlen((char*)arguments);
 
+    current_process->cur_file_dentry = new_dentry;
+    
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
     
     // SET UP PAGING
@@ -265,10 +269,7 @@ int32_t initialize_pcb(){
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
 
-    //pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
-    //pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
-    //pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
-
+    //set pcb entry if pcb being created is for the base shell
     if (initial_shell_flag == 1){
         pcb_new->base_shell = 1;
         initial_shell_flag = 0;
@@ -277,6 +278,10 @@ int32_t initialize_pcb(){
         pcb_new->base_shell = 0;
         initial_shell_flag = 0;
     }
+
+    //initilize getargs arguments to 0
+    pcb_new->arg_length = 0;
+    pcb_new->arguments = NULL;
 
     /* initialzie file array */
     file_info files[FD_ARRAY_LEN]; 
@@ -404,4 +409,26 @@ void init_std_op(file_info* files){
     files[1].file_pos = 0;
     files[1].flags = 1;
 }
+
+/* getargs_helper
+ * Description: helper function for getargs that checks for validity and copies args to buffer
+ * Inputs: buf - buffer to copy args into
+ *         nbytes - size of buffer
+ * Return Value: none
+ */
+int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
+    int i;
+    //check validity
+    if(current_process->arguments == NULL){return -1;}
+    if(current_process->arg_length <= 0){return -1;}
+    if (current_process->arg_length > nbytes){return -1;}
+    //copy arguments to buffer
+    for (i = 0; i < current_process->arg_length; i++){
+        buf[i] = (current_process->arguments)[i];
+    }
+    //add null terminator to buffer
+    buf[i] = '\0';
+    return 0;
+};
+
 

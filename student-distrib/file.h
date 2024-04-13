@@ -140,6 +140,9 @@ typedef struct process_control_block_t{
     uint32_t tss_esp0;
     uint32_t ebp;
     uint32_t base_shell;
+    //arguments for getargs
+    unsigned char* arguments;       
+    uint32_t arg_length;
 
     dentry_t cur_file_dentry;
 
@@ -175,6 +178,9 @@ int32_t initialize_pcb(void);
 int32_t vidmap_helper(uint8_t** screen_start);
 
 int32_t calculate_pcb_addr(int32_t cur_pid);
+
+/*function that actually does getargs*/
+int32_t getargs_helper(uint8_t* buf, int32_t nbytes);
 
 
 // extern file_info files[8];

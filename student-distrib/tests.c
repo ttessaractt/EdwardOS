@@ -251,13 +251,13 @@ int RTC_freq_RW_test(){
 	int32_t fd;
 	int result = 0;
 	int final;
-	const void* buf;
+	int buf;
 	clear_screen();							//clear screen
 	fd = RTC_open((uint8_t*)"RTC");			//open RTC
 	result += fd; 
 	for (i = 2; i <=1024; i*=2){			//go through all specified frequencies (powers of 2)
-		buf = (void*)i;
-		result += RTC_write(fd, buf, 4);	//set frequency
+		buf = i;
+		result += RTC_write(fd, &buf, 4);	//set frequency
 		for (a = 0; a < i; a++){
 			result += RTC_read(fd,0,0);		//wait until interrupt occurs
 			printf("1");                //show the interrupt occured in terminal

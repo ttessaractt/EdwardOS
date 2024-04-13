@@ -136,12 +136,14 @@ int32_t close (int32_t fd){
 };
 
 /* getargs
- * Description: not implemented yet
- * Inputs: 
- * Return Value: -1
+ * Description: calls getargs_help, which performs getargs
+ * Inputs: bug - buffer to put args in
+ *         nbytes - size of buffer
+ * Return Value: 0 - success
+ *               -1 - invalid input
  */
 int32_t getargs (uint8_t* buf, int32_t nbytes){
-    return -1;
+    return getargs_helper(buf, nbytes);
 };
 
 /* vidmap

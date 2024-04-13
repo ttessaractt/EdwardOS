@@ -143,9 +143,12 @@ int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
  *          -1 - no frequency is sent or frequency is not valid
  */
 int32_t RTC_write(int32_t fd, const void* buf, int32_t nbytes){
-    if (buf == NULL){return -1;}           //check there is something in buf
-    int32_t freq = (int32_t)buf;           //get interrupt rate from buffer
-    return RTC_frequency(freq);             //set freqency
+    if (buf == NULL){return -1;}            //check there is something in buf
+    if (nbytes > 4){return -1;}             //check size of buf
+    //get frequency from buffer
+    const int* p = buf;                     
+    int32_t buffer = p[0];                  
+    return RTC_frequency(buffer);           //set freqency
 };
 
 /* RTC_close

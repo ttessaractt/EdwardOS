@@ -79,3 +79,14 @@ Solution:
     we fully misunderstood what we were doing and turns out we should not be able to run programs from the 2nd
     shell. we fixed our code to not just be for input shell and it works
 
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2024.4.13.
+Creator:
+    Tessa Samuels.
+Description:
+    rtc freq is not set correctly in ping pong
+Solution:
+    was reading from buffer incorrectly sometimes
