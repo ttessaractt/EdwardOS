@@ -65,14 +65,14 @@ int32_t execute_help(unsigned char* command){
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
     
     //check if shell being created in base shell
-    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && current_pid == 0){
+    if(!(strncmp((int8_t*)file_name, "shell\0", SHELL_LENGTH)) && current_pid == 0){
         initial_shell_flag = 1;
     }
 
     //check for maximum number of programs
-    if(current_pid == 2){
-            printf("Maximum number of programs\n");
-            return 0;
+    if(current_pid == MAX_PROCESS){
+        printf("Maximum number of programs\n");
+        return 0;
     }        
 
     // CREATE PCB 
@@ -120,7 +120,7 @@ int32_t halt_help(unsigned char status){
     // get the esp0 of the parent 
     if (current_process->base_shell == 1){      //check if in base shell
         //if in base shell, restart shell
-        --current_pid;
+        //--current_pid;
         current_pid = 0;
         printf("Restarting Shell...\n");
         return execute_help((uint8_t*)"shell");

@@ -32,6 +32,8 @@
 #define FD_ARRAY_LEN 8
 #define FIRST_FILE_OFFSET 2
 #define NORMAL_FILE_NUM 2
+#define SHELL_LENGTH 6
+#define MAX_PROCESS 6
 
 /* dentry structure */
 typedef union dentry_t {
