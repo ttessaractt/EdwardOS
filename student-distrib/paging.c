@@ -150,11 +150,11 @@ void add_vid_mem_page() {
     /* the location of this page doesn't really matter as long */
     /* as it doesn't interfere with the program image and the */
     /* kernel */
-    page_directory[256].present = 1;
-    page_directory[256].addr_31_12_or_addr_31_22 = ((unsigned int)page_table_vid_mem) >> 12;
+    page_directory[50].present = 1;
+    page_directory[50].addr_31_12_or_addr_31_22 = ((unsigned int)page_table_vid_mem) >> 12;
     //((OFFSET_VID_MEM_START >> 12) & KEEP_TOP10_BITS);
-    page_directory[256].usersupervisor = 1;
-    //page_directory[256].pagesize = 0; 
+    page_directory[50].usersupervisor = 1;
+    page_directory[50].pagesize = 0; 
     int i;
 
     for(i = 0; i < 1024; i++) {
@@ -164,20 +164,28 @@ void add_vid_mem_page() {
         // so the 184th page is video memory and should be present
         // all other entries in 0-4mB should not be present
         if(i == 0) {                // VIDEO_MEMORY = 184
-            page_table[i].present = 1;         // present
-            page_table[i].usersupervisor = 1;
+            page_table_vid_mem[i].present = 1;         // present
+            page_table_vid_mem[i].usersupervisor = 1;
+            page_table_vid_mem[i].readwrite = 1;           // read/write mode      // supervisor mode
+            page_table_vid_mem[i].unused_1 = 0x00;
+            page_table_vid_mem[i].accessed = 0;
+            page_table_vid_mem[i].dirty = 0;
+            page_table_vid_mem[i].unused_2 = 0x00;
+            page_table_vid_mem[i].avail = 0x000;
+            page_table_vid_mem[i].pf_addr = (OFFSET_VID_MEM_START + (i * OFFSET_4KB)) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
         }
         else {
-            page_table[i].present = 0;         // not present
-            page_table[i].usersupervisor = 0;
+            page_table_vid_mem[i].present = 0;         // present
+            page_table_vid_mem[i].usersupervisor = 0;
+            page_table_vid_mem[i].readwrite = 0;           // read/write mode      // supervisor mode
+            page_table_vid_mem[i].unused_1 = 0x00;
+            page_table_vid_mem[i].accessed = 0;
+            page_table_vid_mem[i].dirty = 0;
+            page_table_vid_mem[i].unused_2 = 0x00;
+            page_table_vid_mem[i].avail = 0x000;
+            page_table_vid_mem[i].pf_addr = (OFFSET_VID_MEM_START + (i * OFFSET_4KB)) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
         }  
-        page_table[i].readwrite = 1;           // read/write mode      // supervisor mode
-        page_table[i].unused_1 = 0x00;
-        page_table[i].accessed = 0;
-        page_table[i].dirty = 0;
-        page_table[i].unused_2 = 0x00;
-        page_table[i].avail = 0x000;
-        page_table[i].pf_addr = (OFFSET_VID_MEM_START + (i * OFFSET_4KB)) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
+        
     }
 
     /* braindead TLB flush just in case */

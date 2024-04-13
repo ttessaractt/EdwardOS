@@ -176,21 +176,31 @@ video page located < 4MB and pass that address
 */
 int32_t vidmap_helper(uint8_t** screen_start) {
     /* OFFSET_VID_MEM_START = 0xB8000 */
-    *(screen_start) = (uint8_t*) OFFSET_1GB;
-    uint8_t* screen_iter = *(screen_start);
-    uint8_t* vid_mem_start = (uint8_t*) OFFSET_VID_MEM_START;
+    // *(screen_start) = (uint8_t*) OFFSET_1GB;
+    // uint8_t* screen_iter = *(screen_start);
+    // uint8_t* vid_mem_start = (uint8_t*) OFFSET_VID_MEM_START;
+
+    //uint8_t* vid_mem_start = (uint8_t*) OFFSET_1GB;
+    //uint8_t* vid_mem_start = (uint8_t*) OFFSET_200;
+    //uint8_t* screen_iter = *(screen_start);
+
 
     /* sets a page at 1 GB present to point to the start of vid mem */
     add_vid_mem_page();
 
-    int i;
-    int vid_mem_size = (int) (OFFSET_VID_MEM_END - OFFSET_VID_MEM_START);
-    for(i = 0; i < vid_mem_size; i++) {
-        *screen_iter = *vid_mem_start;
-        vid_mem_start++;
-        screen_iter++;
-    }
-    printf("\n%d",*screen_start);
+    //int i;
+    //int vid_mem_size = (int) (OFFSET_VID_MEM_END - OFFSET_VID_MEM_START);
+    *screen_start = (uint8_t*) OFFSET_200;
+    // for(i = 0; i < vid_mem_size; i++) {
+    //     /* 0x8050D40*/
+    // /*  b8000 = */
+    //     screen_iter = vid_mem_start;
+    //     // *vid_mem_start = *screen_iter;
+    //     //*screen_iter = *vid_mem_start;
+    //     vid_mem_start++;
+    //     screen_iter++;
+    // }
+    printf("\n%x\n",*screen_start);
     return 0;
 }
 

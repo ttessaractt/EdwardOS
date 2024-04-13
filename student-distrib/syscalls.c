@@ -150,7 +150,7 @@ int32_t getargs (uint8_t* buf, int32_t nbytes){
  * Return Value: -1
  */
 int32_t vidmap (uint8_t** screen_start){
-    return -1;//vidmap_helper(screen_start);
+    return vidmap_helper(screen_start);
 };
 
 /* set_handler
