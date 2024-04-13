@@ -49,7 +49,6 @@ int32_t execute_help(unsigned char* command){
         return -1;
     }
 
-    
     //create variables
     unsigned char file_name[MAX_FILE_NAME_LENGTH+1]; 
     unsigned char arguments[MAX_ARG_LENGTH]; 
@@ -65,17 +64,17 @@ int32_t execute_help(unsigned char* command){
 
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
     
-    if(!strncmp((int8_t*)file_name, "shell\0", 6)){
-        if (current_pid == 0){
-            initial_shell_flag = 1;
-            //++program_counter;
-        }
+    //check if shell being created in base shell
+    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && current_pid == 0){
+        initial_shell_flag = 1;
     }
 
+    //check for maximum number of programs
     if(current_pid == 2){
             printf("Maximum number of programs\n");
             return 0;
     }        
+
     // CREATE PCB 
     initialize_pcb();
 
@@ -116,10 +115,8 @@ int32_t halt_help(unsigned char status){
 
     // get the esp0 of the parent 
     if (current_process->base_shell == 1){      //check if in base shell
-        //pcb_parent = (process_control_block_t*) MB_8 - (KB_8 * (current_pid));
-        //exit_halt = 1;
+        //if in base shell, restart shell
         --current_pid;
-        exit_halt = 0;
         current_pid = 0;
         printf("Restarting Shell...\n");
         return execute_help((uint8_t*)"shell");

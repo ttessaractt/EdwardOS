@@ -50,24 +50,24 @@ Solution:
     input for argument
 
 <--------------------------------------------------------->
-                          BUG ?                          
+                          BUG 4                          
 <--------------------------------------------------------->
 Time:
-    2022.??.??.
+    2022.4.12.
 Creator:
-    First Last.
+    Tessa Samuels.
 Description:
     can't run shell, exit, shell with our maxiumum # of shells code
 Solution:
     wasn't decrementing program_counter, only resetting when exit was called on base shell
 
 <--------------------------------------------------------->
-                          BUG ?                          
+                          BUG 5                          
 <--------------------------------------------------------->
 Time:
-    2022.??.??.
+    2024.4.13.
 Creator:
-    First Last.
+    Tessa Samuels.
 Description:
     in 2nd shell cant run files, get error and then it also halts 2nd shell
     in 2nd shell:
@@ -75,7 +75,7 @@ Description:
         hello - invalid opcode exception after halt (then close 2nd shell & terminated by exception)
         ls - page fault
         syserr (0) - closes syserr, then prints garbage followed by err_big_fd: FAIL and then page fault (then close 2nd shell & terminated by exception)
-
 Solution:
-    ....
+    we fully misunderstood what we were doing and turns out we should not be able to run programs from the 2nd
+    shell. we fixed our code to not just be for input shell and it works
 
