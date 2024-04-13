@@ -392,7 +392,11 @@ int32_t check_file_validity(uint8_t* fname, dentry_t* dentry) {
 }
 
 int32_t calculate_pcb_addr(int32_t cur_pid) {
-    return (MB_8 - (KB_8 * cur_pid));
+
+    // if((int32_t)(MB_8 - (KB_8 * cur_pid)) > 0x80000) {
+    //     return 0x80000;
+    // }
+    return (int32_t)(MB_8 - (KB_8 * cur_pid));
 }
 
 
