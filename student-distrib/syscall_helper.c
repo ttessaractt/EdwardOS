@@ -26,7 +26,6 @@ operations stdin_operations;
 operations stdout_operations;
 int location;
 int ex_it = 0;
-int pid_flag = 0;
 int exit_halt = 0;
 int program_counter = 0;
 int shell_flag = 0;     //flag for if shell is base shell
@@ -50,13 +49,6 @@ int32_t execute_help(unsigned char* command){
     if (command == NULL){
         return -1;
     }
-
-    /* resets to shell */
-    if (pid_flag == 1){
-        //current_pid = 1;
-        pid_flag = 0;
-    }
-
     
     //create variables
     unsigned char file_name[MAX_FILE_NAME_LENGTH+1]; 
@@ -125,6 +117,7 @@ int32_t halt_help(unsigned char status){
     // create variables
     process_control_block_t* pcb_parent;
     int b;
+    printf("start halt\n");
 
     // get the esp0 of the parent 
     if (current_process->base_shell == 1){
@@ -134,7 +127,7 @@ int32_t halt_help(unsigned char status){
     }
     else{
         int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
-        printf("pcb_parent: %d\n", current_process->parent_pid);
+        printf("parent_pid: %d\n", current_process->parent_pid);
         pcb_parent = (process_control_block_t*) pcb_parent_addr;
         //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
         exit_halt = 0;
@@ -144,7 +137,6 @@ int32_t halt_help(unsigned char status){
     if (exit_halt == 1){
         printf("exit_halt\n");
         program_counter = 0;
-        pid_flag = 0;
         exit_halt = 0;
         current_pid = 0;
         shell_flag = 1;
@@ -173,8 +165,6 @@ int32_t halt_help(unsigned char status){
 
     // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
-
-    pid_flag = 1;
 
     if (GOD){
         GOD = 0;
