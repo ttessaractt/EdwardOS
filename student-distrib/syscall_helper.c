@@ -26,9 +26,8 @@ operations stdin_operations;
 operations stdout_operations;
 int location;
 int ex_it = 0;
-int exit_halt = 0;
 int program_counter = 0;
-int shell_flag = 0;     //flag for if shell is base shell
+int initial_shell_flag = 0;     //flag for if shell is base shell
 int32_t GOD = 0;
 
 /* execute_help
@@ -65,22 +64,18 @@ int32_t execute_help(unsigned char* command){
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
 
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
+    
     if(!strncmp((int8_t*)file_name, "shell\0", 6)){
-        printf("command: %s\n", file_name);
-        if(program_counter == 2){
-            printf("Maximum number of programs\n");
-            return 0;
-        } else if (program_counter == 0){
-            shell_flag = 1;
-            ++program_counter;
-        }
-        else {
-            ++program_counter;
-            printf("%d\n",program_counter);
+        if (current_pid == 0){
+            initial_shell_flag = 1;
+            //++program_counter;
         }
     }
 
-
+    if(current_pid == 2){
+            printf("Maximum number of programs\n");
+            return 0;
+    }        
     // CREATE PCB 
     initialize_pcb();
 
@@ -102,7 +97,7 @@ int32_t execute_help(unsigned char* command){
         //parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
     }
-
+    //current_process->ebp = saved_ebp;
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); 
  
@@ -120,31 +115,20 @@ int32_t halt_help(unsigned char status){
     int b;
 
     // get the esp0 of the parent 
-    
-if (current_process->base_shell == 1){
-        printf("base shell\n");
+    if (current_process->base_shell == 1){      //check if in base shell
         //pcb_parent = (process_control_block_t*) MB_8 - (KB_8 * (current_pid));
-        exit_halt = 1;
+        //exit_halt = 1;
+        --current_pid;
+        exit_halt = 0;
+        current_pid = 0;
+        printf("Restarting Shell...\n");
+        return execute_help((uint8_t*)"shell");
     }
     else{
         int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
-        printf("parent_pid: %d\n", current_process->parent_pid);
         pcb_parent = (process_control_block_t*) pcb_parent_addr;
         //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
-        exit_halt = 0;
     } 
-
-
-    if (exit_halt == 1){
-        printf("exit_halt\n");
-        program_counter = 0;
-        exit_halt = 0;
-        current_pid = 0;
-        shell_flag = 1;
-        printf("Restarting...\n");
-        //while(1);
-        return execute_help((uint8_t*)"shell");
-    }
 
     // set the new esp0   
     // tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
@@ -163,6 +147,7 @@ if (current_process->base_shell == 1){
 
     // current process becomes parent
     current_process = pcb_parent;
+    --current_pid;              //decrement current_pid
 
     // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
@@ -171,7 +156,7 @@ if (current_process->base_shell == 1){
         GOD = 0;
         stat = (uint32_t)EXCEPTION;
     }
-    --current_pid;
+
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 
@@ -287,13 +272,13 @@ int32_t initialize_pcb(){
     //pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     //pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
 
-    if (shell_flag == 1){
+    if (initial_shell_flag == 1){
         pcb_new->base_shell = 1;
-        shell_flag = 0;
+        initial_shell_flag = 0;
     }
     else{
         pcb_new->base_shell = 0;
-        shell_flag = 0;
+        initial_shell_flag = 0;
     }
 
     /* initialzie file array */
