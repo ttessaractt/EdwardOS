@@ -292,6 +292,7 @@ void gen_protection(){
 void page_fault(){
     cli();      //prevent further interrupts from occuring
     printf("Page-Fault Exception (#PF) \n");
+    while(1);
     GOD = 1;
     halt(0);
 };       

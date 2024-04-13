@@ -53,7 +53,7 @@ int32_t execute_help(unsigned char* command){
 
     /* resets to shell */
     if (pid_flag == 1){
-        current_pid = 1;
+        //current_pid = 1;
         pid_flag = 0;
     }
 
@@ -134,25 +134,24 @@ int32_t halt_help(unsigned char status){
     }
     else{
         int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
+        printf("pcb_parent: %d\n", current_process->parent_pid);
         pcb_parent = (process_control_block_t*) pcb_parent_addr;
         //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
         exit_halt = 0;
     } 
 
-    
-    if (exit_halt){
+
+    if (exit_halt == 1){
         printf("exit_halt\n");
-        --program_counter;
+        program_counter = 0;
         pid_flag = 0;
         exit_halt = 0;
         current_pid = 0;
-        shell_flag = 0;
+        shell_flag = 1;
         printf("Restarting...\n");
-        while(1);
-        //return execute_help((uint8_t*)"shell");
+        //while(1);
+        return execute_help((uint8_t*)"shell");
     }
-
-
 
     // set the new esp0   
     tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
@@ -182,6 +181,8 @@ int32_t halt_help(unsigned char status){
         stat = (uint32_t)EXCEPTION;
     }
 
+    printf("pcb_parent: %d\n", pcb_parent);
+    printf("ebp %d\n", pcb_parent->ebp);
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 
@@ -282,10 +283,10 @@ int32_t initialize_pcb(){
     int i;
     current_pid++; 
     // fixes shell page fault but causes boot loop on next command 
-    if(current_pid % 3 == 0) {
-        current_pid = 1;
-        current_parent_pid = 0;
-    }
+    //if(current_pid % 3 == 0) {
+     //   current_pid = 1;
+     //   current_parent_pid = 0;
+    //}
 
     // make new PCB
 
