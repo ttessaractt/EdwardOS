@@ -131,7 +131,7 @@ typedef struct process_control_block_t{
     uint32_t ebp;
     uint32_t base_shell;
     //arguments for getargs
-    unsigned char* arguments;       
+    unsigned char arguments[1024];       
     uint32_t arg_length;
 
     dentry_t cur_file_dentry;

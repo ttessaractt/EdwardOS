@@ -88,18 +88,18 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         return -1; // or should it be -1?
     }
 
-    if (nbytes > MAX_BUF_SIZE){
-        nbytes = MAX_BUF_SIZE;
+    if (nbytes > 1024){
+        nbytes = 1024;
     }
     for (i = 0; i < nbytes; i++){
-        if ((buffer[i] != '\n') && (buffer[i] != '\0')){ // only prints characters
+        if ((buffer[i] != '\0')){ // only prints characters
             putc(buffer[i]);
         }
-        else if (buffer[i] == '\n'){ // returns when end of buffer (the new line)
-            putc(buffer[i]);
-            return i+1;
-        }
-        // else if (buffer[i] == '\0'){
+        //else if (buffer[i] == '\n'){ // returns when end of buffer (the new line)
+        //    putc(buffer[i]);
+        //    //return i+1;
+        //}
+        //else if (buffer[i] == '\0'){
         //     putc('\n');
         //     return i;
         // }

@@ -79,8 +79,12 @@ int32_t execute_help(unsigned char* command){
     initialize_pcb();
 
     // set PCB entires for getargs
-    current_process->arguments = arguments; //set arguments in PCB
+    //current_process->arguments[0] = arguments; //set arguments in PCB
     current_process->arg_length = strlen((char*)arguments);
+    int j;
+    for (j = 0; j < current_process->arg_length; j++){
+        current_process->arguments[j] = arguments[j];
+    }
 
     current_process->cur_file_dentry = new_dentry;
 
@@ -242,6 +246,7 @@ int32_t parse_arguments(unsigned char* buf, unsigned char* file_name, unsigned c
 int32_t initialize_pcb(){
     // create variables
     int i;
+    int j;
     current_pid++; 
 
     // make new PCB
@@ -266,7 +271,9 @@ int32_t initialize_pcb(){
 
     //initilize getargs arguments to 0
     pcb_new->arg_length = 0;
-    pcb_new->arguments = NULL;
+    for (j = 0; j < 1024; j++){
+        pcb_new->arguments[j] = NULL;
+    }
 
     /* initialzie file array */
     file_info files[FD_ARRAY_LEN]; 
@@ -404,7 +411,7 @@ void init_std_op(file_info* files){
 int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
     int i;
     //check validity
-    if(current_process->arguments == NULL){return -1;}
+    if(current_process->arguments[0] == NULL){return -1;}
     if(current_process->arg_length <= 0){return -1;}
     if (current_process->arg_length > nbytes){return -1;}
     //copy arguments to buffer

@@ -9,7 +9,7 @@ CreateTime:
     2024.4.11
 
 <--------------------------------------------------------->
-                        BUG X                         
+                        BUG 1                         
 <--------------------------------------------------------->
 Time:
     2024.4.5.
@@ -23,3 +23,84 @@ Solution:
     edited and every time file_open is called, a char buffer
     of size cur_file_det.length has to be allocated because before 
     the implementation was causing other memory to be overwritten
+
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2024.4.11.
+Creator:
+    Tessa Samuels.
+Description:
+    getargs always returning -1
+Solution:
+    i was null checking buffer before anything was put in buffer
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2024.4.11.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when running sigtest
+Solution:
+    i accidently broke parse arguments trying to fix getargs when the only issue was there was there was no
+    input for argument
+
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2022.4.12.
+Creator:
+    Tessa Samuels.
+Description:
+    can't run shell, exit, shell with our maxiumum # of shells code
+Solution:
+    wasn't decrementing program_counter, only resetting when exit was called on base shell
+
+<--------------------------------------------------------->
+                          BUG 5                          
+<--------------------------------------------------------->
+Time:
+    2024.4.13.
+Creator:
+    Tessa Samuels.
+Description:
+    in 2nd shell cant run files, get error and then it also halts 2nd shell
+    in 2nd shell:
+        testprint - page fault after halt (then close 2nd shell & terminated by exception)
+        hello - invalid opcode exception after halt (then close 2nd shell & terminated by exception)
+        ls - page fault
+        syserr (0) - closes syserr, then prints garbage followed by err_big_fd: FAIL and then page fault (then close 2nd shell & terminated by exception)
+Solution:
+    we fully misunderstood what we were doing and turns out we should not be able to run programs from the 2nd
+    shell. we fixed our code to not just be for input shell and it works
+
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2024.4.13.
+Creator:
+    Tessa Samuels.
+Description:
+    rtc freq is not set correctly in ping pong
+Solution:
+    was reading from buffer incorrectly sometimes
+
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Tessa Samuels.
+Description:
+    testing cat on frame0.txt & frame0.txt prints the 1st line and then prints garbage 
+    and then page faults. other non text files also page fault. 
+    the single line being printed is due to returning when new line is encountered, still does not print full file before printing garbage
+Solution:
+    our terminal only supported 128, not 1024
