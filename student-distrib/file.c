@@ -94,7 +94,7 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     if(pcb_current->cur_file_dentry.file_type == 2) {
 		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
         pcb_current->file_d_array[fd].file_pos += pos;
-        return pos;
+        return pos; // BIG PROBLEM
 	}
     return -1;
 }
@@ -281,6 +281,23 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     if(inode < 0 || inode > (num_inodes - 1)) {
         return -1;;
     }
+
+    // stuff
+
+    int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
+
+    int8_t* inode_addr_cur = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+    (inode * BLOCK_LENGTH);
+
+    int32_t file_length;
+    memcpy(&file_length, inode_addr_cur, 4);
+
+    if(offset == file_length) {
+        return 0;
+    }
+
+    // stiff
 
     //put #data blocks from bootblock into num_data_blocks
     int32_t num_data_blocks;
