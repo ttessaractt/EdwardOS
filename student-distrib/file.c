@@ -284,8 +284,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 
     // stuff
 
-    int32_t pcb_addr = calculate_pcb_addr(current_pid);
-    process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
+    //int32_t pcb_addr = calculate_pcb_addr(current_pid);
+    //process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
 
     //check if at end of file
     int8_t* inode_addr_cur = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
