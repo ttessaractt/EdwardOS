@@ -26,8 +26,8 @@ operations stdin_operations;
 operations stdout_operations;
 int location;
 int ex_it = 0;
-int pid_flag = 0;
-int exit_halt = 0;
+int program_counter = 0;
+int initial_shell_flag = 0;     //flag for if shell is base shell
 int32_t GOD = 0;
 
 /* execute_help
@@ -48,13 +48,6 @@ int32_t execute_help(unsigned char* command){
     if (command == NULL){
         return -1;
     }
-
-    /* resets to shell */
-    if (pid_flag == 1){
-        current_pid = 1;
-        pid_flag = 0;
-    }
-
     
     //create variables
     unsigned char file_name[MAX_FILE_NAME_LENGTH+1]; 
@@ -71,8 +64,23 @@ int32_t execute_help(unsigned char* command){
 
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
 
+    //check if shell being created in base shell
+    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && current_pid == 0){
+        initial_shell_flag = 1;
+    }
+
+    //check for maximum number of programs
+    if(current_pid == 2){
+            printf("Maximum number of programs\n");
+            return 0;
+    }        
+
     // CREATE PCB 
     initialize_pcb();
+
+    // set PCB entires for getargs
+    current_process->arguments = arguments; //set arguments in PCB
+    current_process->arg_length = strlen((char*)arguments);
 
     current_process->cur_file_dentry = new_dentry;
 
@@ -110,26 +118,18 @@ int32_t halt_help(unsigned char status){
     int b;
 
     // get the esp0 of the parent 
-    if (current_process->parent_pid == 0){
-        //pcb_parent = (process_control_block_t*) MB_8 - (KB_8 * (current_pid));
-        exit_halt = 1;
+    if (current_process->base_shell == 1){      //check if in base shell
+        //if in base shell, restart shell
+        --current_pid;
+        current_pid = 0;
+        printf("Restarting Shell...\n");
+        return execute_help((uint8_t*)"shell");
     }
     else{
         int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
         pcb_parent = (process_control_block_t*) pcb_parent_addr;
         //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
-        exit_halt = 0;
     } 
-
-    
-    if (exit_halt){
-
-        pid_flag = 0;
-        exit_halt = 0;
-        current_pid = 0;
-        execute_help((uint8_t*)"shell");
-    }
-
 
     // set the new esp0   
     // tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
@@ -147,12 +147,10 @@ int32_t halt_help(unsigned char status){
     }
 
     // current process becomes parent
-    current_process = pcb_parent;
-
+    current_process = pcb_parent; //decrement current_pid
+    --current_pid; 
     // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
-
-    pid_flag = 1;
 
     if (GOD){
         GOD = 0;
@@ -245,14 +243,8 @@ int32_t initialize_pcb(){
     // create variables
     int i;
     current_pid++; 
-    // fixes shell page fault but causes boot loop on next command 
-    if(current_pid % 3 == 0) {
-        current_pid = 1;
-        current_parent_pid = 0;
-    }
 
     // make new PCB
-
 
     int32_t pcb_addr = calculate_pcb_addr(current_pid);
     process_control_block_t* pcb_new = (process_control_block_t*) pcb_addr;
@@ -261,6 +253,20 @@ int32_t initialize_pcb(){
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
+
+    //set pcb entry if pcb being created is for the base shell
+    if (initial_shell_flag == 1){
+        pcb_new->base_shell = 1;
+        initial_shell_flag = 0;
+    }
+    else{
+        pcb_new->base_shell = 0;
+        initial_shell_flag = 0;
+    }
+
+    //initilize getargs arguments to 0
+    pcb_new->arg_length = 0;
+    pcb_new->arguments = NULL;
 
     /* initialzie file array */
     file_info files[FD_ARRAY_LEN]; 
@@ -388,4 +394,25 @@ void init_std_op(file_info* files){
     files[1].file_pos = 0;
     files[1].flags = 1;
 }
+
+/* getargs_helper
+ * Description: helper function for getargs that checks for validity and copies args to buffer
+ * Inputs: buf - buffer to copy args into
+ *         nbytes - size of buffer
+ * Return Value: none
+ */
+int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
+    int i;
+    //check validity
+    if(current_process->arguments == NULL){return -1;}
+    if(current_process->arg_length <= 0){return -1;}
+    if (current_process->arg_length > nbytes){return -1;}
+    //copy arguments to buffer
+    for (i = 0; i < current_process->arg_length; i++){
+        buf[i] = (current_process->arguments)[i];
+    }
+    //add null terminator to buffer
+    buf[i] = '\0';
+    return 0;
+};
 
