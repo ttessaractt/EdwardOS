@@ -84,8 +84,8 @@ int32_t file_close(int32_t fd){
  * Function: reads a file
  */
 int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
-    printf("%d", current_pid);
-    int32_t pos;
+    //printf("%d", current_pid);
+    int32_t pos = 0;
 
     int32_t pcb_addr = calculate_pcb_addr(current_pid);
     process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
@@ -94,7 +94,7 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
     if(pcb_current->cur_file_dentry.file_type == 2) {
 		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
         pcb_current->file_d_array[fd].file_pos += pos;
-        return 0;
+        return pos;
 	}
     return -1;
 }
