@@ -131,8 +131,8 @@ int32_t close (int32_t fd){
     if(pcb_current->file_d_array[fd].flags == 0){
         return -1;
     }
-    pcb_current->file_d_array[fd].flags = 0;
-    return free_file(fd, &(pcb_current->file_d_array[fd]));
+    //pcb_current->file_d_array[fd].flags = 0;
+    return free_file(&(pcb_current->file_d_array[fd]));
 };
 
 /* getargs

@@ -337,14 +337,14 @@ int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_
  * Return Value: 0 - success
  *               -1 - trying to close file not in use/error
  */
-int32_t free_file(int32_t descriptor, file_info* files){
-    if(files[descriptor].flags == 0){ 
+int32_t free_file(file_info* files){
+    if(files->flags == 0){ 
         return -1; // return -1 if you trying to close a file that is not in use
-    } else if(files[descriptor].flags == 1){
+    } else if(files->flags == 1){
         //files[descriptor].fotp = (*operations)0;
-        files[descriptor].inode = 0;
-        files[descriptor].file_pos = 0;
-        files[descriptor].flags = 0;
+        files->inode = 0;
+        files->file_pos = 0;
+        files->flags = 0;
         return 0;
     }
     return -1;

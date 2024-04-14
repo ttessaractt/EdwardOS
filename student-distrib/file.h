@@ -182,7 +182,7 @@ extern operations stdout_operations;
 
 
 int32_t alloc_file(operations operation, int32_t inode, int32_t file_type, file_info* files);
-int32_t free_file(int32_t file_pos, file_info* files);
+int32_t free_file(file_info* files);
 void init_file_operations();
 void init_std_op(file_info* files);
 void init_zero(file_info* files);

@@ -92,7 +92,7 @@ Solution:
     was reading from buffer incorrectly sometimes
 
 <--------------------------------------------------------->
-                          BUG ?                          
+                          BUG 7                          
 <--------------------------------------------------------->
 Time:
     2024.4.14.
@@ -104,3 +104,17 @@ Description:
     the single line being printed is due to returning when new line is encountered, still does not print full file before printing garbage
 Solution:
     our terminal only supported 128, not 1024
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Tessa Samuels.
+Description:
+    grep didnt close 
+Solution:
+    we were passing in a single file descriptor but were indexing it again as if it was an array
+    due to old code
+
