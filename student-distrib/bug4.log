@@ -118,3 +118,14 @@ Solution:
     we were passing in a single file descriptor but were indexing it again as if it was an array
     due to old code
 
+<--------------------------------------------------------->
+                          BUG 9                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    First Last.
+Description:
+    our read doesnt work in other data blocks than the 1st
+Solution:
+    we had some logic issues and didnt add the offset into the new memory address

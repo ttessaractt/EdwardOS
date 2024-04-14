@@ -329,29 +329,30 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     uint32_t cur_byte = offset;
 
     //put data in data_buffer
-
+    
     /* clobbering first PCB here */
     while(bytes_written != length) {
-        if(offset+bytes_written >= file_length){
-            return bytes_written;
+
+        if(cur_byte >= 4096) {
+            //if we finish reading one block, go to the next block      
+            cur_byte = 0;                                                   //reset cur_nyte
+            inode_addr = inode_addr + DATA_BLOCK_INDEX_SIZE;                //go to next data block number
+            memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);     //
+            //check if data_block_num is valid
+            if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
+                return -1;
+            }
+            data_addr = data_start_addr + (data_block_num * BLOCK_LENGTH) + (offset%4096);
         }
         buf[bytes_written] = *data_addr;
         cur_byte = cur_byte + 1;
         bytes_written = bytes_written + 1;
         data_addr = data_addr + 1;
-        if(cur_byte % BLOCK_LENGTH == 0) {
-            //if we finish reading one block, go to the next block
-            cur_byte = 0;
-            inode_addr = inode_addr + DATA_BLOCK_INDEX_SIZE;
-            memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);
-            //check if data_block_num is valid
-            if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
-                return -1;
-            }
-            data_addr = data_start_addr + (data_block_num * BLOCK_LENGTH);
+        if(bytes_written+offset >= file_length){
+            return bytes_written;
         }
     }
- 
+
     return bytes_written;
 }
 
