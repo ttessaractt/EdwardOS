@@ -167,21 +167,23 @@ int32_t halt_help(unsigned char status){
     return 1;
 }
 
-/*
-The vidmap call maps the text-mode video memory into user space at a pre-set virtual address. Although the address
-returned is always the same (see the memory map section later in this handout), it should be written into the memory
-location provided by the caller (which must be checked for validity). If the location is invalid, the call should return -1.
-To avoid adding kernel-side exception handling for this sort of check, you can simply check whether the address falls
-within the address range covered by the single user-level page. Note that the video memory will require you to add
-another page mapping for the program, in this case a 4 kB page. It is not ok to simply change the permissions of the
-video page located < 4MB and pass that address
-*/
+/* vidmap_helper
+ * Description: Maps program to point to video memory page in userspace which maps to vid mem
+ * Inputs: screen_start - double pointer to start of sreen
+ * Return Value: -1 (out of bounds)
+ *               200 MB (successfully mapped)
+ */
 int32_t vidmap_helper(uint8_t** screen_start) {
     /* OFFSET_VID_MEM_START = 0xB8000 */
+    /* check if out of bounds */
     if((int32_t)screen_start < (int32_t)OFFSET_128MB || (int32_t)screen_start > (int32_t)(OFFSET_128MB + OFFSET_4MB)) {
         return -1;
     }
+
+    /* adds a video memory page at 200MB for user space that maps to B8000-B900*/
     add_vid_mem_page();
+
+    /* make screen start pointer point to our user space page*/
     *screen_start = (uint8_t*) OFFSET_200;
     return (int32_t)OFFSET_200;
 }

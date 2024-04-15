@@ -187,3 +187,17 @@ Solution:
     Forgot to change the user bit inside page table/page directory to
     1 to make this memory page accessible to the user which points
     to video memory
+
+<--------------------------------------------------------->
+                        BUG 14
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Sairaj Shetye
+Description:
+    Program loader buffer being passed in was overwriting PCB
+Solution:
+    Instead of passing in an instantiated character buffer,
+    directly fed in the address for the program image into program
+    loader so PCB values are not overwritten
