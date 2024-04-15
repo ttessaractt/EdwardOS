@@ -8,6 +8,7 @@
 #include "keyboard.h"
 //#include "rtc.h"
 #include "syscalls.h"
+#include "file.h"
 #include "syscall_helper.h"
 
 extern int32_t GOD;

@@ -1,0 +1,203 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP3
+CreateTime:
+    2024.4.11
+
+<--------------------------------------------------------->
+                        BUG 1                         
+<--------------------------------------------------------->
+Time:
+    2024.4.5.
+Creator:
+    Ian Watson 
+Description:
+    hello fails after second iteration
+Solution:
+    data blocks had size of 40000 bytes instead of regular 
+    block size of 4096 bytes. to fix, multiple functions had to be 
+    edited and every time file_open is called, a char buffer
+    of size cur_file_det.length has to be allocated because before 
+    the implementation was causing other memory to be overwritten
+
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2024.4.11.
+Creator:
+    Tessa Samuels.
+Description:
+    getargs always returning -1
+Solution:
+    I was null checking buffer before anything was put in buffer
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2024.4.11.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when running sigtest
+Solution:
+    I accidently broke parse arguments trying to fix getargs when the only issue was there was there was no
+    input for argument
+
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2022.4.12.
+Creator:
+    Tessa Samuels.
+Description:
+    can't run shell, exit, shell with our maxiumum # of shells code
+Solution:
+    wasn't decrementing program_counter, only resetting when exit was called on base shell
+
+<--------------------------------------------------------->
+                          BUG 5                          
+<--------------------------------------------------------->
+Time:
+    2024.4.13.
+Creator:
+    Tessa Samuels.
+Description:
+    in 2nd shell cant run files, get error and then it also halts 2nd shell
+    in 2nd shell:
+        testprint - page fault after halt (then close 2nd shell & terminated by exception)
+        hello - invalid opcode exception after halt (then close 2nd shell & terminated by exception)
+        ls - page fault
+        syserr (0) - closes syserr, then prints garbage followed by err_big_fd: FAIL and then page fault (then close 2nd shell & terminated by exception)
+Solution:
+    we fully misunderstood what we were doing and turns out we should not be able to run programs from the 2nd
+    shell. we fixed our code to not just be for input shell and it works
+
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2024.4.13.
+Creator:
+    Tessa Samuels.
+Description:
+    rtc freq is not set correctly in ping pong
+Solution:
+    was reading from buffer incorrectly sometimes
+
+<--------------------------------------------------------->
+                          BUG 7                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Tessa Samuels.
+Description:
+    testing cat on frame0.txt & frame0.txt prints the 1st line and then prints garbage 
+    and then page faults. other non text files also page fault. 
+    the single line being printed is due to returning when new line is encountered, still does not print full file before printing garbage
+Solution:
+    our terminal only supported 128, not 1024
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Tessa Samuels.
+Description:
+    grep didnt close 
+Solution:
+    we were passing in a single file descriptor but were indexing it again as if it was an array
+    due to old code
+
+
+<--------------------------------------------------------->
+                          BUG 9                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Elizabeth Shank
+Description:
+    Cat could not write the full file to the screen.
+Solution:
+    Extend the maximum length of terminal write to 1024
+    instead of 128 like it was for checkpoint 2.
+
+<--------------------------------------------------------->
+                          BUG 10                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Elizabeth Shank
+Description:
+    Would not exit the while loop when reading data. Supposed
+    to exit when you reach the end of the file.
+Solution:
+    Added an if statement checking if location is going to 
+    be greater than the actual file length, and exit if so.
+
+
+<--------------------------------------------------------->
+                        BUG 11
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Ian Watson 
+Description:
+    data blocks being read incorrectly
+Solution:
+    must check if the bytes_written is 0 before offsetting
+    to correct block 
+
+<--------------------------------------------------------->
+                        BUG 12
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Sairaj Shetye
+Description:
+    Paging for vidmap allocates page with too much memory
+Solution:
+    Was allocating a 4MB page at 200MB to map to the video memory,
+    changed to make page directory entry to point to a page table
+    with first entry present, creating a 4KB page
+
+<--------------------------------------------------------->
+                        BUG 13
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Sairaj Shetye
+Description:
+    Paging for vidmap not modified for user space
+Solution:
+    Forgot to change the user bit inside page table/page directory to
+    1 to make this memory page accessible to the user which points
+    to video memory
+
+<--------------------------------------------------------->
+                        BUG 14
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Sairaj Shetye
+Description:
+    Program loader buffer being passed in was overwriting PCB
+Solution:
+    Instead of passing in an instantiated character buffer,
+    directly fed in the address for the program image into program
+    loader so PCB values are not overwritten

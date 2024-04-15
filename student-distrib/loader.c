@@ -1,33 +1,32 @@
 #include "types.h"
 #include "file.h"
-void program_loader(int8_t* file_name, int32_t task_number) {
-    //printf("loader start HEYY\n");
+#include "kernel.h"
+#include "loader.h"
+
+/* program_loader
+ * Description: helper function that copies file data into the start of program memory
+ * Inputs: file_name - name of the file
+ *         task_number - usually the current pid which describes which process is running
+ *         dentry - dentry with program metadata
+ * Return Value: none
+ */
+void program_loader(int8_t* file_name, int32_t task_number, dentry_t* dentry) {
     /* check for appropriate task number */
     if(task_number < 1 || task_number > 2) {
         return;
     }
 
-    int8_t* cur_addr;
+    /* calculate inode_addr */
+    int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
+        (dentry->inode_num * BLOCK_LENGTH);
+    
+    /* initialize length to 0 */
+    int32_t length = 0;
 
-    /* opens file and copies file data to data_buffer */
-    char* buf;
-    file_open((uint8_t*)file_name);
-    file_read(0, buf, 0);
-    //printf("loader mid HEYY\n");
-    /* choose where in physical memory to copy file data */
-    // if(task_number == 1) {
-    //     cur_addr = (int8_t*)0x0800000; // 8 mB ISSUE HERE
-    // } else if(task_number == 2) {
-    //     cur_addr = (int8_t*)0x0C00000; // 12 mB
-    // }
+    /* copy length of file into length variable*/
+    memcpy(&length, inode_addr, 4);
 
-    cur_addr = (int8_t*)0x8048000;
-    //printf("loader mid2.0 HEYY\n");
-    int32_t i;
-    for(i = 0; i < 40000; i++) {
-        *cur_addr = data_buffer.data[i];
-        cur_addr = cur_addr + 1;
-    }
-    //printf("loader end HEYY\n");
+    /* call read_data on program start address to copy data there */
+    read_data(dentry->inode_num, 0, (int8_t*)PROGRAM_START, length); // read entire file data
 }
 

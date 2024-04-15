@@ -37,7 +37,8 @@ void keyboard_handler(){
     char space = ' ';
 
     char p;
-
+    
+    //int i;
     int j;
 
     good_index = 0;
@@ -71,6 +72,16 @@ void keyboard_handler(){
         TAB_CHECK = 0;
     }
 
+    // int32_t old_length = strlen(old_buffer);
+
+    // if (key == 72){
+    //     for(i = 0; i < old_length; i++){
+    //         keyboard_buffer[i] = old_buffer[i];
+    //         old_buffer[i] = '\0';
+    //         putc(keyboard_buffer[i]);
+    //         buffer_position++;
+    //     }
+    // }
 
     if (CTRL_CHECK){
         // need to clear screen if press L
