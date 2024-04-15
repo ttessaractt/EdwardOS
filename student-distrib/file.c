@@ -282,11 +282,6 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
         return -1;;
     }
 
-    // stuff
-
-    //int32_t pcb_addr = calculate_pcb_addr(current_pid);
-    //process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
-
     //check if at end of file
     int8_t* inode_addr_cur = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
     (inode * BLOCK_LENGTH);
@@ -297,8 +292,6 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     if(offset == file_length) {
         return 0;
     }
-
-    // stiff
 
     //put #data blocks from bootblock into num_data_blocks
     int32_t num_data_blocks;
@@ -330,7 +323,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 
     //put data in data_buffer
     
-    /* clobbering first PCB here */
+    /* no longer clobbering first PCB here */
     while(bytes_written != length) {
 
         if(cur_byte >= 4096) {

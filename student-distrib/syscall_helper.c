@@ -416,9 +416,10 @@ void init_std_op(file_info* files){
 int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
     int i;
     //check validity
+    if(current_process->arg_length == (uint32_t)FOUR && current_process->arguments[0] == (uint32_t)MAX) {return -1;}
     if(current_process->arguments[0] == NULL){return -1;}
     if(current_process->arg_length <= 0){return -1;}
-    if (current_process->arg_length > 32){return -1;}
+    if (current_process->arg_length > MAX_FILE_NAME_LENGTH){return -1;}
     //copy arguments to buffer
     for (i = 0; i < current_process->arg_length; i++){
         buf[i] = (current_process->arguments)[i];

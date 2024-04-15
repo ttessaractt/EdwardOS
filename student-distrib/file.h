@@ -33,6 +33,9 @@
 #define FIRST_FILE_OFFSET 2
 #define NORMAL_FILE_NUM 2
 
+#define FOUR 4
+#define MAX 255
+
 /* dentry structure */
 typedef union dentry_t {
   struct {
