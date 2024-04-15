@@ -93,7 +93,9 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
 
     if(pcb_current->cur_file_dentry.file_type == 2) {
 		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
-        pcb_current->file_d_array[fd].file_pos += pos;
+        if(pos != -1) {
+            pcb_current->file_d_array[fd].file_pos += pos;
+        }
         return pos; // BIG PROBLEM
 	}
     return -1;
@@ -310,7 +312,16 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     uint32_t data_block_num;
 
     //offset inode_addr to get index of 0th data block #
-    inode_addr = inode_addr + LENGTH_IN_BYTES_SIZE;
+
+    int32_t addthing;
+    if(offset / 4096 == 0) {
+        addthing = LENGTH_IN_BYTES_SIZE;
+    } else {
+        addthing = (offset/4096) * LENGTH_IN_BYTES_SIZE;
+    }
+    inode_addr = inode_addr + addthing; // this breaks catfish
+
+    int first_flag = 1;
 
     //get data block # from inode_addr and check if it is valid
     memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);
@@ -332,11 +343,10 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     
     /* clobbering first PCB here */
     while(bytes_written != length) {
-
         if(cur_byte >= 4096) {
             //if we finish reading one block, go to the next block      
-            cur_byte = 0;                                                   //reset cur_nyte
-            inode_addr = inode_addr + DATA_BLOCK_INDEX_SIZE;                //go to next data block number
+            cur_byte = (offset%4096);                                                   //reset cur_nyte
+            inode_addr = inode_addr + DATA_BLOCK_INDEX_SIZE;     // this breaks fish            //go to next data block number
             memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);     //
             //check if data_block_num is valid
             if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
