@@ -93,7 +93,9 @@ int32_t file_read(int32_t fd, void* buf, int32_t nbytes){
 
     if(pcb_current->cur_file_dentry.file_type == 2) {
 		pos = read_data(pcb_current->file_d_array[fd].inode, pcb_current->file_d_array[fd].file_pos, buf, nbytes);
-        pcb_current->file_d_array[fd].file_pos += pos;
+        if (pos != -1){
+            pcb_current->file_d_array[fd].file_pos += pos;
+        }
         return pos; // BIG PROBLEM
 	}
     return -1;
@@ -279,7 +281,7 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 
     //check if index node is valid
     if(inode < 0 || inode > (num_inodes - 1)) {
-        return -1;;
+        return -1;
     }
 
     // stuff
@@ -319,8 +321,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
     }
 
     //initialize data_start_addr to point data_addr to data we want to access
-    int8_t* data_start_addr = (int8_t*)boot_block_addr + 
-        BLOCK_LENGTH + (num_inodes * BLOCK_LENGTH);
+    int8_t* data_start_addr = (int8_t*)((int8_t*)boot_block_addr + 
+        BLOCK_LENGTH + (num_inodes * BLOCK_LENGTH));
     int8_t* data_addr = data_start_addr + (data_block_num * BLOCK_LENGTH);
 
     data_addr = data_addr + offset;
@@ -335,8 +337,8 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
 
         if(cur_byte >= 4096) {
             //if we finish reading one block, go to the next block      
-            cur_byte = 0;                                                   //reset cur_nyte
-            inode_addr = inode_addr + DATA_BLOCK_INDEX_SIZE;                //go to next data block number
+            cur_byte = (offset%4096);                                       //reset cur_nyte
+            inode_addr = inode_addr + (offset/4096) * DATA_BLOCK_INDEX_SIZE;                //go to next data block number
             memcpy(&data_block_num, inode_addr, DATA_BLOCK_INDEX_SIZE);     //
             //check if data_block_num is valid
             if(data_block_num < 0 || data_block_num > (num_data_blocks - 1)) {
@@ -349,8 +351,11 @@ int32_t read_data(uint32_t inode, uint32_t offset, int8_t* buf, uint32_t length)
         bytes_written = bytes_written + 1;
         data_addr = data_addr + 1;
         if(bytes_written+offset >= file_length){
+            //printf("PLEASE LEAVE THIS DAMN PLACE THE VOICES");
+            buf[bytes_written] = '\0';
             return bytes_written;
         }
+        
     }
 
     return bytes_written;
