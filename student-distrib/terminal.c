@@ -51,7 +51,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
         if (keyboard_buffer[i] != '\n'){
             buffer[i] = keyboard_buffer[i];
-            old_buffer[i] = keyboard_buffer[i];
+            //old_buffer[i] = keyboard_buffer[i];
             keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             terminal_can_read = 0;
             //printf("cleared");

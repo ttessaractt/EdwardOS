@@ -59,7 +59,7 @@ int terminal_can_read; // terminal read allowed
 
 char keyboard_buffer[MAX_BUF_SIZE]; // keyboard buffer size 128
 
-char old_buffer[MAX_BUF_SIZE]; // keyboard buffer size 128
+//char old_buffer[MAX_BUF_SIZE]; // keyboard buffer size 128
 
 int buffer_position; // keyboard buffer index
 

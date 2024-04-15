@@ -34,7 +34,7 @@ Creator:
 Description:
     getargs always returning -1
 Solution:
-    i was null checking buffer before anything was put in buffer
+    I was null checking buffer before anything was put in buffer
 
 <--------------------------------------------------------->
                           BUG 3                          
@@ -46,7 +46,7 @@ Creator:
 Description:
     page fault when running sigtest
 Solution:
-    i accidently broke parse arguments trying to fix getargs when the only issue was there was there was no
+    I accidently broke parse arguments trying to fix getargs when the only issue was there was there was no
     input for argument
 
 <--------------------------------------------------------->
@@ -118,14 +118,72 @@ Solution:
     we were passing in a single file descriptor but were indexing it again as if it was an array
     due to old code
 
+
 <--------------------------------------------------------->
                           BUG 9                          
 <--------------------------------------------------------->
 Time:
     2024.4.14.
 Creator:
-    First Last.
+    Elizabeth Shank
 Description:
-    our read doesnt work in other data blocks than the 1st
+    Cat could not write the full file to the screen.
 Solution:
-    we had some logic issues and didnt add the offset into the new memory address
+    Extend the maximum length of terminal write to 1024
+    instead of 128 like it was for checkpoint 2.
+
+<--------------------------------------------------------->
+                          BUG 10                          
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Elizabeth Shank
+Description:
+    Would not exit the while loop when reading data. Supposed
+    to exit when you reach the end of the file.
+Solution:
+    Added an if statement checking if location is going to 
+    be greater than the actual file length, and exit if so.
+
+
+<--------------------------------------------------------->
+                        BUG 11
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Ian Watson 
+Description:
+    data blocks being read incorrectly
+Solution:
+    must check if the bytes_written is 0 before offsetting
+    to correct block 
+
+<--------------------------------------------------------->
+                        BUG 12
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Sairaj Shetye
+Description:
+    Paging for vidmap allocates page with too much memory
+Solution:
+    Was allocating a 4MB page at 200MB to map to the video memory,
+    changed to make page directory entry to point to a page table
+    with first entry present, creating a 4KB page
+
+<--------------------------------------------------------->
+                        BUG 13
+<--------------------------------------------------------->
+Time:
+    2024.4.14.
+Creator:
+    Sairaj Shetye
+Description:
+    Paging for vidmap not modified for user space
+Solution:
+    Forgot to change the user bit inside page table/page directory to
+    1 to make this memory page accessible to the user which points
+    to video memory
