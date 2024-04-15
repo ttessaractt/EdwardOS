@@ -178,9 +178,12 @@ video page located < 4MB and pass that address
 */
 int32_t vidmap_helper(uint8_t** screen_start) {
     /* OFFSET_VID_MEM_START = 0xB8000 */
+    if(screen_start < OFFSET_128MB || screen_start > OFFSET_128MB + OFFSET_4MB) {
+        return -1;
+    }
     add_vid_mem_page();
     *screen_start = (uint8_t*) OFFSET_200;
-    return 0;
+    return (int32_t)OFFSET_200;
 }
 
 /* parse_arguments
