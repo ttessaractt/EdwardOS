@@ -133,11 +133,21 @@ void allocate_tasks(uint32_t task){
     /* map executing program to corresponding task's physical memory address */
     if(task == 1) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
-    } else if(task == 2) {
+    }else if(task == 2) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_12MB >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 3) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((137922056 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 4) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((20971520 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 5) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((25165824 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 6) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((29360128 >> 12) & KEEP_TOP10_BITS);
     }
+
     page_directory[32].usersupervisor = 1; // need or else page faults
-    flush_tlb(); // maybe?
+    flush_tlb(); // definitely.
+
 }
 
 /*  add_vid_mem_page
@@ -229,9 +239,9 @@ int32_t swap_vid_mem(int32_t terminal_number) {
 
     /* initialize pointers */
     int8_t* vid_mem_copy_start;
-    int8_t* actual_vid_mem_ptr = (int8_t*) OFFSET_200;
+    int8_t* actual_vid_mem_ptr = (int8_t*) OFFSET_VID_MEM_START;
 
-    /* choose which video memory storage we want to copy from */
+    // /* choose which video memory storage we want to copy from */
     if(terminal_number == 1) {
         vid_mem_copy_start = (int8_t*) OFFSET_1MB;
     } else if(terminal_number == 2) {
@@ -242,7 +252,7 @@ int32_t swap_vid_mem(int32_t terminal_number) {
         return -1;
     }
 
-    /* copy from vide memory storage to actual vid mem */
+    // /* copy from vide memory storage to actual vid mem */
     int i;
     for(i = 0; i < OFFSET_4KB; i++) {
         *actual_vid_mem_ptr = *vid_mem_copy_start;

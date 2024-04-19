@@ -70,7 +70,7 @@ int32_t execute_help(unsigned char* command){
     }
 
     //check for maximum number of programs
-    if(current_pid == 2){
+    if(current_pid == 6){
             printf("Maximum number of programs\n");
             return 0;
     }        

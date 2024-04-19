@@ -5,6 +5,7 @@
 
 #include "keyboard.h"
 #include "i8259.h"
+#include "terminal.h"
 
 #include "lib.h"
 
@@ -27,6 +28,7 @@ void keyboard_init(){
  *  Return: none
  */
 void keyboard_handler(){
+
 
     /* lookup tables for all characters */
     static char lookup[] = "..1234567890-=..qwertyuiop[]..asdfghjkl;\'`.\\zxcvbnm,./"; // lookup table of characters based on keyboard scan code
@@ -105,17 +107,17 @@ void keyboard_handler(){
     if (ALT_CHECK){
         // need to clear screen if press L
         if (key == F1_INDEX){
-            clear_screen();
+            terminal_switch(1);
             send_eoi(1);
             return;
         }
         else if (key == F2_INDEX){
-            clear_screen();
+            terminal_switch(2);
             send_eoi(1);
             return;
         }
         else if (key == F3_INDEX){
-            clear_screen();
+            terminal_switch(3);
             send_eoi(1);
             return;
         }

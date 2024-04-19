@@ -4,9 +4,82 @@
 
 #include "terminal.h"
 #include "keyboard.h"
+#include "syscalls.h"
 
 #include "lib.h"
 
+
+int32_t terminal_init(){
+    int i, j;
+
+    for (i = 0; i < 3; i++){
+        if (i == 0){
+            terminal_array[i].active = 1;
+            terminal_array[i].shell_exists = 1;
+        }
+        else{
+            terminal_array[i].active = 0;
+            terminal_array[i].shell_exists = 0;
+        }
+        terminal_array[i].screen_x = 0;
+        terminal_array[i].screen_y = 0;
+        terminal_array[i].buffer_position = 0;
+        //keyboard buff
+        for (j = 0; j < 128; j++){
+            terminal_array[i].keyboard_buffer[j] = '\0';
+        }
+    }
+    return 0;
+
+}
+
+
+int32_t terminal_switch(int32_t terminal_num){
+    int i;
+    /* wht the fuck do i do here */
+    // if (terminal_number == 1){
+    //     terminal_array[0].active = 1;
+    //     terminal_array[1].active = 0;
+    //     terminal_array[2].active = 0;
+    // }
+    // else if (terminal_number == 2){
+    //     terminal_array[0].active = 0;
+    //     terminal_array[1].active = 1;
+    //     terminal_array[2].active = 0;
+    // }
+    // else if (terminal_number == 3){
+    //     terminal_array[0].active = 0;
+    //     terminal_array[1].active = 0;
+    //     terminal_array[2].active = 1;
+    // }
+    if (terminal_num > 3 || terminal_num < 1){
+        return -1;
+    }
+
+    /* check if terminal already running - i.e. shell already exists */
+
+    /* if not running, execute shell in that terminal */
+
+    /* if it is running, save current and restore the terminal you switch you */
+
+    /* even if not running, save current - pcb stuff? */
+
+    for (i = 0; i < 3; i++){
+        terminal_array[i].active = ((((0x4) >> (terminal_num-1)) >> (2-i)) & 0x1);  // even easier logic?? :) come back when we actually have nothing to do
+    }
+
+    /* if no shell, initialize with shell */
+    if (terminal_array[terminal_num-1].shell_exists == 0){ 
+        execute((uint8_t*)"shell");
+    }
+
+    printf("%d\n", terminal_num);
+
+
+    return 0;
+    
+
+}
 
 /* terminal_open
  *  Functionality: Open terminal

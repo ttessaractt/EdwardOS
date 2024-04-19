@@ -4,6 +4,31 @@
 
 #include "types.h"
 
+/*holder for PCB information*/
+typedef struct terminal_t{
+    /* input buffer */
+    char keyboard_buffer[128]; // keyboard buffer size 128
+
+    int32_t buffer_position;
+
+    /* screen position */
+    int32_t screen_x;
+    int32_t screen_y;
+
+    /* 1 is active, 0 is not active */
+    int32_t active;
+
+    int32_t shell_exists;
+
+} terminal_t; 
+
+terminal_t terminal_array[3];
+
+// terminal initialize
+int32_t terminal_init();
+
+// terminal switch
+int32_t terminal_switch(int32_t terminal_num);
 
 // terminal_open
 int32_t terminal_open(const uint8_t* filename);
