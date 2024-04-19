@@ -133,9 +133,18 @@ void allocate_tasks(uint32_t task){
     /* map executing program to corresponding task's physical memory address */
     if(task == 1) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
-    } else if(task == 2) {
+    }else if(task == 2) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_12MB >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 3) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((137922056 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 4) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((20971520 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 5) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((25165824 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 6) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((29360128 >> 12) & KEEP_TOP10_BITS);
     }
+
     page_directory[32].usersupervisor = 1; // need or else page faults
     flush_tlb(); // maybe?
 }
