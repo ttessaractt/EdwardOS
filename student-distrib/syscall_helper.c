@@ -252,6 +252,7 @@ int32_t initialize_pcb(){
     // create variables
     int i;
     int j;
+    int term_num;
     current_pid++; 
 
     // make new PCB
@@ -263,6 +264,11 @@ int32_t initialize_pcb(){
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
     pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
     pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
+
+    /* find the active terminal index */
+    term_num = get_active_term();
+
+    pcb_new->terminal_id = term_num + 1;
 
     //set pcb entry if pcb being created is for the base shell
     if (initial_shell_flag == 1){

@@ -81,6 +81,17 @@ int32_t terminal_switch(int32_t terminal_num){
 
 }
 
+int32_t get_active_term(){
+    int i;
+    /* find the active terminal */
+    for(i=0; i < 3; i++){
+        if (terminal_array[i].active){
+            return i;
+        }
+    }
+    return -1;
+}
+
 /* terminal_open
  *  Functionality: Open terminal
  *  Arguments: None

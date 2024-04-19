@@ -30,6 +30,9 @@ int32_t terminal_init();
 // terminal switch
 int32_t terminal_switch(int32_t terminal_num);
 
+// returns active terminal index
+int32_t get_active_term();
+
 // terminal_open
 int32_t terminal_open(const uint8_t* filename);
 
