@@ -139,6 +139,8 @@ typedef struct process_control_block_t{
 
     dentry_t cur_file_dentry;
 
+    int32_t terminal_id;
+
     /* need file discriptor array */
     file_info file_d_array[8]; //need to make it!!
 

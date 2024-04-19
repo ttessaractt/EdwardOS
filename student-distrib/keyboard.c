@@ -57,6 +57,15 @@ void keyboard_handler(){
         CTRL_CHECK = 0;
     }
 
+    if ((key == ALT_INDEX)){ // x38 = L and R control 
+        ALT_CHECK = 1;
+        //printf("alt pressed ");
+    }
+    else if ((key == ALT_BREAK)){ // xB8 break
+        ALT_CHECK = 0;
+        //printf("alt let go ");
+    }
+
     
     if ((key == LSHIFT_INDEX) || (key == RSHIFT_INDEX)){ // x2A = L shift, x36 = R shift
         SHIFT_CHECK = 1;
@@ -86,6 +95,26 @@ void keyboard_handler(){
     if (CTRL_CHECK){
         // need to clear screen if press L
         if (key == 0x26){
+            clear_screen();
+            send_eoi(1);
+            return;
+        }
+
+    }
+
+    if (ALT_CHECK){
+        // need to clear screen if press L
+        if (key == F1_INDEX){
+            clear_screen();
+            send_eoi(1);
+            return;
+        }
+        else if (key == F2_INDEX){
+            clear_screen();
+            send_eoi(1);
+            return;
+        }
+        else if (key == F3_INDEX){
             clear_screen();
             send_eoi(1);
             return;
