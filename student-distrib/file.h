@@ -177,6 +177,9 @@ int32_t calculate_pcb_addr(int32_t cur_pid);
 /*function that actually does getargs*/
 int32_t getargs_helper(uint8_t* buf, int32_t nbytes);
 
+/* create/switch terminal helper */
+int32_t terminal_helper(int32_t terminal_num);
+
 
 // extern file_info files[8];
 extern operations file_operations;

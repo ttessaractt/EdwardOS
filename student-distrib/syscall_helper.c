@@ -429,3 +429,26 @@ int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
     return 0;
 };
 
+/* create/switch terminal helper */
+int32_t terminal_helper(int32_t terminal_num){
+
+    if (terminal_num > 3 || terminal_num < 1){
+        return -1;
+    }
+
+    /* check if terminal already running - i.e. shell already exists */
+
+    /* if not running, execute shell in that terminal */
+
+    /* if it is running, save current and restore the terminal you switch you */
+
+    /* even if not running, save current - pcb stuff? */
+
+    /* */
+
+
+
+    printf("%d\n", terminal_num);
+    return 0;
+}
+

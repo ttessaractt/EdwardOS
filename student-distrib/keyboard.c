@@ -5,6 +5,7 @@
 
 #include "keyboard.h"
 #include "i8259.h"
+#include "file.h"
 
 #include "lib.h"
 
@@ -106,16 +107,19 @@ void keyboard_handler(){
         // need to clear screen if press L
         if (key == F1_INDEX){
             clear_screen();
+            terminal_helper(1);
             send_eoi(1);
             return;
         }
         else if (key == F2_INDEX){
             clear_screen();
+            terminal_helper(2);
             send_eoi(1);
             return;
         }
         else if (key == F3_INDEX){
             clear_screen();
+            terminal_helper(3);
             send_eoi(1);
             return;
         }
