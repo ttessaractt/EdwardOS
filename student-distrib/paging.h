@@ -8,6 +8,7 @@
 // important magic numbers for operations in paging.c
 #define VIDEO_MEMORY 184
 #define OFFSET_4KB 4096
+#define OFFSET_1MB 0x100000
 #define OFFSET_4MB 4194304
 #define OFFSET_8MB 8388608
 #define OFFSET_12MB 12582912

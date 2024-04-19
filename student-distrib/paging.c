@@ -140,7 +140,11 @@ void allocate_tasks(uint32_t task){
     flush_tlb(); // maybe?
 }
 
-
+/*  add_vid_mem_page
+ *  Functionality: adds a video memory page at 200MB which maps to video memory b8000-b9000
+ *  Arguments: none
+ *  Return: none
+ */
 void add_vid_mem_page() {
     /* need to specify virtual memory address that maps to video memory */
     /* video memory is 0xb8000 -> 0xb9000 */
@@ -192,7 +196,66 @@ void add_vid_mem_page() {
     flush_tlb();
 }
 
-// void add_variables_page() {
 
-// }
+/*  add_vid_mem_storage
+ *  Functionality: adds a video memory page at 300MB, 300MB + 4KB, 300MB + 8MB which directly map to physical memory
+ *  Arguments: none
+ *  Return: none
+ */
+void add_vid_mem_storage() {
+    /* 1MB, 1MB + 4KB, 1MB + 8KB pages directly mapping to physical memory */
+    int i;
+    for(i = 256; i <= 258; i++) {
+        page_table[i].present = 1;
+        page_table[i].readwrite = 1;           // read/write mode
+        page_table[i].usersupervisor = 0;      // supervisor mode
+        page_table[i].unused_1 = 0x00;
+        page_table[i].accessed = 0;
+        page_table[i].dirty = 0;
+        page_table[i].unused_2 = 0x00;
+        page_table[i].avail = 0x000;
+        page_table[i].pf_addr = (i * OFFSET_4KB) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
+    }
+
+    flush_tlb();
+}
+
+/*  add_vid_mem_storage
+ *  Functionality: swaps video memory storage corresponding to a terminal number into actual video memory
+ *  Arguments: terminal_number, can range from 1-3 inclusive
+ *  Return: 0 for success, -1 if terminal_number out of bounds
+ */
+int32_t swap_vid_mem(int32_t terminal_number) {
+
+    /* initialize pointers */
+    int8_t* vid_mem_copy_start;
+    int8_t* actual_vid_mem_ptr = (int8_t*) OFFSET_200;
+
+    /* choose which video memory storage we want to copy from */
+    if(terminal_number == 1) {
+        vid_mem_copy_start = (int8_t*) OFFSET_1MB;
+    } else if(terminal_number == 2) {
+        vid_mem_copy_start = (int8_t*) (OFFSET_1MB + OFFSET_4KB);
+    } else if(terminal_number == 3) {
+        vid_mem_copy_start = (int8_t*) (OFFSET_1MB + OFFSET_4KB + OFFSET_4KB);
+    } else {
+        return -1;
+    }
+
+    /* copy from vide memory storage to actual vid mem */
+    int i;
+    for(i = 0; i < OFFSET_4KB; i++) {
+        *actual_vid_mem_ptr = *vid_mem_copy_start;
+        vid_mem_copy_start++;
+        actual_vid_mem_ptr++;
+    }
+
+    /* flush TLB in case */
+    flush_tlb();
+
+    /* success */
+    return 0;
+}
+
+
 
