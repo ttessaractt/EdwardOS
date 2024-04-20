@@ -11,6 +11,8 @@ typedef struct terminal_t{
 
     int32_t buffer_position;
 
+    int32_t terminal_can_read;
+
     /* screen position */
     int32_t screen_x;
     int32_t screen_y;

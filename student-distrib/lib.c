@@ -253,49 +253,52 @@ void putc(uint8_t c) {
  *  Function: Output a character to the console, updated for scrolling */
 void putc_term(uint8_t c) {
     int term_num = get_active_term();
+    /* must change screen_y and screen_x to terminal respective */
+    //terminal_array[term_num].screen_x
+    //terminal_array[term_num].screen_y
     if(c == '\n' || c == '\r') {
-        screen_y++;
-        if (screen_y == NUM_ROWS){
-            screen_y = NUM_ROWS - 1;
+        terminal_array[term_num].screen_y++;
+        if (terminal_array[term_num].screen_y == NUM_ROWS){
+            terminal_array[term_num].screen_y = NUM_ROWS - 1;
             SCROLLING = 1;
         }
         else{
             SCROLLING = 0;
         }
-        screen_x = 0;
-        update_cursor(screen_x, screen_y);
+        terminal_array[term_num].screen_x = 0;
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
     } else {
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++; // when x = 80, x % cols = 0, x / cols = 1
-        if (screen_x >= NUM_COLS ){
-            screen_x %= NUM_COLS;
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        terminal_array[term_num].screen_x++; // when x = 80, x % cols = 0, x / cols = 1
+        if (terminal_array[term_num].screen_x >= NUM_COLS ){
+            terminal_array[term_num].screen_x %= NUM_COLS;
             //screen_y = (screen_y + (screen_x / NUM_COLS) + 1) % NUM_ROWS;
-            screen_y = (screen_y + (screen_x / NUM_COLS) + 1);
-            if (screen_y >= NUM_ROWS){
-                screen_y = NUM_ROWS - 1;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS) + 1);
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
                 SCROLLING = 1;
             }
             else{
-                screen_y = screen_y % NUM_ROWS;
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
                 SCROLLING = 0;
             }
         }
         else{
-            screen_x %= NUM_COLS;
+            terminal_array[term_num].screen_x %= NUM_COLS;
             //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
-            screen_y = (screen_y + (screen_x / NUM_COLS));
-            if (screen_y >= NUM_ROWS){
-                screen_y = NUM_ROWS - 1;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS));
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
                 SCROLLING = 1;
             }
             else{
-                screen_y = screen_y % NUM_ROWS;
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
                 SCROLLING = 0;
             }
         }
         
-        update_cursor(screen_x, screen_y);
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
 
         
         

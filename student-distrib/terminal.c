@@ -24,6 +24,7 @@ int32_t terminal_init(){
         terminal_array[i].screen_x = 0;
         terminal_array[i].screen_y = 0;
         terminal_array[i].buffer_position = 0;
+        terminal_array[i].terminal_can_read = 0;
         //keyboard buff
         for (j = 0; j < 128; j++){
             terminal_array[i].keyboard_buffer[j] = '\0';
@@ -69,9 +70,10 @@ int32_t terminal_switch(int32_t terminal_num){
     }
 
     /* if no shell, initialize with shell */
+    /*
     if (terminal_array[terminal_num-1].shell_exists == 0){ 
         execute((uint8_t*)"shell");
-    }
+    }*/
 
     printf("%d\n", terminal_num);
 
@@ -113,6 +115,8 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
     int i = 0;
 
+    int32_t term_num = get_active_term();
+
     /* change to char* */
     char* buffer = buf;
 
@@ -124,33 +128,33 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
         nbytes = MAX_BUF_SIZE;
     }
 
-    while(terminal_can_read == 0){}; //wait until enter pressed
+    while(terminal_array[term_num].terminal_can_read == 0){}; //wait until enter pressed
 
     for(i = 0; i < nbytes; i++){
 
         if (i > (MAX_BUF_SIZE - 1)){
-            terminal_can_read = 0;
+            terminal_array[term_num].terminal_can_read = 0;
             return i;
         }
 
-        if (keyboard_buffer[i] != '\n'){
-            buffer[i] = keyboard_buffer[i];
+        if (terminal_array[term_num].keyboard_buffer[i] != '\n'){
+            buffer[i] = terminal_array[term_num].keyboard_buffer[i];
             //old_buffer[i] = keyboard_buffer[i];
-            keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
-            terminal_can_read = 0;
+            terminal_array[term_num].keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
+            terminal_array[term_num].terminal_can_read = 0;
             //printf("cleared");
         }
         else{
-            buffer[i] = keyboard_buffer[i]; // returns when key buffer is enter
-            keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
+            buffer[i] = terminal_array[term_num].keyboard_buffer[i]; // returns when key buffer is enter
+            terminal_array[term_num].keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             //printf("cleared2");
-            terminal_can_read = 0;
+            terminal_array[term_num].terminal_can_read = 0;
             //printf("%d\n", i);
             return i+1;
         }
     }
 
-    terminal_can_read = 0;
+    terminal_array[term_num].terminal_can_read = 0;
     return nbytes;
 
 }

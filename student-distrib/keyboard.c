@@ -29,7 +29,6 @@ void keyboard_init(){
  */
 void keyboard_handler(){
 
-
     /* lookup tables for all characters */
     static char lookup[] = "..1234567890-=..qwertyuiop[]..asdfghjkl;\'`.\\zxcvbnm,./"; // lookup table of characters based on keyboard scan code
     static char lookup_cap[] = "..1234567890-=..QWERTYUIOP[]..ASDFGHJKL;\'`.\\ZXCVBNM,./"; // lookup table for capital letters
@@ -44,6 +43,9 @@ void keyboard_handler(){
     int j;
 
     good_index = 0;
+
+    /* get active terminal index */
+    int32_t term_num = get_active_term();
 
     uint32_t key = inb(KEYBOARD_DATA); // scan code from port x60
 
@@ -144,9 +146,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
+                    if (terminal_array[term_num].buffer_position > 0){
                         removec(p);
-                        buffer_position--;
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -168,9 +170,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
+                    if (terminal_array[term_num].buffer_position > 0){
                         removec(p);
-                        buffer_position--;
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -195,9 +197,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
+                    if (terminal_array[term_num].buffer_position > 0){
                         removec(p);
-                        buffer_position--;
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -219,9 +221,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
+                    if (terminal_array[term_num].buffer_position > 0){
                         removec(p);
-                        buffer_position--;
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -231,42 +233,42 @@ void keyboard_handler(){
 
         if (TAB_CHECK){ // if a tab
             for (j = 0; j < 4; j++){ // print space 4 times for a tab
-                if ((buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
+                if ((terminal_array[term_num].buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
                     send_eoi(1);
                     return; 
                 }
 
-                keyboard_buffer[buffer_position] = p;
-                putc(keyboard_buffer[buffer_position]); // prints key
-                buffer_position++;
+                terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+                putc(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+                terminal_array[term_num].buffer_position++;
         
                 if (p == '\n'){ // if pressed enter
-                    terminal_can_read = 1; // allow terminal to read
-                    buffer_position = 0; // reset buffer position to 0    
+                    terminal_array[term_num].terminal_can_read = 1; // allow terminal to read
+                    terminal_array[term_num].buffer_position = 0; // reset buffer position to 0    
                 }
                 else{
-                    terminal_can_read = 0;
+                    terminal_array[term_num].terminal_can_read = 0;
                 }
 
             }
             
         }
         else{ // not a tab
-            if ((buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
+            if ((terminal_array[term_num].buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
                 send_eoi(1);
                 return; 
             }
 
-            keyboard_buffer[buffer_position] = p;
-            putc(keyboard_buffer[buffer_position]); // prints key
-            buffer_position++;
+            terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+            putc(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+            terminal_array[term_num].buffer_position++;
         
             if (p == '\n'){ // if pressed enter
-                terminal_can_read = 1; // allow terminal to read
-                buffer_position = 0; // reset buffer position to 0   
+                terminal_array[term_num].terminal_can_read = 1; // allow terminal to read
+                terminal_array[term_num].buffer_position = 0; // reset buffer position to 0   
             }
             else{
-                    terminal_can_read = 0;
+                    terminal_array[term_num].terminal_can_read = 0;
                 }
         }
     }
