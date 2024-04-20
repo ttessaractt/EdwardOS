@@ -4,6 +4,7 @@
  */
 
 #include "types.h"
+#include "lib.h"
 
 // important magic numbers for operations in paging.c
 #define VIDEO_MEMORY 184
@@ -36,6 +37,17 @@ extern void enable_4mb_pages();
 
 /* adds a virtual page that maps to video memory so user space can access it */
 extern void add_vid_mem_page();
+
+/* adds three virtual pages that map directly to their corresponding physical address */
+extern void add_vid_mem_storage();
+
+/* swaps one page to point to actual vid mem and others to point to physical */
+extern int32_t swap_vid_mem(int32_t terminal_number);
+
+/* returns the virtual address of the page that is currently pointing to actual video memory */
+extern int32_t* get_current_vid_mem(int32_t terminal_number); 
+
+extern int32_t save_vid_mem(int32_t old_terminal_num);
 
 /* struct defining bit correspondence for page table entries */
 typedef union page_table_entry_t {

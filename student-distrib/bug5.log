@@ -1,0 +1,22 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP5
+CreateTime:
+    2024.4.20
+
+<--------------------------------------------------------->
+                          BUG 1                          
+<--------------------------------------------------------->
+Time:
+    2024.4.20.
+Creator:
+    All of us
+Description:
+    Page fault when saving video memory to background buffer
+Solution:
+    Minus 1 when we didn't need to in calculating address
+

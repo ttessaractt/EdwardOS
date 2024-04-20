@@ -5,6 +5,7 @@
 #include "terminal.h"
 #include "keyboard.h"
 #include "syscalls.h"
+#include "paging.h"
 
 #include "lib.h"
 
@@ -30,12 +31,17 @@ int32_t terminal_init(){
             terminal_array[i].keyboard_buffer[j] = '\0';
         }
     }
+    add_vid_mem_storage();
     return 0;
 
 }
 
 
 int32_t terminal_switch(int32_t terminal_num){
+    /* 1. save current video memory to the proper background buffer for the terminal */
+    /* 2. put new terminal into video memory from its stored background buffer */
+    /* 3. switch to new terminal's program - create a shell for first time */
+
     int i;
     /* wht the fuck do i do here */
     // if (terminal_number == 1){
@@ -64,18 +70,28 @@ int32_t terminal_switch(int32_t terminal_num){
     /* if it is running, save current and restore the terminal you switch you */
 
     /* even if not running, save current - pcb stuff? */
+    int old_term_num = get_active_term();
 
+    /* save the old screen */
+    save_vid_mem(old_term_num);
+
+    /* set new active terminal */
     for (i = 0; i < 3; i++){
         terminal_array[i].active = ((((0x4) >> (terminal_num-1)) >> (2-i)) & 0x1);  // even easier logic?? :) come back when we actually have nothing to do
     }
 
-    /* if no shell, initialize with shell */
-    /*
-    if (terminal_array[terminal_num-1].shell_exists == 0){ 
-        execute((uint8_t*)"shell");
-    }*/
+    /* paging stuff */
 
-    printf("%d\n", terminal_num);
+    swap_vid_mem(terminal_num);
+
+
+    /* if no shell, initialize with shell */
+    
+    if (terminal_array[terminal_num-1].shell_exists == 0){ 
+        //execute((uint8_t*)"shell");
+    }
+
+    //printf("%d\n", terminal_num);
 
 
     return 0;

@@ -8,6 +8,7 @@
 */
 
 #include "paging.h"
+#include "terminal.h"
 
 /* initialize a 4kB aligned page table with 1024 entries */
 page_table_entry_t page_table[1024] __attribute__((aligned(OFFSET_4KB)));   
@@ -237,35 +238,69 @@ void add_vid_mem_storage() {
  */
 int32_t swap_vid_mem(int32_t terminal_number) {
 
-    /* initialize pointers */
-    int8_t* vid_mem_copy_start;
-    int8_t* actual_vid_mem_ptr = (int8_t*) OFFSET_VID_MEM_START;
+    // /* choose which video memory storage we want to point to actual vid mem */
+    // if(terminal_number == 1) {
+    //     page_table[256].pf_addr = OFFSET_VID_MEM_START >> 12;
+    //     page_table[257].pf_addr = (257 * OFFSET_4KB) >> 12;
+    //     page_table[258].pf_addr = (258 * OFFSET_4KB) >> 12;
+    // } else if(terminal_number == 2) {
+    //     page_table[256].pf_addr = (256 * OFFSET_4KB) >> 12;
+    //     page_table[257].pf_addr = OFFSET_VID_MEM_START >> 12;
+    //     page_table[258].pf_addr = (258 * OFFSET_4KB) >> 12;
+        
+    // } else if(terminal_number == 3) {
+    //     page_table[256].pf_addr = (256 * OFFSET_4KB) >> 12;
+    //     page_table[257].pf_addr = (257 * OFFSET_4KB) >> 12;
+    //     page_table[258].pf_addr = OFFSET_VID_MEM_START >> 12;
+    // } else {
+    //     return -1;
+    // }
 
-    // /* choose which video memory storage we want to copy from */
-    if(terminal_number == 1) {
-        vid_mem_copy_start = (int8_t*) OFFSET_1MB;
-    } else if(terminal_number == 2) {
-        vid_mem_copy_start = (int8_t*) (OFFSET_1MB + OFFSET_4KB);
-    } else if(terminal_number == 3) {
-        vid_mem_copy_start = (int8_t*) (OFFSET_1MB + OFFSET_4KB + OFFSET_4KB);
-    } else {
+    // /* flush TLB in case */
+    // flush_tlb();
+
+    /* 2. put new terminal into video memory from its stored background buf */
+
+
+
+
+    if(terminal_number < 1 || terminal_number > 3) {
         return -1;
     }
 
-    // /* copy from vide memory storage to actual vid mem */
-    int i;
-    for(i = 0; i < OFFSET_4KB; i++) {
-        *actual_vid_mem_ptr = *vid_mem_copy_start;
-        vid_mem_copy_start++;
-        actual_vid_mem_ptr++;
-    }
+    // void* memcpy(void* dest, const void* src, uint32_t n)
+    int32_t* dest = (int32_t*) OFFSET_VID_MEM_START;
+    int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
+    memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
-    /* flush TLB in case */
-    flush_tlb();
+    // uncomment when shceduligneroi
+    // page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;
 
     /* success */
     return 0;
 }
 
+int32_t* get_current_vid_mem(int32_t terminal_number) {
+    int32_t* cur_vid_mem_addr;
+    if(terminal_number == 1) {
+        cur_vid_mem_addr = (int32_t*) OFFSET_1MB;
+    } else if(terminal_number == 2) {
+        cur_vid_mem_addr = (int32_t*) (OFFSET_1MB + OFFSET_4KB);
+    } else if(terminal_number == 3) {
+        cur_vid_mem_addr = (int32_t*) (OFFSET_1MB + OFFSET_4KB + OFFSET_4KB);
+    } else {
+        cur_vid_mem_addr = NULL;
+    }
+
+    return cur_vid_mem_addr;
+}
+
+int32_t save_vid_mem(int32_t old_terminal_num){
+    // void* memcpy(void* dest, const void* src, uint32_t n)
+    int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
+    int32_t* src = (int32_t*) OFFSET_VID_MEM_START;
+    memcpy(dest, src, (uint32_t)OFFSET_4KB);
+    return 0;
+}
 
 
