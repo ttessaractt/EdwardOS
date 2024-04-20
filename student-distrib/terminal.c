@@ -172,7 +172,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
 
     /* change to char* */
     const char* buffer = buf;
-
+    
     if (buf == NULL){
         return -1; // or should it be -1?
     }
@@ -182,7 +182,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     }
     for (i = 0; i < nbytes; i++){
         if ((buffer[i] != '\0')){ // only prints characters
-            putc(buffer[i]);
+            putc_term(buffer[i]);
         }
         //else if (buffer[i] == '\n'){ // returns when end of buffer (the new line)
         //    putc(buffer[i]);

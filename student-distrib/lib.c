@@ -342,6 +342,30 @@ void removec(uint8_t c) {
     //}
 }
 
+/* void removec_term();
+ * Inputs: none
+ * Return Value: void
+ *  Function: remove a character from the console */
+void removec_term(uint8_t c) {
+    //if(c == tab) {
+        //screen_y++;
+        //screen_x = 0;
+    //} 
+    //else {
+        int term_num = get_active_term();
+        terminal_array[term_num].screen_x--;
+        if (terminal_array[term_num].screen_x < 0){
+            terminal_array[term_num].screen_x = 0; // make sure backspace doesn't go out of bounds
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        
+        terminal_array[term_num].screen_x %= NUM_COLS;
+        terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS)) % NUM_ROWS;
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+    //}
+}
+
 /* int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
  * Inputs: uint32_t value = number to convert
  *            int8_t* buf = allocated buffer to place string in

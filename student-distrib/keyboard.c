@@ -147,7 +147,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec(p);
+                        removec_term(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -171,7 +171,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec(p);
+                        removec_term(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -198,7 +198,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec(p);
+                        removec_term(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -222,7 +222,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec(p);
+                        removec_term(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -239,7 +239,7 @@ void keyboard_handler(){
                 }
 
                 terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
-                putc(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+                putc_term(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
                 terminal_array[term_num].buffer_position++;
         
                 if (p == '\n'){ // if pressed enter
@@ -260,7 +260,7 @@ void keyboard_handler(){
             }
 
             terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
-            putc(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+            putc_term(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
             terminal_array[term_num].buffer_position++;
         
             if (p == '\n'){ // if pressed enter
