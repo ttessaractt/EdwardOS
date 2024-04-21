@@ -88,7 +88,7 @@ int32_t terminal_switch(int32_t terminal_num){
     /* if no shell, initialize with shell */
     
     if (terminal_array[terminal_num-1].shell_exists == 0){ 
-        //execute((uint8_t*)"shell");
+        execute((uint8_t*)"shell");
     }
 
     //printf("%d\n", terminal_num);

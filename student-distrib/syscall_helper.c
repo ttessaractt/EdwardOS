@@ -89,6 +89,11 @@ int32_t execute_help(unsigned char* command){
     current_process->cur_file_dentry = new_dentry;
 
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
+
+    int term_num = get_active_term();
+    if (terminal_array[term_num].shell_exists == 0 && !(strncmp((int8_t*)file_name, "shell\0", 6))){
+        terminal_array[term_num].shell_exists == 1;
+    }
     
     // SET UP PAGING
     allocate_tasks(current_process->pid);   // allocates memory for tasks 
