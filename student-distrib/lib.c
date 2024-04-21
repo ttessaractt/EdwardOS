@@ -40,6 +40,22 @@ void clear_screen(void) {
     update_cursor(screen_x, screen_y);
 }
 
+/* void clear(void);
+ * Inputs: void
+ * Return Value: none
+ * Function: Clears video memory */
+void clear_screen_term(void) {
+    int32_t i;
+    int term_num = get_active_term();
+    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+    terminal_array[term_num].screen_x = 0;
+    terminal_array[term_num].screen_y = 0;
+    update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+}
+
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character

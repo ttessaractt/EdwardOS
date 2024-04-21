@@ -99,7 +99,7 @@ void keyboard_handler(){
     if (CTRL_CHECK){
         // need to clear screen if press L
         if (key == 0x26){
-            clear_screen();
+            clear_screen_term();
             send_eoi(1);
             return;
         }

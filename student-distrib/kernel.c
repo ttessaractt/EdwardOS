@@ -195,6 +195,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     // cursor
     enable_cursor(CURSOR_START, CURSOR_END);
+    //enable_cursor(2, CURSOR_END);
 
     //program_loader("frame1.txt", 1);
 
