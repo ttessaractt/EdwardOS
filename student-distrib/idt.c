@@ -10,6 +10,7 @@
 #include "syscalls.h"
 #include "file.h"
 #include "syscall_helper.h"
+#include "scheduler.h"
 
 extern int32_t GOD;
 /*
@@ -195,11 +196,10 @@ void idt_init(){
     set_trap_gate(18, (uint32_t)&machine_check);
     set_trap_gate(19, (uint32_t)&SIMD_FP);   
 
-    //set_interrupt_gate(33, (uint32_t)&no_handler);
-    //set_interrupt_gate(40, (uint32_t)&no_handler);
+    set_interrupt_gate(32, (uint32_t)&PIT_link);
     set_interrupt_gate(33, (uint32_t)&key_handler_linkage);
     set_interrupt_gate(40, (uint32_t)&rtc_handler_linkage);
-    //set_syscall_gate(128, (uint32_t)&system_call_linkage);
+
     set_syscall_gate(128, (uint32_t)&syscall_handler);
 
 };
@@ -318,7 +318,8 @@ void SIMD_FP(){
     printf("SIMD Floating-Point Exception (#XF) \n");
     GOD = 1;
     halt(0);
-};          
+};
+          
 
 
 void system_call(){

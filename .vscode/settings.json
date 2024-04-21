@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "rtc.h": "c"
+        "rtc.h": "c",
+        "idt.h": "c",
+        "i8259.h": "c",
+        "types.h": "c"
     }
 }

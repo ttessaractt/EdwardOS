@@ -184,6 +184,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //init rtc
     RTC_init();
     keyboard_init();
+    PIT_init();
 
     // paging
     enable_4mb_pages();
