@@ -293,7 +293,7 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
     /* genius lowkey */
-    if (terminal_array[terminal_number].shell_exists == 0){
+    if (terminal_array[terminal_number-1].shell_exists == 0){
         clear();
         update_cursor(0, 0); 
     }

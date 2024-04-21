@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "rtc.h": "c"
+        "rtc.h": "c",
+        "types.h": "c"
     }
 }

@@ -29,6 +29,7 @@ int ex_it = 0;
 int program_counter = 0;
 int initial_shell_flag = 0;     //flag for if shell is base shell
 int32_t GOD = 0;
+int32_t max_programs_flag = 0;
 
 /* execute_help
  * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
@@ -71,12 +72,18 @@ int32_t execute_help(unsigned char* command){
 
     //check for maximum number of programs
     if(current_pid == 6){
-            printf("Maximum number of programs\n");
+            max_programs_flag = 1;
+            printf_term("Maximum number of programs\n");
             return 0;
-    }        
+    }
+           
 
     // CREATE PCB 
     initialize_pcb();
+
+    /* update current terminal pid */
+    int term_num = get_active_term();
+    terminal_array[term_num].cur_term_pid = current_pid;
 
     // set PCB entires for getargs
     //current_process->arguments[0] = arguments; //set arguments in PCB
@@ -90,10 +97,10 @@ int32_t execute_help(unsigned char* command){
 
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
 
-    int term_num = get_active_term();
-    if (terminal_array[term_num].shell_exists == 0 && !(strncmp((int8_t*)file_name, "shell\0", 6))){
-        terminal_array[term_num].shell_exists == 1;
-    }
+    // int term_num = get_active_term();
+    // if (terminal_array[term_num].shell_exists == 0 && !(strncmp((int8_t*)file_name, "shell\0", 6))){
+    //     terminal_array[term_num].shell_exists = 1;
+    // }
     
     // SET UP PAGING
     allocate_tasks(current_process->pid);   // allocates memory for tasks 
@@ -131,7 +138,7 @@ int32_t halt_help(unsigned char status){
         //if in base shell, restart shell
         --current_pid;
         current_pid = 0;
-        printf("Restarting Shell...\n");
+        printf_term("Restarting Shell...\n");
         return execute_help((uint8_t*)"shell");
     }
     else{
@@ -158,6 +165,9 @@ int32_t halt_help(unsigned char status){
     // current process becomes parent
     current_process = pcb_parent; //decrement current_pid
     --current_pid; 
+    if(current_pid < 6){
+        max_programs_flag = 0;
+    } 
     // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
 

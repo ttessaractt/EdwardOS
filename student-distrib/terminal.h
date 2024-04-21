@@ -17,6 +17,8 @@ typedef struct terminal_t{
     int32_t screen_x;
     int32_t screen_y;
 
+    int32_t cur_term_pid;
+
     /* 1 is active, 0 is not active */
     int32_t active;
 
