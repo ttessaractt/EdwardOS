@@ -39,6 +39,7 @@ void scheduler(){
     8) Repeat...
     */
 
+    /* context switch */
     
 
     return;
