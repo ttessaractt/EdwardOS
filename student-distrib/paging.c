@@ -267,12 +267,25 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     if(terminal_number < 1 || terminal_number > 3) {
         return -1;
     }
-    update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
+    //update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
     //update_cursor(0, 0);
     // void* memcpy(void* dest, const void* src, uint32_t n)
     int32_t* dest = (int32_t*) OFFSET_VID_MEM_START;
     int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
+
+    /* genius lowkey */
+    if (terminal_array[terminal_number-1].shell_exists == 0){
+        clear();
+        update_cursor(0, 0); 
+    }
+    //clear_screen_term();
+    //clear();
+    //update_cursor(0, 0);
+    //memcpy(dest, src, (uint32_t)OFFSET_4KB);
+    //enable_cursor(2, 14);
+    update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
+    int position = get_cursor_position();
 
     // uncomment when shceduligneroi
     // page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;

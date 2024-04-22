@@ -152,6 +152,7 @@ typedef struct process_control_block_t{
 //process_control_block_t PCB_2;
 
 int32_t GOD;
+int32_t max_programs_flag;
 
 int32_t current_pid;
 int32_t current_parent_pid;

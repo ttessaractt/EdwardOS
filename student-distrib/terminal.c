@@ -6,6 +6,9 @@
 #include "keyboard.h"
 #include "syscalls.h"
 #include "paging.h"
+#include "file.h"
+#include "i8259.h"
+
 
 #include "lib.h"
 
@@ -26,6 +29,7 @@ int32_t terminal_init(){
         terminal_array[i].screen_y = 0;
         terminal_array[i].buffer_position = 0;
         terminal_array[i].terminal_can_read = 0;
+        terminal_array[i].cur_term_pid = 0;
         //keyboard buff
         for (j = 0; j < 128; j++){
             terminal_array[i].keyboard_buffer[j] = '\0';
@@ -63,6 +67,11 @@ int32_t terminal_switch(int32_t terminal_num){
         return -1;
     }
 
+    if (max_programs_flag && !(terminal_array[terminal_num-1].shell_exists)){
+        return -1;
+    }
+
+
     /* check if terminal already running - i.e. shell already exists */
 
     /* if not running, execute shell in that terminal */
@@ -87,9 +96,23 @@ int32_t terminal_switch(int32_t terminal_num){
 
     /* if no shell, initialize with shell */
     
-    if (terminal_array[terminal_num-1].shell_exists == 0){ 
-        //execute((uint8_t*)"shell");
+    send_eoi(1);
+   
+    if (terminal_array[terminal_num-1].shell_exists == 0){
+        terminal_array[terminal_num-1].shell_exists = 1; 
+        execute_help((uint8_t*)"shell");
     }
+
+    // Useless right now
+    int32_t pcb_addr_term = calculate_pcb_addr(terminal_array[terminal_num-1].cur_term_pid);
+    process_control_block_t* pcb_new_term = (process_control_block_t*) pcb_addr_term;
+
+    current_process = pcb_new_term;
+    current_pid = terminal_array[terminal_num-1].cur_term_pid;
+    current_parent_pid = pcb_new_term->parent_pid;
+    
+
+
 
     //printf("%d\n", terminal_num);
 
