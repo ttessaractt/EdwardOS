@@ -3,6 +3,10 @@
 #include "rtc.h"
 #include "lib.h"
 #include "terminal.h"
+#include "file.h"
+#include "x86_desc.h"
+#include "schedule_switch.h"
+#include "paging.h"
 
 int volatile pit_interrupt_occured = 0;
 int active_processes[3] = {0, 0, 0}; 
@@ -39,6 +43,7 @@ void scheduler(){
     7) Return from PIT Handler and execute pingpong
     8) Repeat...
     */
+    process_control_block_t* schedule_pcb;
 
     /* schedule the next terminal to be run */
     set_next_scheduled();
@@ -47,9 +52,18 @@ void scheduler(){
     /* use index to recover context of next scheduled terminal's current PCB */
     /* maybe use the cur_term_pid field and do a calculation? not sure */
 
-    /* i need to sleep x.x */
-   
+    int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
+    if (schedule_pid == 0){
+        return;
+    }
+    int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
+    schedule_pcb = (process_control_block_t*) schedule_addr;
 
+    tss.esp0 = schedule_pcb->tss_esp0;
+
+    allocate_tasks(schedule_pid);
+   
+    schedule_switch(schedule_pcb->ebp);
     
 
     return;

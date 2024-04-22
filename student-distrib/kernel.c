@@ -17,6 +17,7 @@
 #include "cursor.h"
 #include "loader.h"
 #include "syscalls.h"
+#include "scheduler.h"
 
 #define RUN_TESTS
 

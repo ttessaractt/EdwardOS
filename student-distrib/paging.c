@@ -123,7 +123,7 @@ void allocate_tasks(uint32_t task){
     // page_directory[2].present = 1;
     // /* map directly to 8mB in physical memory */
     // page_directory[2].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
-
+    
     // /* set 12-16 mB present, for second task */
     // page_directory[3].present = 1;
     // /* map directly to 12 mB in physical memory */

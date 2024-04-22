@@ -44,7 +44,7 @@ int32_t execute_help(unsigned char* command){
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
     */
-
+    cli();
     /* check that command is not NULL */
     if (command == NULL){
         return -1;
@@ -116,10 +116,10 @@ int32_t execute_help(unsigned char* command){
         //parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
     }
-
+    sti();
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); 
- 
+    
     return 0;
 }
 

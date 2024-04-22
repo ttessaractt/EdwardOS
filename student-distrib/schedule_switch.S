@@ -1,13 +1,15 @@
 
 #define ASM 1
 .text  
-    .globl PIT_link
+    .globl schedule_switch
 
-PIT_link:
-    pushal
-    pushfl          # push flags
-    call PIT_handler
-    popfl
-    popal
-    iret
+schedule_switch:
+    pushl %ebp
+    movl %esp, %ebp
+    # move saved ebp (from switch) into ebp
+    movl 8(%ebp), %ecx
+    movl %ecx, %ebp
+    # put first parameter on stack (EIP/entrypoint into program)
+    leave
+    ret
 
