@@ -19,10 +19,12 @@ int32_t terminal_init(){
     for (i = 0; i < 3; i++){
         if (i == 0){
             terminal_array[i].active = 1;
+            terminal_array[i].scheduled = 1;
             terminal_array[i].shell_exists = 1;
         }
         else{
             terminal_array[i].active = 0;
+            terminal_array[i].scheduled = 0;
             terminal_array[i].shell_exists = 0;
         }
         terminal_array[i].screen_x = 0;
@@ -120,6 +122,30 @@ int32_t terminal_switch(int32_t terminal_num){
     return 0;
     
 
+}
+
+/* returns the index of the terminal with scheduled attribute equal to 1 */
+/* 0 success, -1 fail */
+int32_t get_scheduled_term_idx(){
+    int i;
+    for(i = 0; i < 3; i++) {
+        if(terminal_array[i].scheduled == 1) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* implements round-robin scheduling, making the next scheduled terminal to be cyclically chosen in the array */
+/* 0 success, -1 fail */
+int32_t set_next_scheduled() {
+    int cur_scheduled_idx = get_scheduled_term_idx();
+    if(cur_scheduled_idx != -1) {
+        terminal_array[cur_scheduled_idx].scheduled = 0;
+        terminal_array[(cur_scheduled_idx + 1) % 3].scheduled = 1;
+        return 0;
+    }
+    return -1;
 }
 
 int32_t get_active_term(){

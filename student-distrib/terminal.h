@@ -22,6 +22,10 @@ typedef struct terminal_t{
     /* 1 is active, 0 is not active */
     int32_t active;
 
+    /* 1 means currently scheduled, 0 means not scheduled */
+    /* only one terminal can be scheduled at a time*/
+    int32_t scheduled;
+
     int32_t shell_exists;
 
 } terminal_t; 
@@ -33,6 +37,12 @@ int32_t terminal_init();
 
 // terminal switch
 int32_t terminal_switch(int32_t terminal_num);
+
+/* get the index of the currently scheduled terminal */
+int32_t get_scheduled_term_idx();
+
+// sets next terminal to be scheduled
+int32_t set_next_scheduled();
 
 // returns active terminal index
 int32_t get_active_term();

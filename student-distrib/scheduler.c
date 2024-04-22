@@ -2,6 +2,7 @@
 #include "i8259.h"
 #include "rtc.h"
 #include "lib.h"
+#include "terminal.h"
 
 int volatile pit_interrupt_occured = 0;
 int active_processes[3] = {0, 0, 0}; 
@@ -38,6 +39,16 @@ void scheduler(){
     7) Return from PIT Handler and execute pingpong
     8) Repeat...
     */
+
+    /* schedule the next terminal to be run */
+    set_next_scheduled();
+    int32_t next_scheduled_idx = get_scheduled_term_idx();
+
+    /* use index to recover context of next scheduled terminal's current PCB */
+    /* maybe use the cur_term_pid field and do a calculation? not sure */
+
+    /* i need to sleep x.x */
+   
 
     
 
