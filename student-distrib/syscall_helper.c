@@ -72,7 +72,6 @@ int32_t execute_help(unsigned char* command){
 
     //check for maximum number of programs
     if(current_pid == 6){
-            max_programs_flag = 1;
             printf_term("Maximum number of programs\n");
             return 0;
     }        
@@ -271,6 +270,9 @@ int32_t initialize_pcb(){
     int term_num;
     current_pid++; 
 
+    if (current_pid == 6){
+        max_programs_flag = 1;
+    }
     // make new PCB
 
     int32_t pcb_addr = calculate_pcb_addr(current_pid);

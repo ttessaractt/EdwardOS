@@ -32,6 +32,19 @@ Description:
 Solution:
     Use single = and not double =
 
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2024.4.22.
+Creator:
+    Elizabeth
+Description:
+    Page fault when switch terminals nearing max processes
+Solution:
+    Max program flag was set high at wrong time, need to 
+    be set high in initialize pcb when cur pid = 6
+
 
 
 
