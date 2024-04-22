@@ -26,12 +26,7 @@ void PIT_init(){
     enable_irq(0);          //enable PIT interrupt on PIC
 }
 
-void PIT_handler(){
-    //in the PIT handler’s assembly linkage, the 
-    //registers restored will be the target process’s 
-    //context information (including the EIP)
-    printf("hello\n");
-    send_eoi(0);
+void scheduler(){
     /*
     EXAMPLE:
     1) Counter is executing
@@ -43,6 +38,31 @@ void PIT_handler(){
     7) Return from PIT Handler and execute pingpong
     8) Repeat...
     */
+
+    
+
+    return;
+}
+
+/*
+https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
+*/
+void PIT_handler(){
+    //in the PIT handler’s assembly linkage, the 
+    //registers restored will be the target process’s 
+    //context information (including the EIP)
+    
+    //allow output to go low again
+    outb(0x43, 0x1ADB0);
+    //need ^ or below or both idk
+    outb(0x40, 0x9C);		// Low byte
+	outb(0x40, (0x2E00)>>8);	// High byte
+
+    //send end of interrupt signal
+    send_eoi(0);
+
+    //if an interrupt occurs, call scheduler 
+    scheduler();
 }
 
 int32_t PIT_frequency(int32_t freq){
@@ -65,7 +85,5 @@ int32_t PIT_close(int32_t fd){
     return 0;
 }
 
-void scheduler(){
-    return 0;
-}
+
 
