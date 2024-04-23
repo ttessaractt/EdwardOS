@@ -19,7 +19,7 @@ int32_t terminal_init(){
     for (i = 0; i < 3; i++){
         if (i == 0){
             terminal_array[i].active = 1;
-            terminal_array[i].scheduled = 1;
+            terminal_array[i].scheduled = 0;
             terminal_array[i].shell_exists = 1;
         }
         else{

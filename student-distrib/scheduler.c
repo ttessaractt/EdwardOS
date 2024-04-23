@@ -46,7 +46,9 @@ void scheduler(){
     process_control_block_t* schedule_pcb;
 
     /* schedule the next terminal to be run */
-    set_next_scheduled();
+    if(set_next_scheduled() == -1) {
+        return;
+    }
     int32_t next_scheduled_idx = get_scheduled_term_idx();
 
     /* use index to recover context of next scheduled terminal's current PCB */
