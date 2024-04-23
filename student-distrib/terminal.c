@@ -8,7 +8,8 @@
 #include "paging.h"
 #include "file.h"
 #include "i8259.h"
-
+#include "schedule_switch.h"
+#include "x86_desc.h"
 
 #include "lib.h"
 
@@ -114,6 +115,8 @@ int32_t terminal_switch(int32_t terminal_num){
     current_parent_pid = pcb_new_term->parent_pid;
     
 
+    //tss.esp0 = current_process->tss_esp0;
+    //schedule_switch(current_process->ebp); //need to restore kernel stack? 
 
 
     //printf("%d\n", terminal_num);
