@@ -239,6 +239,7 @@ void keyboard_handler(){
                 }
 
                 terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+                //while(!(terminal_array[term_num].scheduled)){}; 
                 putc_key(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
                 terminal_array[term_num].buffer_position++;
         
@@ -260,6 +261,7 @@ void keyboard_handler(){
             }
 
             terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+            //while(!(terminal_array[term_num].scheduled)){}; 
             putc_key(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
             terminal_array[term_num].buffer_position++;
         

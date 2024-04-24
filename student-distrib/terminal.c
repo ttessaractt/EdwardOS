@@ -143,7 +143,7 @@ int32_t terminal_switch(int32_t terminal_num){
     current_parent_pid = pcb_new_term->parent_pid;
     
     tss.esp0 = current_process->tss_esp0;
-    schedule_switch(current_process->ebp); //need to restore kernel stack? 
+    //schedule_switch(current_process->ebp); //need to restore kernel stack? 
 
     //printf("%d\n", terminal_num);
     return 0;
@@ -272,6 +272,12 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     if (nbytes > 1024){
         nbytes = 1024;
     }
+
+    //if active & schedule then putc_key (to active term)
+    //if not active & schedules then putc_term
+    //int32_t term = get_active_term();
+
+        
     for (i = 0; i < nbytes; i++){
         if ((buffer[i] != '\0')){ // only prints characters
             putc_term(buffer[i]);

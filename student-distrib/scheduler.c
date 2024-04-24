@@ -52,13 +52,14 @@ void scheduler(){
         return;
     }
     int32_t next_scheduled_idx = get_scheduled_term_idx();
+    printf("%d", next_scheduled_idx);
 
     if(terminal_array[next_scheduled_idx].shell_exists == 0){
         if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
-            page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            //page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
         }
         else{
-            page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+            //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
         }
         //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
 
@@ -71,7 +72,7 @@ void scheduler(){
    
 
     //if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
-            page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            //page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
        // }
     //else{
      //       page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
