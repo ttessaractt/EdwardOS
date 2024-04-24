@@ -288,7 +288,7 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     int position = get_cursor_position();
 
     // uncomment when shceduligneroi
-    // page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;
+    page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;
     //enable_cursor(2, 14); //does nothing!!!
     
     /* success */

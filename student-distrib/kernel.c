@@ -198,7 +198,7 @@ void entry(unsigned long magic, unsigned long addr) {
     // cursor
     enable_cursor(CURSOR_START, CURSOR_END);
     //enable_cursor(2, CURSOR_END);
-
+    terminal_init();
     //program_loader("frame1.txt", 1);
 
     /* Enable interrupts */
@@ -217,8 +217,8 @@ void entry(unsigned long magic, unsigned long addr) {
 #endif
     /* Execute the first program ("shell") ... */
     clear_screen();
-    terminal_init(); // where to put?
-    execute((uint8_t*)"shell");
+    //terminal_init(); // where to put?
+    //execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

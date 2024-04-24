@@ -45,6 +45,28 @@ Solution:
     Max program flag was set high at wrong time, need to 
     be set high in initialize pcb when cur pid = 6
 
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2024.4.24.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when trying to save old screen to switch terminals
+Solution:
+    we weren't initializing memory at the location we were trying to write to
 
 
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2022.??.??.
+Creator:
+    First Last.
+Description:
+    we are not booting up 3 shells for the 3 terminals on start
+Solution:
+    ....
 

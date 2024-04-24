@@ -7,9 +7,11 @@
 #include "x86_desc.h"
 #include "schedule_switch.h"
 #include "paging.h"
+#include "syscalls.h"
 
 int volatile pit_interrupt_occured = 0;
 int active_processes[3] = {0, 0, 0}; 
+terminal_t terminal_array[3];
 
 /*
 https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
@@ -51,21 +53,46 @@ void scheduler(){
     }
     int32_t next_scheduled_idx = get_scheduled_term_idx();
 
-    /* use index to recover context of next scheduled terminal's current PCB */
-    /* maybe use the cur_term_pid field and do a calculation? not sure */
+    if(terminal_array[next_scheduled_idx].shell_exists == 0){
+        if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
+            page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+        }
+        else{
+            page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+        }
+        //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
 
-    int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
-    if (schedule_pid == 0){
+        terminal_array[next_scheduled_idx].shell_exists = 1;
+
+        execute((uint8_t*)"shell");
+
         return;
     }
-    int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
-    schedule_pcb = (process_control_block_t*) schedule_addr;
-
-    tss.esp0 = schedule_pcb->tss_esp0;
-
-    allocate_tasks(schedule_pid);
    
-    schedule_switch(schedule_pcb->ebp);
+
+    //if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
+            page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+       // }
+    //else{
+     //       page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+    //}
+    
+
+    // /* use index to recover context of next scheduled terminal's current PCB */
+    // /* maybe use the cur_term_pid field and do a calculation? not sure */
+
+    // int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
+    // if (schedule_pid == 0){
+    //     return;
+    // }
+    // int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
+    // schedule_pcb = (process_control_block_t*) schedule_addr;
+
+    // tss.esp0 = schedule_pcb->tss_esp0;
+
+    // allocate_tasks(schedule_pid);
+   
+    // schedule_switch(schedule_pcb->ebp);
     
 
     return;
@@ -78,7 +105,6 @@ void PIT_handler(){
     //in the PIT handler’s assembly linkage, the 
     //registers restored will be the target process’s 
     //context information (including the EIP)
-    
     //allow output to go low again
     outb(0x43, 0x1ADB0);
     //need ^ or below or both idk

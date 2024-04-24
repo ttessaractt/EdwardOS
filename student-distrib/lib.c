@@ -46,7 +46,7 @@ void clear_screen(void) {
  * Function: Clears video memory */
 void clear_screen_term(void) {
     int32_t i;
-    int term_num = get_active_term();
+    int term_num = get_scheduled_term_idx();
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         *(uint8_t *)(video_mem + (i << 1)) = ' ';
         *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
@@ -409,7 +409,7 @@ void putc(uint8_t c) {
  * Return Value: void
  *  Function: Output a character to the console, updated for scrolling */
 void putc_term(uint8_t c) {
-    int term_num = get_active_term();
+    int term_num = get_scheduled_term_idx();
     /* must change screen_y and screen_x to terminal respective */
     //terminal_array[term_num].screen_x
     //terminal_array[term_num].screen_y
@@ -509,7 +509,7 @@ void removec_term(uint8_t c) {
         //screen_x = 0;
     //} 
     //else {
-        int term_num = get_active_term();
+        int term_num = get_scheduled_term_idx();
         terminal_array[term_num].screen_x--;
         if (terminal_array[term_num].screen_x < 0){
             terminal_array[term_num].screen_x = 0; // make sure backspace doesn't go out of bounds

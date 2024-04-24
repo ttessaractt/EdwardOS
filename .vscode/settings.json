@@ -3,6 +3,7 @@
         "rtc.h": "c",
         "idt.h": "c",
         "i8259.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "file.h": "c"
     }
 }

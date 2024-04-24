@@ -13,21 +13,25 @@
 
 #include "lib.h"
 
+extern process_control_block_t* current_process;
+extern int32_t current_pid;            // initial pid = 0
+extern int32_t current_parent_pid;
 
 int32_t terminal_init(){
     int i, j;
-
+    add_vid_mem_storage();
     for (i = 0; i < 3; i++){
-        if (i == 0){
-            terminal_array[i].active = 1;
-            terminal_array[i].scheduled = 0;
-            terminal_array[i].shell_exists = 1;
+        if (i == 2){
+            terminal_array[i].active = 0;
+            terminal_array[i].scheduled = 1;
+            terminal_array[i].shell_exists = 0;
         }
         else{
             terminal_array[i].active = 0;
             terminal_array[i].scheduled = 0;
             terminal_array[i].shell_exists = 0;
         }
+        //execute((uint8_t*)"shell");
         terminal_array[i].screen_x = 0;
         terminal_array[i].screen_y = 0;
         terminal_array[i].buffer_position = 0;
@@ -38,7 +42,31 @@ int32_t terminal_init(){
             terminal_array[i].keyboard_buffer[j] = '\0';
         }
     }
-    add_vid_mem_storage();
+
+    terminal_array[0].active = 1;
+
+    // terminal_array[0].active = 1;
+    // terminal_array[1].active = 0;
+    // terminal_array[2].active = 0;
+
+    // //execute((uint8_t*)"shell");
+    // //terminal_switch(1);
+    
+    // //terminal_switch(2);
+    // terminal_array[0].active = 0;
+    // terminal_array[1].active = 1;
+    // terminal_array[2].active = 0;
+
+    // //terminal_switch(3);
+    // terminal_array[0].active = 0;
+    // terminal_array[1].active = 0;
+    // terminal_array[2].active = 1;
+
+    // //terminal_switch(1);
+    // terminal_array[0].active = 1;
+    // terminal_array[1].active = 0;
+    // terminal_array[2].active = 0;
+
     return 0;
 
 }
@@ -103,7 +131,7 @@ int32_t terminal_switch(int32_t terminal_num){
    
     if (terminal_array[terminal_num-1].shell_exists == 0){
         terminal_array[terminal_num-1].shell_exists = 1; 
-        execute_help((uint8_t*)"shell");
+        //execute_help((uint8_t*)"shell");
     }
 
     // Useless right now
@@ -114,14 +142,10 @@ int32_t terminal_switch(int32_t terminal_num){
     current_pid = terminal_array[terminal_num-1].cur_term_pid;
     current_parent_pid = pcb_new_term->parent_pid;
     
-
-    //tss.esp0 = current_process->tss_esp0;
-    //schedule_switch(current_process->ebp); //need to restore kernel stack? 
-
+    tss.esp0 = current_process->tss_esp0;
+    schedule_switch(current_process->ebp); //need to restore kernel stack? 
 
     //printf("%d\n", terminal_num);
-
-
     return 0;
     
 
