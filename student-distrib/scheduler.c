@@ -52,7 +52,7 @@ void scheduler(){
         return;
     }
     int32_t next_scheduled_idx = get_scheduled_term_idx();
-    printf("%d", next_scheduled_idx);
+    //printf("%d", terminal_array[0].scheduled);
 
     if(terminal_array[next_scheduled_idx].shell_exists == 0){
         if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
