@@ -12,6 +12,7 @@ int32_t printf(int8_t *format, ...);
 int32_t printf_term(int8_t *format, ...);
 void putc(uint8_t c);
 void putc_term(uint8_t c);
+void putc_key(uint8_t c);
 void removec(uint8_t c);
 void removec_term(uint8_t c);
 int32_t puts(int8_t *s);

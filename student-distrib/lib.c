@@ -475,6 +475,77 @@ void putc_term(uint8_t c) {
         }
     
 }
+/* void putc_key(uint8_t c);
+ * Inputs: uint_8* c = character to print
+ * Return Value: void
+ *  Function: Output a character to the console, updated for scrolling */
+void putc_key(uint8_t c) {
+    int term_num = get_active_term();
+    /* must change screen_y and screen_x to terminal respective */
+    //terminal_array[term_num].screen_x
+    //terminal_array[term_num].screen_y
+    if(c == '\n' || c == '\r') {
+        terminal_array[term_num].screen_y++;
+        if (terminal_array[term_num].screen_y == NUM_ROWS){
+            terminal_array[term_num].screen_y = NUM_ROWS - 1;
+            SCROLLING = 1;
+        }
+        else{
+            SCROLLING = 0;
+        }
+        terminal_array[term_num].screen_x = 0;
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+    } else {
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        terminal_array[term_num].screen_x++; // when x = 80, x % cols = 0, x / cols = 1
+        if (terminal_array[term_num].screen_x >= NUM_COLS ){
+            terminal_array[term_num].screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS) + 1) % NUM_ROWS;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS) + 1);
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
+                SCROLLING = 1;
+            }
+            else{
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        else{
+            terminal_array[term_num].screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS));
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
+                SCROLLING = 1;
+            }
+            else{
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+
+        
+        
+    }
+    int32_t i;
+    if (SCROLLING){
+            for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+            if (i + NUM_COLS < 2000){ // goes to next row in video memory   
+                *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1));
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            else{
+                *(uint8_t *)(video_mem + (i << 1)) = ' ';
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            }
+        }
+    
+}
 
 /* void remove();
  * Inputs: none
