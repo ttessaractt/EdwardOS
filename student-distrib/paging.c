@@ -278,15 +278,16 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     //update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
     //update_cursor(0, 0);
     // void* memcpy(void* dest, const void* src, uint32_t n)
-    int32_t* dest = (int32_t*) OFFSET_VID_MEM_START;
-    int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
+    clear_key();
+    update_cursor(0, 0); 
+    int32_t* dest = (int8_t*) 0x103000;//OFFSET_VID_MEM_START;
+    int32_t* src = (int8_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
     /* genius lowkey */
-    if (terminal_array[terminal_number-1].shell_exists == 0){
-        clear();
-        update_cursor(0, 0); 
-    }
+    //if (terminal_array[terminal_number-1].shell_exists == 0){
+        
+    //}
     //clear_screen_term();
     //clear();
     //update_cursor(0, 0);
@@ -320,8 +321,8 @@ int32_t* get_current_vid_mem(int32_t terminal_number) {
 
 int32_t save_vid_mem(int32_t old_terminal_num){
     // void* memcpy(void* dest, const void* src, uint32_t n)
-    int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
-    int32_t* src = (int32_t*) OFFSET_VID_MEM_START;
+    int32_t* dest = (int8_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
+    int32_t* src = (int8_t*) OFFSET_VID_MEM_START;
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
     //disable_cursor();
     return 0;
