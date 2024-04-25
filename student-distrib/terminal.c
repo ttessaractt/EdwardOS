@@ -129,21 +129,21 @@ int32_t terminal_switch(int32_t terminal_num){
     
     send_eoi(1);
    
-    if (terminal_array[terminal_num-1].shell_exists == 0){
-        terminal_array[terminal_num-1].shell_exists = 1; 
-        //execute_help((uint8_t*)"shell");
-    }
+    // if (terminal_array[terminal_num-1].shell_exists == 0){
+    //     terminal_array[terminal_num-1].shell_exists = 1; 
+    //     //execute_help((uint8_t*)"shell");
+    // }
 
-    // Useless right now
-    int32_t pcb_addr_term = calculate_pcb_addr(terminal_array[terminal_num-1].cur_term_pid);
-    process_control_block_t* pcb_new_term = (process_control_block_t*) pcb_addr_term;
+    // // Useless right now
+    // int32_t pcb_addr_term = calculate_pcb_addr(terminal_array[terminal_num-1].cur_term_pid);
+    // process_control_block_t* pcb_new_term = (process_control_block_t*) pcb_addr_term;
 
-    current_process = pcb_new_term;
-    current_pid = terminal_array[terminal_num-1].cur_term_pid;
-    current_parent_pid = pcb_new_term->parent_pid;
+    // current_process = pcb_new_term;
+    // current_pid = terminal_array[terminal_num-1].cur_term_pid;
+    // current_parent_pid = pcb_new_term->parent_pid;
     
-    tss.esp0 = current_process->tss_esp0;
-    //schedule_switch(current_process->ebp); //need to restore kernel stack? 
+    // tss.esp0 = current_process->tss_esp0;
+    // //schedule_switch(current_process->ebp); //need to restore kernel stack? 
 
     //printf("%d\n", terminal_num);
     return 0;

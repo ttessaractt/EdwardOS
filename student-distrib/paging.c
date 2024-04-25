@@ -322,7 +322,7 @@ int32_t* get_current_vid_mem(int32_t terminal_number) {
 int32_t save_vid_mem(int32_t old_terminal_num){
     // void* memcpy(void* dest, const void* src, uint32_t n)
     int32_t* dest = (int8_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
-    int32_t* src = (int8_t*) OFFSET_VID_MEM_START;
+    int32_t* src = (int8_t*) 0x103000; // used to be b8000
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
     //disable_cursor();
     return 0;
