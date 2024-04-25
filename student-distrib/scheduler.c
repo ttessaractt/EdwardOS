@@ -12,6 +12,7 @@
 int volatile pit_interrupt_occured = 0;
 int active_processes[3] = {0, 0, 0}; 
 terminal_t terminal_array[3];
+extern int32_t boot_flag;
 
 /*
 https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
@@ -46,6 +47,20 @@ void scheduler(){
     8) Repeat...
     */
     process_control_block_t* schedule_pcb;
+    process_control_block_t* schedule_pcb_old;
+
+    if ((boot_flag != 0) | (boot_flag != -1)){
+        register uint32_t saved_ebp asm("ebp");     //save ebp
+        int32_t old_scheduled_idx = get_scheduled_term_idx();
+        int32_t old_schedule_pid = terminal_array[old_scheduled_idx].cur_term_pid;
+        if (old_schedule_pid == 0){
+            return;
+        }
+        int32_t old_schedule_addr = calculate_pcb_addr(old_schedule_pid);
+        schedule_pcb_old = (process_control_block_t*) old_schedule_addr;
+        schedule_pcb_old->ebp_switch = saved_ebp;
+    }
+
 
     /* schedule the next terminal to be run */
     if(set_next_scheduled() == -1) {
@@ -57,6 +72,7 @@ void scheduler(){
     if(terminal_array[next_scheduled_idx].shell_exists == 0){
         if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
             page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            boot_flag = 1;
         }
         else{
             page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
@@ -89,11 +105,11 @@ void scheduler(){
     int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
     schedule_pcb = (process_control_block_t*) schedule_addr;
 
-    // tss.esp0 = schedule_pcb->tss_esp0;
+    tss.esp0 = schedule_pcb->tss_esp0;
 
-    // allocate_tasks(schedule_pid);
+    allocate_tasks(schedule_pid);
    
-    // schedule_switch(schedule_pcb->ebp);
+    schedule_switch(schedule_pcb->ebp_switch);
     
 
     return;

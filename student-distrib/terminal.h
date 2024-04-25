@@ -31,6 +31,7 @@ typedef struct terminal_t{
 } terminal_t; 
 
 terminal_t terminal_array[3];
+int32_t boot_flag;
 
 // terminal initialize
 int32_t terminal_init();

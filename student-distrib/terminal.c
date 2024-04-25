@@ -16,6 +16,7 @@
 extern process_control_block_t* current_process;
 extern int32_t current_pid;            // initial pid = 0
 extern int32_t current_parent_pid;
+int32_t boot_flag = -1;
 
 int32_t terminal_init(){
     int i, j;
@@ -42,7 +43,7 @@ int32_t terminal_init(){
             terminal_array[i].keyboard_buffer[j] = '\0';
         }
     }
-
+    boot_flag = 0;
     terminal_array[0].active = 1;
 
     // terminal_array[0].active = 1;
@@ -277,7 +278,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     //if not active & schedules then putc_term
     //int32_t term = get_active_term();
 
-        
+            
     for (i = 0; i < nbytes; i++){
         if ((buffer[i] != '\0')){ // only prints characters
             putc_term(buffer[i]);

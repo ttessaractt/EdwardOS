@@ -66,7 +66,7 @@ int32_t execute_help(unsigned char* command){
     current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
 
     //check if shell being created in base shell
-    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && current_pid == 0){
+    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) & ((current_pid == 0) | (current_pid == 1) | (current_pid == 2))){
         initial_shell_flag = 1;
     }
 
@@ -110,8 +110,8 @@ int32_t execute_help(unsigned char* command){
 
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
-    if (current_pid > 1){                   // save ebp in PCB for use later
-        int32_t parent_pcb_addr2 = calculate_pcb_addr((current_process->pid) - 1);
+    if (current_process->parent_pid > 1){                   // save ebp in PCB for use later
+        int32_t parent_pcb_addr2 = calculate_pcb_addr((current_process->parent_pid));
         parent_pcb = (process_control_block_t*) parent_pcb_addr2;
         //parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
@@ -291,11 +291,17 @@ int32_t initialize_pcb(){
     //set pcb entry if pcb being created is for the base shell
     if (initial_shell_flag == 1){
         pcb_new->base_shell = 1;
+        pcb_new->parent_pid = 0;
         initial_shell_flag = 0;
+        pcb_new->terminal_id = current_pid;
     }
     else{
         pcb_new->base_shell = 0;
         initial_shell_flag = 0;
+        /* find the active terminal index */
+        term_num = get_active_term();
+
+        pcb_new->terminal_id = term_num + 1;
     }
 
     //initilize getargs arguments to 0
