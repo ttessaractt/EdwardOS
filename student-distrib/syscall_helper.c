@@ -30,7 +30,7 @@ int program_counter = 0;
 int initial_shell_flag = 0;     //flag for if shell is base shell
 int32_t GOD = 0;
 int32_t max_programs_flag = 0;
-int pid_array[6] = {0, 0, 0, 0, 0, 0};
+int pid_array[7] = {1, 0, 0, 0, 0, 0, 0};       // 1 indexed
 
 /* execute_help
  * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
@@ -175,7 +175,7 @@ int32_t halt_help(unsigned char status){
     // current process becomes parent
     current_process = pcb_parent; //decrement current_pid
     
-    pid_array[current_pid-1] = 0;
+    pid_array[current_pid] = 0;
 
     int32_t get_pid = find_next_pid();
     if(get_pid != -1){
@@ -287,7 +287,8 @@ int32_t initialize_pcb(){
     if(current_pid == -1){
         max_programs_flag = 1;
     }
-    current_pid = get_pid+1;
+    current_pid = get_pid;
+    pid_array[get_pid] = 1;
 
     // make new PCB
     int32_t pcb_addr = calculate_pcb_addr(current_pid);
@@ -476,7 +477,7 @@ int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
 
 int32_t find_next_pid(){
     int i;
-    for (i = 0; i < 6; i++){
+    for (i = 0; i < 7; i++){
         if (pid_array[i] == 0){
             return i;
         }

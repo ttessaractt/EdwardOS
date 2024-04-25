@@ -102,6 +102,6 @@ Time:
 Creator:
     First Last.
 Description:
-    executing shells works but running a process does not work
+    executing shells works but running a process does not work, boot loops
 Solution:
-    ....
+    we were assigning the pid wrong, added array to indicate which ones are availible or not
