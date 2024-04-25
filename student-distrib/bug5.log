@@ -94,3 +94,14 @@ Solution:
     it was always reading from terminal 1 becuase we never switched it from active to scheduled
 
 
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2022.??.??.
+Creator:
+    First Last.
+Description:
+    executing shells works but running a process does not work
+Solution:
+    ....

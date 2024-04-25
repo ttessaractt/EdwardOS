@@ -179,6 +179,8 @@ int32_t calculate_pcb_addr(int32_t cur_pid);
 /*function that actually does getargs*/
 int32_t getargs_helper(uint8_t* buf, int32_t nbytes);
 
+/* helper function to find next pid*/
+int32_t find_next_pid();
 
 // extern file_info files[8];
 extern operations file_operations;
