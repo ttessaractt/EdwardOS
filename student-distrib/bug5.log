@@ -61,9 +61,9 @@ Solution:
                           BUG 6                          
 <--------------------------------------------------------->
 Time:
-    2022.4.25.
+    2024.4.25.
 Creator:
-    First Last.
+    Tessa Samuels & Elizabeth Shank
 Description:
     after some changed to save ebp for switching our shell never starts
 Solution:
@@ -75,9 +75,22 @@ Solution:
 Time:
     2024.4.25.
 Creator:
-    First Last.
+    Tessa Samuels & Elizabeth Shank
 Description:
     now it page faults forever
 Solution:
     we had an or in an if statment that needed to be an and
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2024.4.25.
+Creator:
+    Tessa Samuels & Elizabeth Shank
+Description:
+    it was being so weird and some stuff from terminal 1 was appearing in other terminals
+Solution:
+    it was always reading from terminal 1 becuase we never switched it from active to scheduled
+
 

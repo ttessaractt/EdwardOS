@@ -63,13 +63,17 @@ int32_t execute_help(unsigned char* command){
     int32_t entry_addr = check_file_validity((unsigned char*)file_name, &new_dentry); /* entry_addr now stored in entry_addr */
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
 
-    current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
+    
 
     //check if shell being created in base shell
     if(!(strncmp((int8_t*)file_name, "shell\0", 6)) & ((current_pid == 0) | (current_pid == 1) | (current_pid == 2))){
         initial_shell_flag = 1;
+        current_parent_pid = 0;
     }
-
+    else{
+        current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
+    }
+    
     //check for maximum number of programs
     if(current_pid == 6){
             printf_term("Maximum number of programs\n");

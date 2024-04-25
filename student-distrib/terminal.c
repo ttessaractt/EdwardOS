@@ -208,7 +208,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
     int i = 0;
 
-    int32_t term_num = get_active_term();
+    int32_t term_num = get_scheduled_term_idx();
 
     /* change to char* */
     char* buffer = buf;

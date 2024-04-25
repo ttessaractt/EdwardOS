@@ -114,7 +114,7 @@ void scheduler(){
 
     allocate_tasks(schedule_pid);
    
-    //schedule_switch(schedule_pcb->ebp_switch);
+    schedule_switch(schedule_pcb->ebp_switch);
     
 
     return;
