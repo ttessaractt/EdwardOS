@@ -280,13 +280,15 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     // void* memcpy(void* dest, const void* src, uint32_t n)
     int32_t* dest = (int32_t*) OFFSET_VID_MEM_START;
     int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
+
+    clear();
+    update_cursor(0, 0); 
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
     /* genius lowkey */
-    if (terminal_array[terminal_number-1].shell_exists == 0){
-        clear();
-        update_cursor(0, 0); 
-    }
+    //if (terminal_array[terminal_number-1].shell_exists == 0){
+        
+    //}
     //clear_screen_term();
     //clear();
     //update_cursor(0, 0);
