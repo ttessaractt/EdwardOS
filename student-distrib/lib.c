@@ -5,6 +5,7 @@
 #include "terminal.h"
 
 #define VIDEO       0xB8000
+#define VIDEO_KEY   0x103000
 #define NUM_COLS    80
 #define NUM_ROWS    25
 #define ATTRIB      0xB // 0x7 is light grey
@@ -12,6 +13,7 @@
 static int screen_x;
 static int screen_y;
 static char* video_mem = (char *)VIDEO;
+static char* video_mem_key = (char *)VIDEO_KEY;
 
 /* void clear(void);
  * Inputs: void
@@ -496,8 +498,8 @@ void putc_key(uint8_t c) {
         terminal_array[term_num].screen_x = 0;
         update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
     } else {
-        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
-        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        *(uint8_t *)(video_mem_key + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem_key + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
         terminal_array[term_num].screen_x++; // when x = 80, x % cols = 0, x / cols = 1
         if (terminal_array[term_num].screen_x >= NUM_COLS ){
             terminal_array[term_num].screen_x %= NUM_COLS;
@@ -535,12 +537,12 @@ void putc_key(uint8_t c) {
     if (SCROLLING){
             for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
             if (i + NUM_COLS < 2000){ // goes to next row in video memory   
-                *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1));
-                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+                *(uint8_t *)(video_mem_key + (i << 1)) = *(uint8_t *)(video_mem_key + ((i + NUM_COLS) << 1));
+                *(uint8_t *)(video_mem_key + (i << 1) + 1) = ATTRIB;
             }
             else{
-                *(uint8_t *)(video_mem + (i << 1)) = ' ';
-                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+                *(uint8_t *)(video_mem_key + (i << 1)) = ' ';
+                *(uint8_t *)(video_mem_key + (i << 1) + 1) = ATTRIB;
             }
             }
         }

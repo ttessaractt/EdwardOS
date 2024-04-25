@@ -80,7 +80,7 @@ int32_t execute_help(unsigned char* command){
     initialize_pcb();
 
     /* update current terminal pid */
-    int term_num = get_active_term();
+    int term_num = get_scheduled_term_idx(); // need to change from active to schedule
     terminal_array[term_num].cur_term_pid = current_pid;
 
 

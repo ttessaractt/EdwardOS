@@ -227,7 +227,15 @@ void add_vid_mem_storage() {
         page_table[i].avail = 0x000;
         page_table[i].pf_addr = (i * OFFSET_4KB) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
     }
-
+        page_table[259].present = 1;
+        page_table[259].readwrite = 1;           // read/write mode
+        page_table[259].usersupervisor = 0;      // supervisor mode
+        page_table[259].unused_1 = 0x00;
+        page_table[259].accessed = 0;
+        page_table[259].dirty = 0;
+        page_table[259].unused_2 = 0x00;
+        page_table[259].avail = 0x000;
+        page_table[259].pf_addr = 0xB8000 >> 12; 
     flush_tlb();
 }
 
