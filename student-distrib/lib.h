@@ -15,6 +15,7 @@ void putc_term(uint8_t c);
 void putc_key(uint8_t c);
 void removec(uint8_t c);
 void removec_term(uint8_t c);
+void removec_key(uint8_t c);
 int32_t puts(int8_t *s);
 int32_t puts_term(int8_t *s);
 int8_t *itoa(uint32_t value, int8_t* buf, int32_t radix);

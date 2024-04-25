@@ -147,7 +147,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec_term(p);
+                        removec_key(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -171,7 +171,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec_term(p);
+                        removec_key(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -198,7 +198,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec_term(p);
+                        removec_key(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }
@@ -222,7 +222,7 @@ void keyboard_handler(){
             }
             else if(key == BACKSP_INDEX){
                     if (terminal_array[term_num].buffer_position > 0){
-                        removec_term(p);
+                        removec_key(p);
                         terminal_array[term_num].buffer_position--;
                     }
             }

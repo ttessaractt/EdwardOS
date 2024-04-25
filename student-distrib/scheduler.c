@@ -82,12 +82,12 @@ void scheduler(){
     // /* use index to recover context of next scheduled terminal's current PCB */
     // /* maybe use the cur_term_pid field and do a calculation? not sure */
 
-    // int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
-    // if (schedule_pid == 0){
-    //     return;
-    // }
-    // int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
-    // schedule_pcb = (process_control_block_t*) schedule_addr;
+    int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
+    if (schedule_pid == 0){
+         return;
+    }
+    int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
+    schedule_pcb = (process_control_block_t*) schedule_addr;
 
     // tss.esp0 = schedule_pcb->tss_esp0;
 
