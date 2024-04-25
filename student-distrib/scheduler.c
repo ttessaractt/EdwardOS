@@ -13,6 +13,9 @@ int volatile pit_interrupt_occured = 0;
 int active_processes[3] = {0, 0, 0}; 
 terminal_t terminal_array[3];
 extern int32_t boot_flag;
+extern process_control_block_t* current_process;
+extern int32_t current_pid;            // initial pid = 0
+extern int32_t current_parent_pid;
 
 /*
 https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
@@ -49,13 +52,10 @@ void scheduler(){
     process_control_block_t* schedule_pcb;
     process_control_block_t* schedule_pcb_old;
 
-    if ((boot_flag != 0) | (boot_flag != -1)){
+    if ((boot_flag != 0) & (boot_flag != -1)){
         register uint32_t saved_ebp asm("ebp");     //save ebp
         int32_t old_scheduled_idx = get_scheduled_term_idx();
         int32_t old_schedule_pid = terminal_array[old_scheduled_idx].cur_term_pid;
-        if (old_schedule_pid == 0){
-            return;
-        }
         int32_t old_schedule_addr = calculate_pcb_addr(old_schedule_pid);
         schedule_pcb_old = (process_control_block_t*) old_schedule_addr;
         schedule_pcb_old->ebp_switch = saved_ebp;
@@ -81,6 +81,7 @@ void scheduler(){
 
         terminal_array[next_scheduled_idx].shell_exists = 1;
 
+        //printf("execute");
         execute((uint8_t*)"shell");
 
         return;
@@ -107,9 +108,13 @@ void scheduler(){
 
     tss.esp0 = schedule_pcb->tss_esp0;
 
+    current_process = schedule_pcb;
+    current_pid = schedule_pid;
+    current_parent_pid = schedule_pcb->parent_pid;
+
     allocate_tasks(schedule_pid);
    
-    schedule_switch(schedule_pcb->ebp_switch);
+    //schedule_switch(schedule_pcb->ebp_switch);
     
 
     return;
