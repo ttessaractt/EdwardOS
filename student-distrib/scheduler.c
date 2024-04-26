@@ -35,7 +35,7 @@ void PIT_init(){
 	//outb(0x40, (0x0000)>>8);	// High byte
     sti();
     //enable IRQ0 on PIC
-    //enable_irq(0);          //enable PIT interrupt on PIC
+    enable_irq(0);          //enable PIT interrupt on PIC
 }
 
 void scheduler(){

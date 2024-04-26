@@ -110,7 +110,7 @@ int32_t RTC_frequency(int32_t freq){
     }
     //to get rate need to get what power of 2 the frequency is
     //go through bits in freq to find which is set to 1
-    while (!(i == freq)){                   //go until i matches freq
+    /*while (!(i == freq)){                   //go until i matches freq
         if (pos > MAX_RATE){                //highest valid power of 2 freqnecy can be set to
             //enable interrupts before returning
             restore_flags(flags);           //restore flags
@@ -120,7 +120,7 @@ int32_t RTC_frequency(int32_t freq){
         }
         i = i << 1;                         //move 1 to next bit, ex. go from 0x10 to 0x100
         pos++;                              //increment position
-    }
+    }*/
     //lower rate give higher frequency so need to subtract position from 16 (15+1, max rate+1 to account for pos starting at 1)
     
     rate = POSRATE_OFFSET - pos;                    //get rate

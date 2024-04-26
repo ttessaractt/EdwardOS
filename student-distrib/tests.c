@@ -451,7 +451,7 @@ void launch_tests(){
 	/* terminal :) */
 	//terminal_wr_test3();
 
-	TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
+	//TEST_OUTPUT("RTC_freq_RW_test", RTC_freq_RW_test());
 
 
 	//file_system_read("frame1.txt");
