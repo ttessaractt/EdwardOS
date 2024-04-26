@@ -86,7 +86,7 @@ https://wiki.osdev.org/RTC
 */
 int32_t RTC_frequency(int32_t freq){
     int32_t rate = 0;       //rate is how the frequency is set in RTC register A
-    int32_t i = ONEHEX;        //number to match to freq, start at 0x01, for finding rate
+    //int32_t i = ONEHEX;        //number to match to freq, start at 0x01, for finding rate
     int32_t pos = 0;        //position of 1 bit in freq, for finding rate
     int32_t flags;          //store flags
     //disable other interrupts (SUPER IMPORTANT)

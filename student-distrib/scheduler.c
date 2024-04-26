@@ -25,7 +25,7 @@ void PIT_init(){
     //00110000 = 0x30
     //set PIT mode/command register
     //printf("init\n");
-    cli();
+    //cli();
     //outb(0x43, 0x30);     //theoretically set pit mode/command register
     
     //set low&high byte of reload value
@@ -33,9 +33,17 @@ void PIT_init(){
     //10ms = 0x9C2E, 0x9C & (0x2E00)>>8
 	//outb(0x40, 0x01);		// Low byte
 	//outb(0x40, (0x0000)>>8);	// High byte
-    sti();
+    //cli();
+    int divisor = 1193180 / 100;       /* Calculate our divisor */
+    outb(0x43, 0x36);             /* Set our command byte 0x36 */
+    outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
+    outb(0x40, divisor >> 8);     /* Set high byte of divisor */
+    //sti();
     //enable IRQ0 on PIC
     enable_irq(0);          //enable PIT interrupt on PIC
+    //sti();
+
+    // currently 20 hz?
 }
 
 void scheduler(){
@@ -137,10 +145,19 @@ void PIT_handler(){
 	//outb(0x40, 0x01);		// Low byte
 	//outb(0x40, (0x0000)>>8);	// High byte
     //send end of interrupt signal
+    cli();
+    int divisor = 1193180 / 100;       /* Calculate our divisor */
+    outb(0x43, 0x36);             /* Set our command byte 0x36 */
+    outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
+    outb(0x40, divisor >> 8);     /* Set high byte of divisor */
+    //printf("%#x", divisor);
+
     send_eoi(0);
+    //printf("a");
+    //sti();
 
     //if an interrupt occurs, call scheduler 
-    scheduler();
+    //scheduler();
 }
 
 int32_t PIT_frequency(int32_t freq){
