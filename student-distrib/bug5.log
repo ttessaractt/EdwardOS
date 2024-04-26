@@ -105,3 +105,16 @@ Description:
     executing shells works but running a process does not work, boot loops
 Solution:
     we were assigning the pid wrong, added array to indicate which ones are availible or not
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    boot loop only on terminal 1 after trying to halt program
+Solution:
+    was not saving the ebp of the parent shell, changed
+    to >= 1 instead of > 1
