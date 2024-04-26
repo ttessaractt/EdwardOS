@@ -142,3 +142,15 @@ Description:
     page fault when trying to run another hello in terminal
 Solution:
     was not resetting values in terminal array in halt
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    Fish appearing in second terminal pingpong when running fish in first
+Solution:
+    Forgot to update vid map paging address for the scheduled program

@@ -101,9 +101,11 @@ void scheduler(){
 
     if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
             page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            page_table_vid_mem[0].pf_addr = 0xB8000 >> 12;
        }
     else{
            page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+           page_table_vid_mem[0].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
     }
     
 
