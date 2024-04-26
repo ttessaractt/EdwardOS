@@ -22,17 +22,18 @@ https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On
 */
 void PIT_init(){
     //0x43 - Mode/Command register (write only, a read is ignored)
-    //00110000 = 0x1ADB0
+    //00110000 = 0x30
     //set PIT mode/command register
     //printf("init\n");
-    outb(0x43, 0x1ADB0);     //theoretically set pit mode/command register
+    cli();
+    outb(0x43, 0x30);     //theoretically set pit mode/command register
     
     //set low&high byte of reload value
     //time in ms = reload_value * 3000 / 3579545
     //10ms = 0x9C2E, 0x9C & (0x2E00)>>8
-	outb(0x40, 0x9C);		// Low byte
-	outb(0x40, (0x2E00)>>8);	// High byte
-    
+	outb(0x40, 0x01);		// Low byte
+	outb(0x40, (0x0000)>>8);	// High byte
+    sti();
     //enable IRQ0 on PIC
     enable_irq(0);          //enable PIT interrupt on PIC
 }
@@ -113,7 +114,7 @@ void scheduler(){
     current_parent_pid = schedule_pcb->parent_pid;
 
     allocate_tasks(schedule_pid);
-   
+    
     schedule_switch(schedule_pcb->ebp_switch);
     
 
@@ -128,11 +129,13 @@ void PIT_handler(){
     //registers restored will be the target process’s 
     //context information (including the EIP)
     //allow output to go low again
-    outb(0x43, 0x1ADB0);
-    //need ^ or below or both idk
-    outb(0x40, 0x9C);		// Low byte
-	outb(0x40, (0x2E00)>>8);	// High byte
-
+    //outb(0x43, 0x30);     //theoretically set pit mode/command register
+    
+    //set low&high byte of reload value
+    //time in ms = reload_value * 3000 / 3579545
+    //10ms = 0x9C2E, 0x9C & (0x2E00)>>8
+	outb(0x40, 0x01);		// Low byte
+	outb(0x40, (0x0000)>>8);	// High byte
     //send end of interrupt signal
     send_eoi(0);
 

@@ -63,16 +63,14 @@ int32_t execute_help(unsigned char* command){
     // CHECK FILE VALIDITY
     int32_t entry_addr = check_file_validity((unsigned char*)file_name, &new_dentry); /* entry_addr now stored in entry_addr */
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
-
     
-
     //check if shell being created in base shell
     if(!(strncmp((int8_t*)file_name, "shell\0", 6)) & ((current_pid == 0) | (current_pid == 1) | (current_pid == 2))){
         initial_shell_flag = 1;
         current_parent_pid = 0;
     }
     else{
-        current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
+        current_parent_pid = current_pid;       //initilizes parent pid
     }
     
     //check for maximum number of programs
@@ -298,13 +296,13 @@ int32_t initialize_pcb(){
 
     // process_control_block_t* pcb_new = (process_control_block_t*) (MB_8 - (KB_8 * current_pid)); //(should be MB_8 - PID * x)
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
-    pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
+    
     pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
 
     /* find the active terminal index */
     term_num = get_active_term();
 
-    pcb_new->terminal_id = term_num + 1;
+    //pcb_new->terminal_id = term_num + 1;
 
     //set pcb entry if pcb being created is for the base shell
     if (initial_shell_flag == 1){
@@ -316,10 +314,8 @@ int32_t initialize_pcb(){
     else{
         pcb_new->base_shell = 0;
         initial_shell_flag = 0;
-        /* find the active terminal index */
-        term_num = get_active_term();
-
-        pcb_new->terminal_id = term_num + 1;
+        pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
+        pcb_new->terminal_id = term_num + 1;        // term_num is 0 indexed so add 1 since terminal ids are 1 indexed
     }
 
     //initilize getargs arguments to 0
