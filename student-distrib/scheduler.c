@@ -35,9 +35,9 @@ void PIT_init(){
 	//outb(0x40, (0x0000)>>8);	// High byte
     //cli();
     int divisor = 1193180 / 100;       /* Calculate our divisor */
-    outb(0x43, 0x36);             /* Set our command byte 0x36 */
-    outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
-    outb(0x40, divisor >> 8);     /* Set high byte of divisor */
+    outb(0x36, 0x43);             /* Set our command byte 0x36 */
+    outb(divisor & 0xFF, 0x40);   /* Set low byte of divisor */
+    outb(divisor >> 8, 0x40);     /* Set high byte of divisor */
     //sti();
     //enable IRQ0 on PIC
     enable_irq(0);          //enable PIT interrupt on PIC
@@ -146,11 +146,11 @@ void PIT_handler(){
 	//outb(0x40, (0x0000)>>8);	// High byte
     //send end of interrupt signal
     cli();
-    int divisor = 1193180 / 100;       /* Calculate our divisor */
-    outb(0x43, 0x36);             /* Set our command byte 0x36 */
-    outb(0x40, divisor & 0xFF);   /* Set low byte of divisor */
-    outb(0x40, divisor >> 8);     /* Set high byte of divisor */
-    //printf("%#x", divisor);
+    // int divisor = 1193180 / 100;       /* Calculate our divisor */
+    // outb(0x36, 0x43);             /* Set our command byte 0x36 */
+    // outb(divisor & 0xFF, 0x40);   /* Set low byte of divisor */
+    // outb(divisor >> 8, 0x40);     /* Set high byte of divisor */
+    printf("a");
 
     send_eoi(0);
     //printf("a");
