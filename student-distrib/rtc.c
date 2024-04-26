@@ -3,18 +3,15 @@
 #include "types.h"
 #include "lib.h"
 #include "idt.h"
+#include "terminal.h"
 
 //flag for RTC_read(), keeps track of if interrupt occured
-int volatile interrupt_occured1 = 0;
-int volatile interrupt_occured2 = 0;
-int volatile interrupt_occured3 = 0;
+int volatile interrupt_occured[3] = {0, 0, 0};
 
-int32_t terminal1_freq = 0;
-int32_t terminal2_freq = 0;
-int32_t terminal3_freq = 0;
-int32_t terminal1_count = 0;
-int32_t terminal2_count = 0;
-int32_t terminal3_count = 0;
+int32_t terminal_freq[3] = {512, 0, 0};
+int32_t terminal_count[3] = {0, 0, 0};
+extern int32_t current_pid;
+
 /* RTC_init
  *  Functionality: enables interrupt on IRQ8 on PIC for RTC (real time clock) functionality
  *  Arguments: none
@@ -24,16 +21,19 @@ https://wiki.osdev.org/RTC
 */
 void RTC_init(){
     //enable RTC on PIC
+    NMI_disable();
     outb(REG_B, RTC_PORT1);             //select register B and disable NMI (not necessary since interrupts are not enabled yet)
     char prev = inb(RTC_PORT2);         //read current value of register B
     outb(REG_B, RTC_PORT1);             //set the index again (a read will reset the index to register D)
     outb(prev | 0x40, RTC_PORT2);       //write the previous valued ORed with 0x40. This turns on bit 6 of register B
-    enable_irq(8);                      //enable IRQ 8 
-    //set init rate
+    
+    //set init rate (1024 Hz)
     outb(REG_A, RTC_PORT1);                         //set index to register A
     char prev1 = inb(RTC_PORT2);	                    //get initial value of register A
     outb(REG_A, RTC_PORT1);		                    //reset index to A
-    outb((prev1 & TOP4BITMASK) | 0x03, RTC_PORT2);
+    outb((prev1 & TOP4BITMASK) | 0x06, RTC_PORT2);
+    enable_irq(8);                      //enable IRQ 8 
+    NMI_enable();
 };
 
 /* RTC_handler
@@ -46,22 +46,53 @@ void RTC_handler(){
     //disable other interrupts (SUPER IMPORTANT)
     cli();                      //disable interrupts
     NMI_disable();              //disable NMI
-    //allow another interrupt to happen
+   
 
-    terminal1_count += terminal1_freq;
-    terminal2_count++;
-    terminal3_count++;
-
+     //terminal_count[0] += terminal_freq[0];
+     terminal_count[1] += terminal_freq[1];
+     terminal_count[2] += terminal_freq[2];
+    //terminal_count[0]++;
+    //terminal_count[1]++;
+    //terminal_count[2]++;
+    terminal_count[0]++;
 
     //rtc is in 1024 Hz
     //conver to whatever freq is
-    if (terminal1_count == MAX_FREQ){
-        interrupt_occured1 = 1;      //set interrupt_occured flag
-        terminal1_count = 0;
+    int32_t term = get_scheduled_term_idx();
+    //interrupt_occured[0] = 1;
+    // if (terminal_count[0] >= (1024/terminal_freq[0])){
+    //     //printf_term("term: %d\n", terminal_count[0]);
+    //     interrupt_occured[0] = 1;      //set interrupt_occured flag
+    //     terminal_count[0] = 0;
+    // }
+    // if (terminal_count[1] >= (1024/terminal_freq[1])){
+    //     //printf_term("term: %d\n", terminal_count[0]);
+    //     interrupt_occured[1] = 1;      //set interrupt_occured flag
+    //     terminal_count[1] = 0;
+    // }
+    // if (terminal_count[2] >= (1024/terminal_freq[2])){
+    //     //printf_term("term: %d\n", terminal_count[0]);
+    //     interrupt_occured[2] = 1;      //set interrupt_occured flag
+    //     terminal_count[2] = 0;
+    // }
+    if (terminal_count[0] > ((512/32) % 512)){
+        //printf_term("term: %d\n", terminal_count[0]);
+        interrupt_occured[0] = 1;      //set interrupt_occured flag
+        terminal_count[0] = 0;
     }
+    if (terminal_count[1] >= (1024)){
+        //printf_term("term: %d\n", terminal_count[0]);
+        interrupt_occured[1] = 1;      //set interrupt_occured flag
+        terminal_count[1] = 0;
+    }
+    if (terminal_count[2] >= (1024)){
+        //printf_term("term: %d\n", terminal_count[0]);
+        interrupt_occured[2] = 1;      //set interrupt_occured flag
+        terminal_count[2] = 0;
+    }
+    
 
-
-
+    //allow another interrupt to happen
     outb(REG_C, RTC_PORT1);	    // select register C
     inb(RTC_PORT2);		        // just throw away contents
     //interrupt handling
@@ -85,9 +116,9 @@ some code taken from OSdev wiki - RTC - Changing Interrupt Rate
 https://wiki.osdev.org/RTC
 */
 int32_t RTC_frequency(int32_t freq){
-    int32_t rate = 0;       //rate is how the frequency is set in RTC register A
+    //int32_t rate = 0;       //rate is how the frequency is set in RTC register A
     //int32_t i = ONEHEX;        //number to match to freq, start at 0x01, for finding rate
-    int32_t pos = 0;        //position of 1 bit in freq, for finding rate
+    //int32_t pos = 0;        //position of 1 bit in freq, for finding rate
     int32_t flags;          //store flags
     //disable other interrupts (SUPER IMPORTANT)
     cli_and_save(flags);    //diable interrupts & save flags
@@ -123,11 +154,13 @@ int32_t RTC_frequency(int32_t freq){
     }*/
     //lower rate give higher frequency so need to subtract position from 16 (15+1, max rate+1 to account for pos starting at 1)
     
-    rate = POSRATE_OFFSET - pos;                    //get rate
-    terminal1_freq = freq;
-    terminal2_freq = freq;
-    terminal3_freq = freq;
-    terminal1_count = 0;
+    //rate = POSRATE_OFFSET - pos;                    //get rate
+    
+    //set rate for correct terminal
+    int32_t term = get_scheduled_term_idx();
+    terminal_freq[0] = freq;
+    terminal_count[0] = 0;
+
 
     //set rate in register A
     //outb(REG_A, RTC_PORT1);                         //set index to register A
@@ -149,8 +182,14 @@ int32_t RTC_frequency(int32_t freq){
  *          -1 - the input frequency is not a valid frequency to set the RTC to
  */
 int32_t RTC_open(const uint8_t* filename){
-    interrupt_occured1 = 0;                      //reset interrupt occured flag
-    return RTC_frequency((int32_t)MIN_FREQ);    //set freqency to 2Hz
+    //reset count
+    int32_t term = get_scheduled_term_idx();
+    //interrupt_occured[term] = 0;
+    //set freq
+    terminal_freq[0] = 512;
+    terminal_count[0] = 0;
+    return 0;
+    //RTC_frequency((int32_t)MAX_FREQ);    //set freqency to 2Hz
 };
 
 /* RTC_read
@@ -161,8 +200,10 @@ int32_t RTC_open(const uint8_t* filename){
  *  Return: 0 - successful call
  */
 int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
-    interrupt_occured1 = 0;              //reset interrupt_occured flag
-    while (interrupt_occured1 != 1);     //wait until interrupt is called
+    //reset count
+    int32_t term = get_scheduled_term_idx();
+    interrupt_occured[0] = 0;
+    while (interrupt_occured[0] != 1);     //wait until interrupt is called
     return 0;                           //return from function
 };
 
@@ -190,7 +231,11 @@ int32_t RTC_write(int32_t fd, const void* buf, int32_t nbytes){
  *          -1 - the input frequency is not a valid frequency to set the RTC to
  */
 int32_t RTC_close(int32_t fd){
-    return RTC_frequency((int32_t)MIN_FREQ);    //set freqency to 2Hz
+    int32_t term = get_scheduled_term_idx();
+    terminal_freq[0] = 0;
+    terminal_count[0] = 0;
+    return 0;
+    //RTC_frequency((int32_t)MAX_FREQ);    //set freqency to 2Hz
 };
 
 /*

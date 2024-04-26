@@ -18,7 +18,7 @@ extern int32_t current_pid;            // initial pid = 0
 extern int32_t current_parent_pid;
 
 /*
-https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
+
 */
 void PIT_init(){
     //0x43 - Mode/Command register (write only, a read is ignored)
@@ -179,6 +179,7 @@ int32_t PIT_write(int32_t fd, const void* buf, int32_t nbytes){
 int32_t PIT_close(int32_t fd){
     return 0;
 }
+
 
 
 
