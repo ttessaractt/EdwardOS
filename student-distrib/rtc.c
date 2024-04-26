@@ -8,9 +8,8 @@
 //flag for RTC_read(), keeps track of if interrupt occured
 int volatile interrupt_occured[3] = {0, 0, 0};
 
-int32_t terminal_freq[3] = {512, 0, 0};
+int32_t terminal_freq[3] = {0, 0, 0};
 int32_t terminal_count[3] = {0, 0, 0};
-extern int32_t current_pid;
 
 /* RTC_init
  *  Functionality: enables interrupt on IRQ8 on PIC for RTC (real time clock) functionality
@@ -31,7 +30,11 @@ void RTC_init(){
     outb(REG_A, RTC_PORT1);                         //set index to register A
     char prev1 = inb(RTC_PORT2);	                    //get initial value of register A
     outb(REG_A, RTC_PORT1);		                    //reset index to A
-    outb((prev1 & TOP4BITMASK) | 0x06, RTC_PORT2);
+    outb(((prev1 & TOP4BITMASK) | 0x5), RTC_PORT2);
+
+    outb(REG_C, RTC_PORT1);	    // select register C
+    inb(RTC_PORT2);	
+
     enable_irq(8);                      //enable IRQ 8 
     NMI_enable();
 };
@@ -49,12 +52,20 @@ void RTC_handler(){
    
 
      //terminal_count[0] += terminal_freq[0];
-     terminal_count[1] += terminal_freq[1];
-     terminal_count[2] += terminal_freq[2];
+    if (terminal_freq[1] != 0){
+        terminal_count[1] += terminal_freq[1];
+        //terminal_count[1] += 1;
+    }
+    if (terminal_freq[2] != 0){
+        terminal_count[2] += terminal_freq[2];
+        //terminal_count[2] += 1;
+    }
     //terminal_count[0]++;
     //terminal_count[1]++;
     //terminal_count[2]++;
-    terminal_count[0]++;
+    if (terminal_freq[0] != 0){
+        terminal_count[0] += terminal_freq[0];
+    }
 
     //rtc is in 1024 Hz
     //conver to whatever freq is
@@ -75,21 +86,32 @@ void RTC_handler(){
     //     interrupt_occured[2] = 1;      //set interrupt_occured flag
     //     terminal_count[2] = 0;
     // }
-    if (terminal_count[0] > ((512/32) % 512)){
+    //if ((terminal_count[0] >= ((512/32) % 512)) & terminal_freq[0] != 0){
+    if ((terminal_freq[0] != 0) & (terminal_count[0] >= 1024)){
         //printf_term("term: %d\n", terminal_count[0]);
         interrupt_occured[0] = 1;      //set interrupt_occured flag
         terminal_count[0] = 0;
     }
-    if (terminal_count[1] >= (1024)){
+    if ((terminal_freq[1] != 0) & (terminal_count[1] >= 1024)){
         //printf_term("term: %d\n", terminal_count[0]);
         interrupt_occured[1] = 1;      //set interrupt_occured flag
         terminal_count[1] = 0;
     }
-    if (terminal_count[2] >= (1024)){
+    if ((terminal_freq[2] != 0) & (terminal_count[2] >= 1024)){
         //printf_term("term: %d\n", terminal_count[0]);
         interrupt_occured[2] = 1;      //set interrupt_occured flag
         terminal_count[2] = 0;
     }
+    // if (terminal_freq[1] != 0 & (terminal_count[1] >= ((512/terminal_freq[1]) % 512))){
+    //     //printf_term("term: %d\n", terminal_count[0]);
+    //     interrupt_occured[1] = 1;      //set interrupt_occured flag
+    //     terminal_count[1] = 0;
+    // }
+    // if (terminal_freq[2] != 0 & (terminal_count[2] >= ((512/terminal_freq[2]) % 512))){
+    //     //printf_term("term: %d\n", terminal_count[0]);
+    //     interrupt_occured[2] = 1;      //set interrupt_occured flag
+    //     terminal_count[2] = 0;
+    // }
     
 
     //allow another interrupt to happen
@@ -158,8 +180,8 @@ int32_t RTC_frequency(int32_t freq){
     
     //set rate for correct terminal
     int32_t term = get_scheduled_term_idx();
-    terminal_freq[0] = freq;
-    terminal_count[0] = 0;
+    terminal_freq[term] = freq;
+    terminal_count[term] = 0;
 
 
     //set rate in register A
@@ -186,8 +208,9 @@ int32_t RTC_open(const uint8_t* filename){
     int32_t term = get_scheduled_term_idx();
     //interrupt_occured[term] = 0;
     //set freq
-    terminal_freq[0] = 512;
-    terminal_count[0] = 0;
+    interrupt_occured[term] = 0;
+    terminal_freq[term] = 2;
+    terminal_count[term] = 0;
     return 0;
     //RTC_frequency((int32_t)MAX_FREQ);    //set freqency to 2Hz
 };
@@ -202,8 +225,8 @@ int32_t RTC_open(const uint8_t* filename){
 int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
     //reset count
     int32_t term = get_scheduled_term_idx();
-    interrupt_occured[0] = 0;
-    while (interrupt_occured[0] != 1);     //wait until interrupt is called
+    interrupt_occured[term] = 0;
+    while (interrupt_occured[term] != 1);     //wait until interrupt is called
     return 0;                           //return from function
 };
 
@@ -232,8 +255,8 @@ int32_t RTC_write(int32_t fd, const void* buf, int32_t nbytes){
  */
 int32_t RTC_close(int32_t fd){
     int32_t term = get_scheduled_term_idx();
-    terminal_freq[0] = 0;
-    terminal_count[0] = 0;
+    terminal_freq[term] = 2;
+    terminal_count[term] = 0;
     return 0;
     //RTC_frequency((int32_t)MAX_FREQ);    //set freqency to 2Hz
 };
