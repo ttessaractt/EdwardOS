@@ -58,6 +58,7 @@ void scheduler(){
     7) Return from PIT Handler and execute pingpong
     8) Repeat...
     */
+   cli();
     process_control_block_t* schedule_pcb;
     process_control_block_t* schedule_pcb_old;
 
@@ -90,6 +91,7 @@ void scheduler(){
 
         terminal_array[next_scheduled_idx].shell_exists = 1;
 
+        sti();
         //printf("execute");
         execute((uint8_t*)"shell");
 
@@ -123,6 +125,7 @@ void scheduler(){
 
     allocate_tasks(schedule_pid);
     
+    sti();
     schedule_switch(schedule_pcb->ebp_switch);
     
 
@@ -145,7 +148,7 @@ void PIT_handler(){
 	//outb(0x40, 0x01);		// Low byte
 	//outb(0x40, (0x0000)>>8);	// High byte
     //send end of interrupt signal
-    cli();
+    //cli();
     // int divisor = 1193180 / 100;       /* Calculate our divisor */
     // outb(0x36, 0x43);             /* Set our command byte 0x36 */
     // outb(divisor & 0xFF, 0x40);   /* Set low byte of divisor */

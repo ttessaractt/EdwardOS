@@ -114,7 +114,7 @@ int32_t execute_help(unsigned char* command){
 
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
-    if (current_process->parent_pid > 1){                   // save ebp in PCB for use later
+    if (current_process->parent_pid >= 1){                   // save ebp in PCB for use later
         int32_t parent_pcb_addr2 = calculate_pcb_addr((current_process->parent_pid));
         parent_pcb = (process_control_block_t*) parent_pcb_addr2;
         //parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
