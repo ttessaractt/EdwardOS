@@ -157,6 +157,7 @@ int32_t halt_help(unsigned char status){
         //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
     } 
 
+    int term_num = get_scheduled_term_idx();
     // set the new esp0   
     // tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
     tss.esp0 = pcb_parent->tss_esp0;
@@ -173,9 +174,14 @@ int32_t halt_help(unsigned char status){
     }
 
     // current process becomes parent
-    current_process = pcb_parent; //decrement current_pid
+    current_process = pcb_parent;
     
     pid_array[current_pid] = 0;
+
+    current_pid = current_process->pid;
+    current_parent_pid = current_process->parent_pid;
+
+    terminal_array[term_num].cur_term_pid = current_pid; // very important !! fixes page fault
 
     int32_t get_pid = find_next_pid();
     if(get_pid != -1){

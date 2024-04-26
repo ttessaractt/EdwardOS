@@ -214,6 +214,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     char* buffer = buf;
 
     if (buf == NULL){
+
         return -1; // or should it be -1?
     }
 
@@ -243,11 +244,13 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             //printf("cleared2");
             terminal_array[term_num].terminal_can_read = 0;
             //printf("%d\n", i);
+
             return i+1;
         }
     }
 
     terminal_array[term_num].terminal_can_read = 0;
+
     return nbytes;
 
 }

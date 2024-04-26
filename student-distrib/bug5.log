@@ -117,4 +117,28 @@ Description:
     boot loop only on terminal 1 after trying to halt program
 Solution:
     was not saving the ebp of the parent shell, changed
-    to >= 1 instead of > 1
+    to >= 1 instead of > 1 current_pid = current_process->pid;
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    not setting current pid in halt
+Solution:
+    current_pid = current_process->pid;
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    page fault when trying to run another hello in terminal
+Solution:
+    was not resetting values in terminal array in halt

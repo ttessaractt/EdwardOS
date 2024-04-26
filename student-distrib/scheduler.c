@@ -112,7 +112,8 @@ void scheduler(){
 
     int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
     if (schedule_pid == 0){
-         return;
+        sti();
+        return;
     }
     int32_t schedule_addr = calculate_pcb_addr(schedule_pid);
     schedule_pcb = (process_control_block_t*) schedule_addr;
