@@ -138,7 +138,7 @@ int32_t halt_help(unsigned char status){
     // create variables
     process_control_block_t* pcb_parent;
     int b;
-
+    cli();
     // get the esp0 of the parent 
     if (current_process->base_shell == 1){      //check if in base shell
         //if in base shell, restart shell
@@ -146,10 +146,12 @@ int32_t halt_help(unsigned char status){
         //fjkghwrjehglrewhg;ewrg
         //gejkghwreuighpuiwerghpqeg
         //egweghlegleguiebguieg
-        --current_pid;
-        current_pid = 0;
+        //--current_pid;
+        //current_pid = 0;
         printf_term("Restarting Shell...\n");
-        return execute_help((uint8_t*)"shell");
+        printf_term("Code not written\n");
+        while(1);
+        //return execute_help((uint8_t*)"shell");
     }
     else{
         int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
@@ -189,7 +191,7 @@ int32_t halt_help(unsigned char status){
         GOD = 0;
         stat = (uint32_t)EXCEPTION;
     }
-
+    sti();
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 
