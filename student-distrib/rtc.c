@@ -5,9 +5,16 @@
 #include "idt.h"
 
 //flag for RTC_read(), keeps track of if interrupt occured
-int volatile interrupt_occured = 0;
+int volatile interrupt_occured1 = 0;
+int volatile interrupt_occured2 = 0;
+int volatile interrupt_occured3 = 0;
 
-
+int32_t terminal1_freq = 0;
+int32_t terminal2_freq = 0;
+int32_t terminal3_freq = 0;
+int32_t terminal1_count = 0;
+int32_t terminal2_count = 0;
+int32_t terminal3_count = 0;
 /* RTC_init
  *  Functionality: enables interrupt on IRQ8 on PIC for RTC (real time clock) functionality
  *  Arguments: none
@@ -22,7 +29,11 @@ void RTC_init(){
     outb(REG_B, RTC_PORT1);             //set the index again (a read will reset the index to register D)
     outb(prev | 0x40, RTC_PORT2);       //write the previous valued ORed with 0x40. This turns on bit 6 of register B
     enable_irq(8);                      //enable IRQ 8 
-    RTC_frequency((int32_t)MIN_FREQ);   //set initial RTC freqency
+    //set init rate
+    outb(REG_A, RTC_PORT1);                         //set index to register A
+    char prev1 = inb(RTC_PORT2);	                    //get initial value of register A
+    outb(REG_A, RTC_PORT1);		                    //reset index to A
+    outb((prev1 & TOP4BITMASK) | 0x03, RTC_PORT2);
 };
 
 /* RTC_handler
@@ -36,10 +47,25 @@ void RTC_handler(){
     cli();                      //disable interrupts
     NMI_disable();              //disable NMI
     //allow another interrupt to happen
+
+    terminal1_count += terminal1_freq;
+    terminal2_count++;
+    terminal3_count++;
+
+
+    //rtc is in 1024 Hz
+    //conver to whatever freq is
+    if (terminal1_count == MAX_FREQ){
+        interrupt_occured1 = 1;      //set interrupt_occured flag
+        terminal1_count = 0;
+    }
+
+
+
     outb(REG_C, RTC_PORT1);	    // select register C
     inb(RTC_PORT2);		        // just throw away contents
     //interrupt handling
-    interrupt_occured = 1;      //set interrupt_occured flag
+    //interrupt_occured1 = 1;      //set interrupt_occured flag
     //printf("1");                //show the interrupt occured in terminal
     send_eoi(8);                //signal end of interrupt to PIC
     //enable interrupts
@@ -96,12 +122,18 @@ int32_t RTC_frequency(int32_t freq){
         pos++;                              //increment position
     }
     //lower rate give higher frequency so need to subtract position from 16 (15+1, max rate+1 to account for pos starting at 1)
+    
     rate = POSRATE_OFFSET - pos;                    //get rate
+    terminal1_freq = freq;
+    terminal2_freq = freq;
+    terminal3_freq = freq;
+    terminal1_count = 0;
+
     //set rate in register A
-    outb(REG_A, RTC_PORT1);                         //set index to register A
-    char prev = inb(RTC_PORT2);	                    //get initial value of register A
-    outb(REG_A, RTC_PORT1);		                    //reset index to A
-    outb((prev & TOP4BITMASK) | rate, RTC_PORT2);  //write only our rate to A. Note, rate is the bottom 4 bits.
+    //outb(REG_A, RTC_PORT1);                         //set index to register A
+    //char prev = inb(RTC_PORT2);	                    //get initial value of register A
+    //outb(REG_A, RTC_PORT1);		                    //reset index to A
+    //outb((prev & TOP4BITMASK) | rate, RTC_PORT2);  //write only our rate to A. Note, rate is the bottom 4 bits.
     //enable interrupts
     restore_flags(flags);                           //restore flags
     NMI_enable();                                   //enable NMI
@@ -117,7 +149,7 @@ int32_t RTC_frequency(int32_t freq){
  *          -1 - the input frequency is not a valid frequency to set the RTC to
  */
 int32_t RTC_open(const uint8_t* filename){
-    interrupt_occured = 0;                      //reset interrupt occured flag
+    interrupt_occured1 = 0;                      //reset interrupt occured flag
     return RTC_frequency((int32_t)MIN_FREQ);    //set freqency to 2Hz
 };
 
@@ -129,8 +161,8 @@ int32_t RTC_open(const uint8_t* filename){
  *  Return: 0 - successful call
  */
 int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
-    interrupt_occured = 0;              //reset interrupt_occured flag
-    while (interrupt_occured != 1);     //wait until interrupt is called
+    interrupt_occured1 = 0;              //reset interrupt_occured flag
+    while (interrupt_occured1 != 1);     //wait until interrupt is called
     return 0;                           //return from function
 };
 

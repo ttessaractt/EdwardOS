@@ -26,16 +26,16 @@ void PIT_init(){
     //set PIT mode/command register
     //printf("init\n");
     cli();
-    outb(0x43, 0x30);     //theoretically set pit mode/command register
+    //outb(0x43, 0x30);     //theoretically set pit mode/command register
     
     //set low&high byte of reload value
     //time in ms = reload_value * 3000 / 3579545
     //10ms = 0x9C2E, 0x9C & (0x2E00)>>8
-	outb(0x40, 0x01);		// Low byte
-	outb(0x40, (0x0000)>>8);	// High byte
+	//outb(0x40, 0x01);		// Low byte
+	//outb(0x40, (0x0000)>>8);	// High byte
     sti();
     //enable IRQ0 on PIC
-    enable_irq(0);          //enable PIT interrupt on PIC
+    //enable_irq(0);          //enable PIT interrupt on PIC
 }
 
 void scheduler(){
@@ -134,8 +134,8 @@ void PIT_handler(){
     //set low&high byte of reload value
     //time in ms = reload_value * 3000 / 3579545
     //10ms = 0x9C2E, 0x9C & (0x2E00)>>8
-	outb(0x40, 0x01);		// Low byte
-	outb(0x40, (0x0000)>>8);	// High byte
+	//outb(0x40, 0x01);		// Low byte
+	//outb(0x40, (0x0000)>>8);	// High byte
     //send end of interrupt signal
     send_eoi(0);
 
