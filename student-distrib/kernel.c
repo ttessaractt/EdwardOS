@@ -208,6 +208,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /*printf("Enabling Interrupts\n");
     sti();*/
     //printf("Enabling Interrupts\n");
+    clear_screen();
     sti();
 
 #ifdef RUN_TESTS
@@ -216,7 +217,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-    clear_screen();
+    //clear_key();
     //terminal_init(); // where to put?
     //execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */

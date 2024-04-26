@@ -150,14 +150,14 @@ void PIT_handler(){
     // outb(0x36, 0x43);             /* Set our command byte 0x36 */
     // outb(divisor & 0xFF, 0x40);   /* Set low byte of divisor */
     // outb(divisor >> 8, 0x40);     /* Set high byte of divisor */
-    printf("a");
+    //printf("a");
 
     send_eoi(0);
     //printf("a");
     //sti();
 
     //if an interrupt occurs, call scheduler 
-    //scheduler();
+    scheduler();
 }
 
 int32_t PIT_frequency(int32_t freq){
