@@ -230,8 +230,8 @@ int32_t RTC_open(const uint8_t* filename){
 int32_t RTC_read(int32_t fd, void* buf, int32_t nbytes){
     //reset count
     int32_t term = get_scheduled_term_idx();
-    interrupt_occured[term] = 0;
     while (interrupt_occured[term] != 1);     //wait until interrupt is called
+    interrupt_occured[term] = 0;
     return 0;                           //return from function
 };
 
@@ -262,6 +262,7 @@ int32_t RTC_close(int32_t fd){
     int32_t term = get_scheduled_term_idx();
     terminal_freq[term] = 2;
     terminal_count[term] = 0;
+    interrupt_occured[term] = 0;
     return 0;
     //RTC_frequency((int32_t)MAX_FREQ);    //set freqency to 2Hz
 };
