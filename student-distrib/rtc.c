@@ -248,7 +248,7 @@ int32_t RTC_write(int32_t fd, const void* buf, int32_t nbytes){
     if (nbytes > 4){return -1;}             //check size of buf
     //get frequency from buffer
     const int* p = buf;                     
-    int32_t buffer = p[0];                  
+    int32_t buffer = p[0];                
     return RTC_frequency(buffer);           //set freqency
 };
 

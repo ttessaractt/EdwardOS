@@ -80,6 +80,7 @@ int32_t terminal_switch(int32_t terminal_num){
     cli();
     int i;
     uint32_t saved_pf_addr;
+    uint32_t saved_vid_mem_addr;
     /* wht the fuck do i do here */
     // if (terminal_number == 1){
     //     terminal_array[0].active = 1;
@@ -122,6 +123,9 @@ int32_t terminal_switch(int32_t terminal_num){
     //if (!(terminal_array[terminal_num-1].scheduled)){
         saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
         page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
+
+        saved_vid_mem_addr = page_table_vid_mem[0].pf_addr;
+        page_table_vid_mem[0].pf_addr = 0xB8000 >> 12;
         flush_tlb();
     //}
     
@@ -152,6 +156,7 @@ int32_t terminal_switch(int32_t terminal_num){
     
     //if (!(terminal_array[terminal_num-1].scheduled)){
         page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+        page_table_vid_mem[0].pf_addr = saved_vid_mem_addr;
         flush_tlb();
     //}
     
@@ -295,6 +300,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     int i = 0;
 
     /* change to char* */
+    cli();
     const char* buffer = buf;
     
     if (buf == NULL){
@@ -323,6 +329,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         //     return i;
         // }
     }
+
     return nbytes;
 
 }

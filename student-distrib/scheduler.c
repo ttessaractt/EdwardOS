@@ -62,7 +62,7 @@ void scheduler(){
     process_control_block_t* schedule_pcb;
     process_control_block_t* schedule_pcb_old;
 
-    if ((boot_flag != 0) & (boot_flag != -1)){
+    if ((boot_flag != 0) && (boot_flag != -1)){
         register uint32_t saved_ebp asm("ebp");     //save ebp
         int32_t old_scheduled_idx = get_scheduled_term_idx();
         int32_t old_schedule_pid = terminal_array[old_scheduled_idx].cur_term_pid;
@@ -82,10 +82,12 @@ void scheduler(){
     if(terminal_array[next_scheduled_idx].shell_exists == 0){
         if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
             page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            page_table_vid_mem[0].pf_addr = 0xB8000 >> 12;
             boot_flag = 1;
         }
         else{
             page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+            page_table_vid_mem[0].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
         }
         //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
         flush_tlb();
