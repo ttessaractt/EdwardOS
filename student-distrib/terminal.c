@@ -46,28 +46,6 @@ int32_t terminal_init(){
     boot_flag = 0;
     terminal_array[0].active = 1;
 
-    // terminal_array[0].active = 1;
-    // terminal_array[1].active = 0;
-    // terminal_array[2].active = 0;
-
-    // //execute((uint8_t*)"shell");
-    // //terminal_switch(1);
-    
-    // //terminal_switch(2);
-    // terminal_array[0].active = 0;
-    // terminal_array[1].active = 1;
-    // terminal_array[2].active = 0;
-
-    // //terminal_switch(3);
-    // terminal_array[0].active = 0;
-    // terminal_array[1].active = 0;
-    // terminal_array[2].active = 1;
-
-    // //terminal_switch(1);
-    // terminal_array[0].active = 1;
-    // terminal_array[1].active = 0;
-    // terminal_array[2].active = 0;
-
     return 0;
 
 }
@@ -292,6 +270,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
  *  Return: number of bytes written
  */
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
+    cli();
     int i = 0;
 
     /* change to char* */
