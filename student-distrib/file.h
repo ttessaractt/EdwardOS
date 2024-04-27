@@ -182,6 +182,9 @@ int32_t getargs_helper(uint8_t* buf, int32_t nbytes);
 /* helper function to find next pid*/
 int32_t find_next_pid();
 
+/* helper function to check if current process is a base shell */
+int32_t is_base_shell();
+
 // extern file_info files[8];
 extern operations file_operations;
 extern operations dir_operations;

@@ -65,7 +65,7 @@ int32_t execute_help(unsigned char* command){
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
     
     //check if shell being created in base shell
-    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) & ((current_pid == 0) | (current_pid == 1) | (current_pid == 2))){
+    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && ((find_next_pid() == 1) | (find_next_pid() == 2) | (find_next_pid() == 3))){
         initial_shell_flag = 1;
         current_parent_pid = 0;
     }
@@ -138,7 +138,7 @@ int32_t halt_help(unsigned char status){
     int b;
     cli();
     // get the esp0 of the parent 
-    if (current_process->base_shell == 1){      //check if in base shell
+    if (is_base_shell()){      //check if in base shell
         //if in base shell, restart shell
         //NEED TO CHANGE
         //fjkghwrjehglrewhg;ewrg
@@ -479,6 +479,11 @@ int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
     return 0;
 };
 
+/* find_next_pid
+ * Description: finds the next available pid spot in the pid_array
+ * Inputs: none
+ * Return Value: index of free spot in pid_array, else -1 if full
+ */
 int32_t find_next_pid(){
     int i;
     for (i = 0; i < 7; i++){
@@ -487,4 +492,16 @@ int32_t find_next_pid(){
         }
     }
     return -1;
+}
+
+/* is_base_shell
+ * Description: determines if the current_process is a base shell
+ * Inputs: none
+ * Return Value: 1 if is base shell, 0 if not
+ */
+int32_t is_base_shell(){
+    if(current_process->pid == 1 || current_process->pid == 2 || current_process->pid == 3) {
+        return 1;
+    }
+    return 0;
 }
