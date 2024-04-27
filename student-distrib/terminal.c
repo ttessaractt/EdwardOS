@@ -80,9 +80,6 @@ int32_t terminal_switch(int32_t terminal_num){
         return -1;
     }
 
-    if (max_programs_flag && !(terminal_array[terminal_num-1].shell_exists)){
-        return -1;
-    }
     //if already in terminal don't swap
     if ((terminal_num-1) == get_active_term()){
         sti();
