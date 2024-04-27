@@ -28,6 +28,8 @@ typedef struct terminal_t{
 
     int32_t shell_exists;
 
+    int32_t opened_before;
+
 } terminal_t; 
 
 terminal_t terminal_array[3];

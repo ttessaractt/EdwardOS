@@ -154,3 +154,17 @@ Description:
     Fish appearing in second terminal pingpong when running fish in first
 Solution:
     Forgot to update vid map paging address for the scheduled program
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    Elizabeth
+Description:
+    fish would not show up on other terminals besides terminal 1
+    also would not show cursor on other terminals
+Solution:
+    if a terminal hasn't been opened, then need to clear the entire
+    video memory and reset screen x screen y

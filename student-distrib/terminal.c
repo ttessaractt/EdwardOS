@@ -38,6 +38,7 @@ int32_t terminal_init(){
         terminal_array[i].buffer_position = 0;
         terminal_array[i].terminal_can_read = 0;
         terminal_array[i].cur_term_pid = 0;
+        terminal_array[0].opened_before = 0;
         //keyboard buff
         for (j = 0; j < 128; j++){
             terminal_array[i].keyboard_buffer[j] = '\0';
@@ -45,6 +46,7 @@ int32_t terminal_init(){
     }
     boot_flag = 0;
     terminal_array[0].active = 1;
+    terminal_array[0].opened_before = 1;
 
     return 0;
 

@@ -227,15 +227,6 @@ void add_vid_mem_storage() {
         page_table[i].avail = 0x000;
         page_table[i].pf_addr = (i * OFFSET_4KB) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
     }
-        page_table[259].present = 1;
-        page_table[259].readwrite = 1;           // read/write mode
-        page_table[259].usersupervisor = 0;      // supervisor mode
-        page_table[259].unused_1 = 0x00;
-        page_table[259].accessed = 0;
-        page_table[259].dirty = 0;
-        page_table[259].unused_2 = 0x00;
-        page_table[259].avail = 0x000;
-        page_table[259].pf_addr = 0xB8000 >> 12; 
     flush_tlb();
 }
 
@@ -278,19 +269,29 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     //update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
     //update_cursor(0, 0);
     // void* memcpy(void* dest, const void* src, uint32_t n)
+
     clear_key();
-    update_cursor(0, 0); 
-    
+    //update_cursor(0, 0); 
+    //terminal_array[terminal_number-1].screen_x = 0;
+    //terminal_array[terminal_number-1].screen_y = 0;
+    //update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
     //update video memory paging
-    
+    //terminal_array[terminal_number-1].screen_x = screen_x_save;
+    //terminal_array[terminal_number-1].screen_y = screen_y_save;
 
     int32_t* dest = (int32_t*) 0xB8000;//0x103000;//OFFSET_VID_MEM_START;
     int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
+    if (terminal_array[terminal_number-1].opened_before == 0){
+        terminal_array[terminal_number-1].opened_before = 1;
+        clear_screen_term();
+        printf_key("Starting 391 Shell\n");
+        printf_key("391OS> ");
+    }
     /* genius lowkey */
     //if (terminal_array[terminal_number-1].shell_exists == 0){
-    
+    //clear_screen_term();
     //}
     //clear_screen_term();
     //clear();
