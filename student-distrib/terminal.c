@@ -126,8 +126,15 @@ int32_t terminal_switch(int32_t terminal_num){
     //}
     
 
-    /* save the old screen */
+    /* save the old screen  to corresponding background buffer*/
+    /* b8000 -> 1 MB + old_terminal_num * 4 KB*/
     save_vid_mem(old_term_num);
+    /*
+        int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
+        int32_t* src = (int32_t*) 0xB8000; //0x103000; // used to be b8000
+        memcpy(dest, src, (uint32_t)OFFSET_4KB);
+    */
+
 
     /* set new active terminal */
     for (i = 0; i < 3; i++){
@@ -137,6 +144,11 @@ int32_t terminal_switch(int32_t terminal_num){
     /* paging stuff */
 
     swap_vid_mem(terminal_num);
+    /*
+        int32_t* dest = (int32_t*) 0xB8000;//0x103000;//OFFSET_VID_MEM_START;
+        int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
+        memcpy(dest, src, (uint32_t)OFFSET_4KB);
+    */
     
     //if (!(terminal_array[terminal_num-1].scheduled)){
         page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
@@ -280,7 +292,6 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
  *  Return: number of bytes written
  */
 int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
-    
     int i = 0;
 
     /* change to char* */
@@ -312,7 +323,6 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         //     return i;
         // }
     }
-
     return nbytes;
 
 }
