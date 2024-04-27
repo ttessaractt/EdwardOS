@@ -280,13 +280,17 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     // void* memcpy(void* dest, const void* src, uint32_t n)
     clear_key();
     update_cursor(0, 0); 
-    int32_t* dest = (int32_t*) 0x103000;//OFFSET_VID_MEM_START;
+    
+    //update video memory paging
+    
+
+    int32_t* dest = (int32_t*) 0xB8000;//0x103000;//OFFSET_VID_MEM_START;
     int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
     /* genius lowkey */
     //if (terminal_array[terminal_number-1].shell_exists == 0){
-        
+    
     //}
     //clear_screen_term();
     //clear();
@@ -297,9 +301,9 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     //int position = get_cursor_position();
 
     // uncomment when shceduligneroi
-    page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;
+    //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;
     //enable_cursor(2, 14); //does nothing!!!
-    
+    flush_tlb();
     /* success */
     return 0;
 }
@@ -320,9 +324,9 @@ int32_t* get_current_vid_mem(int32_t terminal_number) {
 }
 
 int32_t save_vid_mem(int32_t old_terminal_num){
-    // void* memcpy(void* dest, const void* src, uint32_t n)
+    // void* memcpy(void* dest, const void* src, uint32_t n)   
     int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
-    int32_t* src = (int32_t*) 0x103000; // used to be b8000
+    int32_t* src = (int32_t*) 0xB8000; //0x103000; // used to be b8000
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
     //disable_cursor();
     return 0;

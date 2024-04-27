@@ -77,8 +77,9 @@ int32_t terminal_switch(int32_t terminal_num){
     /* 1. save current video memory to the proper background buffer for the terminal */
     /* 2. put new terminal into video memory from its stored background buffer */
     /* 3. switch to new terminal's program - create a shell for first time */
-
+    cli();
     int i;
+    uint32_t saved_pf_addr;
     /* wht the fuck do i do here */
     // if (terminal_number == 1){
     //     terminal_array[0].active = 1;
@@ -102,7 +103,12 @@ int32_t terminal_switch(int32_t terminal_num){
     if (max_programs_flag && !(terminal_array[terminal_num-1].shell_exists)){
         return -1;
     }
-
+    //if already in terminal don't swap
+    if ((terminal_num-1) == get_active_term()){
+        sti();
+        //send_eoi(1);
+        return 0;
+    }
 
     /* check if terminal already running - i.e. shell already exists */
 
@@ -112,6 +118,13 @@ int32_t terminal_switch(int32_t terminal_num){
 
     /* even if not running, save current - pcb stuff? */
     int old_term_num = get_active_term();
+    
+    //if (!(terminal_array[terminal_num-1].scheduled)){
+        saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
+        page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
+        flush_tlb();
+    //}
+    
 
     /* save the old screen */
     save_vid_mem(old_term_num);
@@ -124,11 +137,15 @@ int32_t terminal_switch(int32_t terminal_num){
     /* paging stuff */
 
     swap_vid_mem(terminal_num);
-
-
-    /* if no shell, initialize with shell */
     
-    send_eoi(1);
+    //if (!(terminal_array[terminal_num-1].scheduled)){
+        page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+        flush_tlb();
+    //}
+    
+    /* if no shell, initialize with shell */
+    sti();
+    //send_eoi(1);
    
     // if (terminal_array[terminal_num-1].shell_exists == 0){
     //     terminal_array[terminal_num-1].shell_exists = 1; 

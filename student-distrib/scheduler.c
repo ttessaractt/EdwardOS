@@ -88,7 +88,7 @@ void scheduler(){
             page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
         }
         //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
-
+        flush_tlb();
         terminal_array[next_scheduled_idx].shell_exists = 1;
 
         sti();
@@ -108,6 +108,7 @@ void scheduler(){
            page_table_vid_mem[0].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
     }
     
+    flush_tlb();
 
     // /* use index to recover context of next scheduled terminal's current PCB */
     // /* maybe use the cur_term_pid field and do a calculation? not sure */
