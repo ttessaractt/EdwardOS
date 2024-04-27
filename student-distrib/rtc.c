@@ -11,7 +11,8 @@ int volatile interrupt_occured[3] = {0, 0, 0};
 int32_t terminal_freq[3] = {0, 0, 0};
 //array of counters for rtc virtualization
 int32_t terminal_count[3] = {0, 0, 0};
-
+//flag to indicate if freqeuncy set is 1024
+int32_t flag_1024[3] = {0, 0, 0};
 /* RTC_init
  *  Functionality: enables interrupt on IRQ8 on PIC for RTC (real time clock) functionality
  *  Arguments: none
@@ -50,7 +51,7 @@ void RTC_handler(){
     //disable other interrupts (SUPER IMPORTANT)
     cli();                      //disable interrupts
     NMI_disable();              //disable NMI
-    //
+    //increment freq counters for each terminal
     if (terminal_freq[1] != 0){
         terminal_count[1] += terminal_freq[1];
     }
@@ -61,31 +62,28 @@ void RTC_handler(){
         terminal_count[0] += terminal_freq[0];
     }
 
-    //get scheduled terminal
-    int32_t term = get_scheduled_term_idx();
-
     //do rtc virtualization for interrupt handling
-    // if ((terminal_freq[0] != 0) & (terminal_count[0] >= 512)){
-    //     //printf_term("term: %d\n", terminal_count[0]);
-    //     interrupt_occured[0] = 1;      //set interrupt_occured flag
-    //     terminal_count[0] = 0;
-    // }
-    // if ((terminal_freq[1] != 0) & (terminal_count[1] >= 512)){
-    //     //printf_term("term: %d\n", terminal_count[0]);
-    //     interrupt_occured[1] = 1;      //set interrupt_occured flag
-    //     terminal_count[1] = 0;
-    // }
-    // if ((terminal_freq[2] != 0) & (terminal_count[2] >= 512)){
-    //     //printf_term("term: %d\n", terminal_count[0]);
-    //     interrupt_occured[2] = 1;      //set interrupt_occured flag
-    //     terminal_count[2] = 0;
-    // }
-    if ((terminal_freq[term] != 0) & (terminal_count[term] >= 512)){
+    if ((terminal_freq[0] != 0) && (terminal_count[0] >= 512)){
         //printf_term("term: %d\n", terminal_count[0]);
-        interrupt_occured[term] = 1;      //set interrupt_occured flag
-        terminal_count[term] = 0;
+        interrupt_occured[0] = 1;      //set interrupt_occured flag
+        terminal_count[0] = 0;
     }
-    
+    if ((terminal_freq[1] != 0) && (terminal_count[1] >= 512)){
+        //printf_term("term: %d\n", terminal_count[0]);
+        interrupt_occured[1] = 1;      //set interrupt_occured flag
+        terminal_count[1] = 0;
+    }
+    if ((terminal_freq[2] != 0) && (terminal_count[2] >= 512)){
+        //printf_term("term: %d\n", terminal_count[0]);
+        interrupt_occured[2] = 1;      //set interrupt_occured flag
+        terminal_count[2] = 0;
+    }
+    // if ((terminal_freq[term] != 0) & (terminal_count[term] >= 1024)){
+    //     printf_term("term: %d\n", terminal_count[term]);
+    //     interrupt_occured[term] = 1;      //set interrupt_occured flag
+    //     terminal_count[term] = 0;
+    // }
+
     //allow another interrupt to happen
     outb(REG_C, RTC_PORT1);	    // select register C
     inb(RTC_PORT2);		        // just throw away contents
@@ -197,7 +195,7 @@ int32_t RTC_write(int32_t fd, const void* buf, int32_t nbytes){
 int32_t RTC_close(int32_t fd){
     int32_t term = get_scheduled_term_idx();    //get scheduled index
     interrupt_occured[term] = 0;                //reset flag
-    terminal_freq[term] = 2;                    //set freq to 2Hz
+    terminal_freq[term] = 0;                    //set freq to 2Hz
     terminal_count[term] = 0;                   //reset counter
     return 0;
 };

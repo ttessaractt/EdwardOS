@@ -138,18 +138,13 @@ int32_t halt_help(unsigned char status){
     int b;
     cli();
     // get the esp0 of the parent 
-    if (is_base_shell()){      //check if in base shell
+    if (current_process->parent_pid == 0){      //check if in base shell
         //if in base shell, restart shell
-        //NEED TO CHANGE
-        //fjkghwrjehglrewhg;ewrg
-        //gejkghwreuighpuiwerghpqeg
-        //egweghlegleguiebguieg
-        //--current_pid;
-        //current_pid = 0;
         printf_term("Restarting Shell...\n");
-        printf_term("Code not written\n");
-        while(1);
-        //return execute_help((uint8_t*)"shell");
+        int32_t term = get_active_term();       //get terminal we are trying to close
+        pid_array[term+1] = 0;                  //indicate pid is free
+        sti();
+        return execute_help((uint8_t*)"shell");
     }
     else{
         int32_t pcb_parent_addr = calculate_pcb_addr(current_process->parent_pid);
