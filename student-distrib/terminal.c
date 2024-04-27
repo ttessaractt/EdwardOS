@@ -60,7 +60,6 @@ int32_t terminal_switch(int32_t terminal_num){
     cli();
     int i;
     uint32_t saved_pf_addr;
-    /* wht the fuck do i do here */
     // if (terminal_number == 1){
     //     terminal_array[0].active = 1;
     //     terminal_array[1].active = 0;
@@ -276,6 +275,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
     const char* buffer = buf;
     
     if (buf == NULL){
+        sti();
         return -1; // or should it be -1?
     }
 
@@ -301,6 +301,7 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         //     return i;
         // }
     }
+    sti();
     return nbytes;
 
 }

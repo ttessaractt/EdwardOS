@@ -579,6 +579,15 @@ void putc_term(uint8_t c) {
     /* must change screen_y and screen_x to terminal respective */
     //terminal_array[term_num].screen_x
     //terminal_array[term_num].screen_y
+    if ((terminal_array[term_num].active && terminal_array[term_num].scheduled)){
+            page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            //page_table_vid_mem[0].pf_addr = 0xB8000 >> 12;
+       }
+    else{
+           page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (term_num) * OFFSET_4KB) >> 12;
+           //page_table_vid_mem[0].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+    }
+    flush_tlb();
     if(c == '\n' || c == '\r') {
         terminal_array[term_num].screen_y++;
         if (terminal_array[term_num].screen_y == NUM_ROWS){
@@ -639,6 +648,7 @@ void putc_term(uint8_t c) {
             }
             }
         }
+    
     
 }
 /* void putc_key(uint8_t c);
