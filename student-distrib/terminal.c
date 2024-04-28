@@ -60,21 +60,7 @@ int32_t terminal_switch(int32_t terminal_num){
     cli();
     int i;
     uint32_t saved_pf_addr;
-    // if (terminal_number == 1){
-    //     terminal_array[0].active = 1;
-    //     terminal_array[1].active = 0;
-    //     terminal_array[2].active = 0;
-    // }
-    // else if (terminal_number == 2){
-    //     terminal_array[0].active = 0;
-    //     terminal_array[1].active = 1;
-    //     terminal_array[2].active = 0;
-    // }
-    // else if (terminal_number == 3){
-    //     terminal_array[0].active = 0;
-    //     terminal_array[1].active = 0;
-    //     terminal_array[2].active = 1;
-    // }
+
     if (terminal_num > 3 || terminal_num < 1){
         return -1;
     }
@@ -95,21 +81,14 @@ int32_t terminal_switch(int32_t terminal_num){
     /* even if not running, save current - pcb stuff? */
     int old_term_num = get_active_term();
     
-    //if (!(terminal_array[terminal_num-1].scheduled)){
-        saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
-        page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
-        flush_tlb();
-    //}
+    saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
+    page_table[VIDEO_MEMORY].pf_addr = ((uint32_t) OFFSET_VID_MEM_START) >> 12; // set b8000 virtual to b8000 physical
+    flush_tlb();
     
 
     /* save the old screen  to corresponding background buffer*/
     /* b8000 -> 1 MB + old_terminal_num * 4 KB*/
     save_vid_mem(old_term_num);
-    /*
-        int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
-        int32_t* src = (int32_t*) 0xB8000; //0x103000; // used to be b8000
-        memcpy(dest, src, (uint32_t)OFFSET_4KB);
-    */
 
 
     /* set new active terminal */
@@ -120,38 +99,15 @@ int32_t terminal_switch(int32_t terminal_num){
     /* paging stuff */
 
     swap_vid_mem(terminal_num);
-    /*
-        int32_t* dest = (int32_t*) 0xB8000;//0x103000;//OFFSET_VID_MEM_START;
-        int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
-        memcpy(dest, src, (uint32_t)OFFSET_4KB);
-    */
-    
-    //if (!(terminal_array[terminal_num-1].scheduled)){
-        page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
-        flush_tlb();
-    //}
+
+
+    page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+    flush_tlb();
+
     
     /* if no shell, initialize with shell */
     sti();
-    //send_eoi(1);
-   
-    // if (terminal_array[terminal_num-1].shell_exists == 0){
-    //     terminal_array[terminal_num-1].shell_exists = 1; 
-    //     //execute_help((uint8_t*)"shell");
-    // }
 
-    // // Useless right now
-    // int32_t pcb_addr_term = calculate_pcb_addr(terminal_array[terminal_num-1].cur_term_pid);
-    // process_control_block_t* pcb_new_term = (process_control_block_t*) pcb_addr_term;
-
-    // current_process = pcb_new_term;
-    // current_pid = terminal_array[terminal_num-1].cur_term_pid;
-    // current_parent_pid = pcb_new_term->parent_pid;
-    
-    // tss.esp0 = current_process->tss_esp0;
-    // //schedule_switch(current_process->ebp); //need to restore kernel stack? 
-
-    //printf("%d\n", terminal_num);
     return 0;
     
 
@@ -241,15 +197,11 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
             //old_buffer[i] = keyboard_buffer[i];
             terminal_array[term_num].keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             terminal_array[term_num].terminal_can_read = 0;
-            //printf("cleared");
         }
         else{
             buffer[i] = terminal_array[term_num].keyboard_buffer[i]; // returns when key buffer is enter
             terminal_array[term_num].keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
-            //printf("cleared2");
             terminal_array[term_num].terminal_can_read = 0;
-            //printf("%d\n", i);
-
             return i+1;
         }
     }
@@ -292,14 +244,6 @@ int32_t terminal_write(int32_t fd, const void* buf, int32_t nbytes){
         if ((buffer[i] != '\0')){ // only prints characters
             putc_term(buffer[i]);
         }
-        //else if (buffer[i] == '\n'){ // returns when end of buffer (the new line)
-        //    putc(buffer[i]);
-        //    //return i+1;
-        //}
-        //else if (buffer[i] == '\0'){
-        //     putc('\n');
-        //     return i;
-        // }
     }
     sti();
     return nbytes;

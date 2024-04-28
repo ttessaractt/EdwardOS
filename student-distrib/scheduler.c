@@ -77,22 +77,15 @@ void scheduler(){
         return;
     }
     int32_t next_scheduled_idx = get_scheduled_term_idx();
-    //printf("%d", terminal_array[0].scheduled);
 
     if(terminal_array[next_scheduled_idx].shell_exists == 0){
         if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
-            //page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
             boot_flag = 1;
         }
-        else{
-            //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
-        }
-        //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
-        //flush_tlb();
+
         terminal_array[next_scheduled_idx].shell_exists = 1;
 
         sti();
-        //printf("execute");
         execute((uint8_t*)"shell");
 
         return;
@@ -100,18 +93,13 @@ void scheduler(){
    
 
     if ((terminal_array[next_scheduled_idx].active && terminal_array[next_scheduled_idx].scheduled)){
-            //page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
             page_table_vid_mem[0].pf_addr = 0xB8000 >> 12;
        }
     else{
-           //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
            page_table_vid_mem[0].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
     }
     
     flush_tlb();
-
-    // /* use index to recover context of next scheduled terminal's current PCB */
-    // /* maybe use the cur_term_pid field and do a calculation? not sure */
 
     int32_t schedule_pid = terminal_array[next_scheduled_idx].cur_term_pid;
     if (schedule_pid == 0){
@@ -140,51 +128,31 @@ void scheduler(){
 https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
 */
 void PIT_handler(){
-    //in the PIT handler’s assembly linkage, the 
-    //registers restored will be the target process’s 
-    //context information (including the EIP)
-    //allow output to go low again
-    //outb(0x43, 0x30);     //theoretically set pit mode/command register
-    
-    //set low&high byte of reload value
-    //time in ms = reload_value * 3000 / 3579545
-    //10ms = 0x9C2E, 0x9C & (0x2E00)>>8
-	//outb(0x40, 0x01);		// Low byte
-	//outb(0x40, (0x0000)>>8);	// High byte
-    //send end of interrupt signal
-    //cli();
-    // int divisor = 1193180 / 100;       /* Calculate our divisor */
-    // outb(0x36, 0x43);             /* Set our command byte 0x36 */
-    // outb(divisor & 0xFF, 0x40);   /* Set low byte of divisor */
-    // outb(divisor >> 8, 0x40);     /* Set high byte of divisor */
-    //printf("a");
 
     send_eoi(0);
-    //printf("a");
-    //sti();
 
     //if an interrupt occurs, call scheduler 
     scheduler();
 }
 
 int32_t PIT_frequency(int32_t freq){
-    return 0;
+    return -1;
 }
 
 int32_t PIT_open(const uint8_t* filename){
-    return 0;
+    return -1;
 }
 
 int32_t PIT_read(int32_t fd, void* buf, int32_t nbytes){
-    return 0;
+    return -1;
 }
 
 int32_t PIT_write(int32_t fd, const void* buf, int32_t nbytes){
-    return 0;
+    return -1;
 }
 
 int32_t PIT_close(int32_t fd){
-    return 0;
+    return -1;
 }
 
 

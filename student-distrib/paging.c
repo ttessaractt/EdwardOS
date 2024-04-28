@@ -237,32 +237,6 @@ void add_vid_mem_storage() {
  */
 int32_t swap_vid_mem(int32_t terminal_number) {
 
-    // /* choose which video memory storage we want to point to actual vid mem */
-    // if(terminal_number == 1) {
-    //     page_table[256].pf_addr = OFFSET_VID_MEM_START >> 12;
-    //     page_table[257].pf_addr = (257 * OFFSET_4KB) >> 12;
-    //     page_table[258].pf_addr = (258 * OFFSET_4KB) >> 12;
-    // } else if(terminal_number == 2) {
-    //     page_table[256].pf_addr = (256 * OFFSET_4KB) >> 12;
-    //     page_table[257].pf_addr = OFFSET_VID_MEM_START >> 12;
-    //     page_table[258].pf_addr = (258 * OFFSET_4KB) >> 12;
-        
-    // } else if(terminal_number == 3) {
-    //     page_table[256].pf_addr = (256 * OFFSET_4KB) >> 12;
-    //     page_table[257].pf_addr = (257 * OFFSET_4KB) >> 12;
-    //     page_table[258].pf_addr = OFFSET_VID_MEM_START >> 12;
-    // } else {
-    //     return -1;
-    // }
-
-    // /* flush TLB in case */
-    // flush_tlb();
-
-    /* 2. put new terminal into video memory from its stored background buf */
-
-
-
-
     if(terminal_number < 1 || terminal_number > 3) {
         return -1;
     }
@@ -271,15 +245,8 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     // void* memcpy(void* dest, const void* src, uint32_t n)
 
     clear_key();
-    //update_cursor(0, 0); 
-    //terminal_array[terminal_number-1].screen_x = 0;
-    //terminal_array[terminal_number-1].screen_y = 0;
-    //update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
-    //update video memory paging
-    //terminal_array[terminal_number-1].screen_x = screen_x_save;
-    //terminal_array[terminal_number-1].screen_y = screen_y_save;
 
-    int32_t* dest = (int32_t*) 0xB8000;//0x103000;//OFFSET_VID_MEM_START;
+    int32_t* dest = (int32_t*) OFFSET_VID_MEM_START;
     int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
 
@@ -289,21 +256,9 @@ int32_t swap_vid_mem(int32_t terminal_number) {
         printf_key("Starting 391 Shell\n");
         printf_key("391OS> ");
     }
-    /* genius lowkey */
-    //if (terminal_array[terminal_number-1].shell_exists == 0){
-    //clear_screen_term();
-    //}
-    //clear_screen_term();
-    //clear();
-    //update_cursor(0, 0);
-    //memcpy(dest, src, (uint32_t)OFFSET_4KB);
-    //enable_cursor(2, 14);
-    update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
-    //int position = get_cursor_position();
 
-    // uncomment when shceduligneroi
-    //page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (terminal_number - 1) * OFFSET_4KB) >> 12;
-    //enable_cursor(2, 14); //does nothing!!!
+    update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
+
     flush_tlb();
     /* success */
     return 0;
@@ -325,11 +280,10 @@ int32_t* get_current_vid_mem(int32_t terminal_number) {
 }
 
 int32_t save_vid_mem(int32_t old_terminal_num){
-    // void* memcpy(void* dest, const void* src, uint32_t n)   
     int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
-    int32_t* src = (int32_t*) 0xB8000; //0x103000; // used to be b8000
+    int32_t* src = (int32_t*) OFFSET_VID_MEM_START; 
     memcpy(dest, src, (uint32_t)OFFSET_4KB);
-    //disable_cursor();
+
     return 0;
 }
 
