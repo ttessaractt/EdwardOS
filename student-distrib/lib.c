@@ -597,8 +597,8 @@ void putc_term(uint8_t c) {
         else{
             SCROLLING = 0;
         }
+        terminal_array[term_num].screen_x = 0;
         if(terminal_array[term_num].active) {
-            terminal_array[term_num].screen_x = 0;
             update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
         }
     } else {
