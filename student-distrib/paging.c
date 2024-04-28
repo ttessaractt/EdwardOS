@@ -8,6 +8,7 @@
 */
 
 #include "paging.h"
+#include "terminal.h"
 
 /* initialize a 4kB aligned page table with 1024 entries */
 page_table_entry_t page_table[1024] __attribute__((aligned(OFFSET_4KB)));   
@@ -122,7 +123,7 @@ void allocate_tasks(uint32_t task){
     // page_directory[2].present = 1;
     // /* map directly to 8mB in physical memory */
     // page_directory[2].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
-
+    
     // /* set 12-16 mB present, for second task */
     // page_directory[3].present = 1;
     // /* map directly to 12 mB in physical memory */
@@ -133,14 +134,28 @@ void allocate_tasks(uint32_t task){
     /* map executing program to corresponding task's physical memory address */
     if(task == 1) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_8MB >> 12) & KEEP_TOP10_BITS);
-    } else if(task == 2) {
+    }else if(task == 2) {
         page_directory[32].addr_31_12_or_addr_31_22 = ((OFFSET_12MB >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 3) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((137922056 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 4) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((20971520 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 5) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((25165824 >> 12) & KEEP_TOP10_BITS);
+    }else if(task == 6) {
+        page_directory[32].addr_31_12_or_addr_31_22 = ((29360128 >> 12) & KEEP_TOP10_BITS);
     }
+
     page_directory[32].usersupervisor = 1; // need or else page faults
-    flush_tlb(); // maybe?
+    flush_tlb(); // definitely.
+
 }
 
-
+/*  add_vid_mem_page
+ *  Functionality: adds a video memory page at 200MB which maps to video memory b8000-b9000
+ *  Arguments: none
+ *  Return: none
+ */
 void add_vid_mem_page() {
     /* need to specify virtual memory address that maps to video memory */
     /* video memory is 0xb8000 -> 0xb9000 */
@@ -192,7 +207,94 @@ void add_vid_mem_page() {
     flush_tlb();
 }
 
-// void add_variables_page() {
 
-// }
+/*  add_vid_mem_storage
+ *  Functionality: adds a video memory page at 300MB, 300MB + 4KB, 300MB + 8MB which directly map to physical memory
+ *  Arguments: none
+ *  Return: none
+ */
+void add_vid_mem_storage() {
+    /* 1MB, 1MB + 4KB, 1MB + 8KB pages directly mapping to physical memory */
+    int i;
+    for(i = 256; i <= 258; i++) {
+        page_table[i].present = 1;
+        page_table[i].readwrite = 1;           // read/write mode
+        page_table[i].usersupervisor = 0;      // supervisor mode
+        page_table[i].unused_1 = 0x00;
+        page_table[i].accessed = 0;
+        page_table[i].dirty = 0;
+        page_table[i].unused_2 = 0x00;
+        page_table[i].avail = 0x000;
+        page_table[i].pf_addr = (i * OFFSET_4KB) >> 12; // each page is 4 kB, no need to worry about offset since 4kB aligned
+    }
+    flush_tlb();
+}
+
+/*  int32_t swap_vid_mem(int32_t terminal_number);
+ *  Functionality: swaps vid mem given a terminal number
+ *  Arguments:  int32_t terminal_number = terminal we want to switch to
+ *  Return: 0 on success, -1 on invalid input
+ */
+int32_t swap_vid_mem(int32_t terminal_number) {
+
+    if(terminal_number < 1 || terminal_number > 3) {
+        return -1;
+    }
+    //update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
+    //update_cursor(0, 0);
+    // void* memcpy(void* dest, const void* src, uint32_t n)
+
+    clear_key();
+
+    int32_t* dest = (int32_t*) OFFSET_VID_MEM_START;
+    int32_t* src = (int32_t*) (OFFSET_1MB + ((terminal_number - 1)*OFFSET_4KB));
+    memcpy(dest, src, (uint32_t)OFFSET_4KB);
+
+    if (terminal_array[terminal_number-1].opened_before == 0){
+        terminal_array[terminal_number-1].opened_before = 1;
+        clear_screen_term();
+        printf_key("Starting 391 Shell\n");
+        printf_key("391OS> ");
+    }
+
+    update_cursor(terminal_array[terminal_number-1].screen_x, terminal_array[terminal_number-1].screen_y);
+
+    flush_tlb();
+    /* success */
+    return 0;
+}
+
+/*  
+ *  Functionality: swaps video memory storage corresponding to a terminal number into actual video memory
+ *  Arguments: terminal_number, can range from 1-3 inclusive
+ *  Return: 0 for success, -1 if terminal_number out of bounds
+ */
+int32_t* get_current_vid_mem(int32_t terminal_number) {
+    int32_t* cur_vid_mem_addr;
+    if(terminal_number == 1) {
+        cur_vid_mem_addr = (int32_t*) OFFSET_1MB;
+    } else if(terminal_number == 2) {
+        cur_vid_mem_addr = (int32_t*) (OFFSET_1MB + OFFSET_4KB);
+    } else if(terminal_number == 3) {
+        cur_vid_mem_addr = (int32_t*) (OFFSET_1MB + OFFSET_4KB + OFFSET_4KB);
+    } else {
+        cur_vid_mem_addr = NULL;
+    }
+
+    return cur_vid_mem_addr;
+}
+
+/*  int32_t save_vid_mem(int32_t old_terminal_num)
+ *  Functionality: saves vid memory given a terminal number
+ *  Arguments: int32_t old_terminal_num = terminal that we want to save vid mem from
+ *  Return: 0
+ */
+int32_t save_vid_mem(int32_t old_terminal_num){
+    int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
+    int32_t* src = (int32_t*) OFFSET_VID_MEM_START; 
+    memcpy(dest, src, (uint32_t)OFFSET_4KB);
+
+    return 0;
+}
+
 

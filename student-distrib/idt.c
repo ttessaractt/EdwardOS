@@ -1,6 +1,6 @@
 //file with IDT
 
-#include "lib.h"        //printf support
+#include "lib.h"        //printf_term support
 #include "x86_desc.h"   //for IDT entry
 //inerupt support
 //syscall support
@@ -10,6 +10,7 @@
 #include "syscalls.h"
 #include "file.h"
 #include "syscall_helper.h"
+#include "scheduler.h"
 
 extern int32_t GOD;
 /*
@@ -195,11 +196,10 @@ void idt_init(){
     set_trap_gate(18, (uint32_t)&machine_check);
     set_trap_gate(19, (uint32_t)&SIMD_FP);   
 
-    //set_interrupt_gate(33, (uint32_t)&no_handler);
-    //set_interrupt_gate(40, (uint32_t)&no_handler);
+    set_interrupt_gate(32, (uint32_t)&PIT_link);
     set_interrupt_gate(33, (uint32_t)&key_handler_linkage);
     set_interrupt_gate(40, (uint32_t)&rtc_handler_linkage);
-    //set_syscall_gate(128, (uint32_t)&system_call_linkage);
+
     set_syscall_gate(128, (uint32_t)&syscall_handler);
 
 };
@@ -207,129 +207,130 @@ void idt_init(){
 //exception handlers
 void divide_error(){
     cli();      //prevent further interrupts from occuring
-    printf("Divide Error Exception (#DE) \n");
+    printf_term("Divide Error Exception (#DE) \n");
     GOD = 1;
     halt(0);
 };     
 void debug(){
     cli();      //prevent further interrupts from occuring
-    printf("Debug Exception (#DB) \n");
+    printf_term("Debug Exception (#DB) \n");
     GOD = 1;
     halt(0);
 };            
 void NMI(){
     cli();      //prevent further interrupts from occuring
-    printf("Nonmaskable Interrupt (NMI) \n");
+    printf_term("Nonmaskable Interrupt (NMI) \n");
     GOD = 1;
     halt(0);
 };              
 void breakpoint(){
     cli();      //prevent further interrupts from occuring
-    printf("Breakpoint Exception (#BP) \n");
+    printf_term("Breakpoint Exception (#BP) \n");
     GOD = 1;
     halt(0);
 };       
 void overflow(){
     cli();      //prevent further interrupts from occuring
-    printf("Overflow Exception (#OF) \n");
+    printf_term("Overflow Exception (#OF) \n");
     GOD = 1;
     halt(0);
 };         
 void BOUND_range(){
     cli();      //prevent further interrupts from occuring
-    printf("BOUND Range Exceeded Exception (#BR) \n");
+    printf_term("BOUND Range Exceeded Exception (#BR) \n");
     GOD = 1;
     halt(0);
 };        
 void invalid_opcode(){
     cli();      //prevent further interrupts from occuring
-    printf("Invalid Opcode Exception (#UD) \n");
+    printf_term("Invalid Opcode Exception (#UD) \n");
     GOD = 1;
     halt(0);
 };   
 void device_not_availible(){
     cli();      //prevent further interrupts from occuring
-    printf("Device Not Available Exception (#NM) \n");
+    printf_term("Device Not Available Exception (#NM) \n");
     GOD = 1;
     halt(0);
 };
 void double_fault(){
     cli();      //prevent further interrupts from occuring
-    printf("Double Fault Exception (#DF) \n");
+    printf_term("Double Fault Exception (#DF) \n");
     GOD = 1;
     halt(0);
 };     
 void segment_overrun(){
     cli();      //prevent further interrupts from occuring
-    printf("Coprocessor Segment Overrun \n");
+    printf_term("Coprocessor Segment Overrun \n");
     GOD = 1;
     halt(0);
 };  
 void invalid_TSS(){
     cli();      //prevent further interrupts from occuring
-    printf("Invalid TSS Exception (#TS) \n");
+    printf_term("Invalid TSS Exception (#TS) \n");
     GOD = 1;
     halt(0);
 };      
 void segment_not_present(){
     cli();      //prevent further interrupts from occuring
-    printf("Segment Not Present (#NP) \n");
+    printf_term("Segment Not Present (#NP) \n");
     GOD = 1;
     halt(0);
 };
 void stack_fault(){
     cli();      //prevent further interrupts from occuring
-    printf("Stack Fault Exception (#SS) \n");
+    printf_term("Stack Fault Exception (#SS) \n");
     GOD = 1;
     halt(0);
 };      
 void gen_protection(){
     cli();      //prevent further interrupts from occuring
-    printf("General Protection Exception (#GP) \n");
+    printf_term("General Protection Exception (#GP) \n");
     GOD = 1;
     halt(0);
 };   
 void page_fault(){
     cli();      //prevent further interrupts from occuring
-    printf("Page-Fault Exception (#PF) \n");
+    printf_term("Page-Fault Exception (#PF) \n");
     GOD = 1;
     halt(0);
 };       
 void x86_FP(){
     cli();      //prevent further interrupts from occuring
-    printf("x87 FPU Floating-Point Error (#MF) \n");
+    printf_term("x87 FPU Floating-Point Error (#MF) \n");
     GOD = 1;
     halt(0);
 };           
 void alignment_check(){
     cli();      //prevent further interrupts from occuring
-    printf("Alignment Check Exception (#AC) \n");
+    printf_term("Alignment Check Exception (#AC) \n");
     GOD = 1;
     halt(0);
 };  
 void machine_check(){
     cli();      //prevent further interrupts from occuring
-    printf("Machine-Check Exception (#MC) \n");
+    printf_term("Machine-Check Exception (#MC) \n");
     GOD = 1;
     halt(0);
 };    
 void SIMD_FP(){
     cli();      //prevent further interrupts from occuring
-    printf("SIMD Floating-Point Exception (#XF) \n");
+    printf_term("SIMD Floating-Point Exception (#XF) \n");
     GOD = 1;
     halt(0);
-};          
+};
+          
 
 
 void system_call(){
-    //cli();      //prevent further interrupts from occuringprintf("System call was called \n");
-    printf("Sytem call called\n");
+    //cli();      //prevent further interrupts from occuringprintf_term("System call was called \n");
+    printf_term("Sytem call called\n");
     //GOD = 1;
     //halt(0);
 };
 void no_handler(){
     cli();      //prevent further interrupts from occuring
-    printf("no handler \n");
+    printf_term("no handler \n");
     GOD = 1;
     halt(0);
 };

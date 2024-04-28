@@ -8,6 +8,7 @@
 #include "i8259.h"
 #include "debug.h"
 #include "tests.h"
+#include "terminal.h"
 #include "keyboard.h"
 #include "rtc.h"
 #include "paging.h"
@@ -16,6 +17,7 @@
 #include "cursor.h"
 #include "loader.h"
 #include "syscalls.h"
+#include "scheduler.h"
 
 #define RUN_TESTS
 
@@ -183,6 +185,7 @@ void entry(unsigned long magic, unsigned long addr) {
     //init rtc
     RTC_init();
     keyboard_init();
+    PIT_init();
 
     // paging
     enable_4mb_pages();
@@ -194,7 +197,8 @@ void entry(unsigned long magic, unsigned long addr) {
 
     // cursor
     enable_cursor(CURSOR_START, CURSOR_END);
-
+    //enable_cursor(2, CURSOR_END);
+    terminal_init();
     //program_loader("frame1.txt", 1);
 
     /* Enable interrupts */
@@ -204,16 +208,18 @@ void entry(unsigned long magic, unsigned long addr) {
     /*printf("Enabling Interrupts\n");
     sti();*/
     //printf("Enabling Interrupts\n");
+    clear_screen();
     sti();
 
 #ifdef RUN_TESTS
     /* Run tests */
     printf("start running test\n");
-    launch_tests();
+    //launch_tests();
 #endif
     /* Execute the first program ("shell") ... */
-    clear_screen();
-    execute((uint8_t*)"shell");
+    //clear_key();
+    //terminal_init(); // where to put?
+    //execute((uint8_t*)"shell");
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile (".1: hlt; jmp .1;");
 }

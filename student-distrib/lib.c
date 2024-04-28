@@ -2,6 +2,8 @@
  * vim:ts=4 noexpandtab */
 
 #include "lib.h"
+#include "terminal.h"
+#include "paging.h"
 
 #define VIDEO       0xB8000
 #define NUM_COLS    80
@@ -28,6 +30,28 @@ void clear(void) {
  * Inputs: void
  * Return Value: none
  * Function: Clears video memory */
+void clear_key(void) {
+    int32_t i;
+    //int term_num = get_active_term();
+    uint32_t saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
+    page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
+    flush_tlb();
+    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+    // terminal_array[term_num].screen_x = 0;
+    // terminal_array[term_num].screen_y = 0;
+    // update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+    page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+    flush_tlb();
+}
+
+
+/* void clear(void);
+ * Inputs: void
+ * Return Value: none
+ * Function: Clears video memory */
 void clear_screen(void) {
     int32_t i;
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
@@ -37,6 +61,27 @@ void clear_screen(void) {
     screen_x = 0;
     screen_y = 0;
     update_cursor(screen_x, screen_y);
+}
+
+/* void clear(void);
+ * Inputs: void
+ * Return Value: none
+ * Function: Clears video memory */
+void clear_screen_term(void) {
+    int32_t i;
+    int term_num = get_active_term();
+    uint32_t saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
+    page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
+    flush_tlb();
+    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t *)(video_mem + (i << 1)) = ' ';
+        *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+    terminal_array[term_num].screen_x = 0;
+    terminal_array[term_num].screen_y = 0;
+    update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+    page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+    flush_tlb();
 }
 
 /* Standard printf().
@@ -165,6 +210,258 @@ format_char_switch:
     return (buf - format);
 }
 
+/* Standard printf_term().
+ * Only supports the following format strings:
+ * %%  - print a literal '%' character
+ * %x  - print a number in hexadecimal
+ * %u  - print a number as an unsigned integer
+ * %d  - print a number as a signed integer
+ * %c  - print a character
+ * %s  - print a string
+ * %#x - print a number in 32-bit aligned hexadecimal, i.e.
+ *       print 8 hexadecimal digits, zero-padded on the left.
+ *       For example, the hex number "E" would be printed as
+ *       "0000000E".
+ *       Note: This is slightly different than the libc specification
+ *       for the "#" modifier (this implementation doesn't add a "0x" at
+ *       the beginning), but I think it's more flexible this way.
+ *       Also note: %x is the only conversion specifier that can use
+ *       the "#" modifier to alter output. */
+int32_t printf_term(int8_t *format, ...) {
+
+    /* Pointer to the format string */
+    int8_t* buf = format;
+
+    /* Stack pointer for the other parameters */
+    int32_t* esp = (void *)&format;
+    esp++;
+
+    while (*buf != '\0') {
+        switch (*buf) {
+            case '%':
+                {
+                    int32_t alternate = 0;
+                    buf++;
+
+format_char_switch:
+                    /* Conversion specifiers */
+                    switch (*buf) {
+                        /* Print a literal '%' character */
+                        case '%':
+                            putc_term('%');
+                            break;
+
+                        /* Use alternate formatting */
+                        case '#':
+                            alternate = 1;
+                            buf++;
+                            /* Yes, I know gotos are bad.  This is the
+                             * most elegant and general way to do this,
+                             * IMHO. */
+                            goto format_char_switch;
+
+                        /* Print a number in hexadecimal form */
+                        case 'x':
+                            {
+                                int8_t conv_buf[64];
+                                if (alternate == 0) {
+                                    itoa(*((uint32_t *)esp), conv_buf, 16);
+                                    puts_term(conv_buf);
+                                } else {
+                                    int32_t starting_index;
+                                    int32_t i;
+                                    itoa(*((uint32_t *)esp), &conv_buf[8], 16);
+                                    i = starting_index = strlen(&conv_buf[8]);
+                                    while(i < 8) {
+                                        conv_buf[i] = '0';
+                                        i++;
+                                    }
+                                    puts_term(&conv_buf[starting_index]);
+                                }
+                                esp++;
+                            }
+                            break;
+
+                        /* Print a number in unsigned int form */
+                        case 'u':
+                            {
+                                int8_t conv_buf[36];
+                                itoa(*((uint32_t *)esp), conv_buf, 10);
+                                puts_term(conv_buf);
+                                esp++;
+                            }
+                            break;
+
+                        /* Print a number in signed int form */
+                        case 'd':
+                            {
+                                int8_t conv_buf[36];
+                                int32_t value = *((int32_t *)esp);
+                                if(value < 0) {
+                                    conv_buf[0] = '-';
+                                    itoa(-value, &conv_buf[1], 10);
+                                } else {
+                                    itoa(value, conv_buf, 10);
+                                }
+                                puts_term(conv_buf);
+                                esp++;
+                            }
+                            break;
+
+                        /* Print a single character */
+                        case 'c':
+                            putc_term((uint8_t) *((int32_t *)esp));
+                            esp++;
+                            break;
+
+                        /* Print a NULL-terminated string */
+                        case 's':
+                            puts_term(*((int8_t **)esp));
+                            esp++;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                }
+                break;
+
+            default:
+                putc_term(*buf);
+                break;
+        }
+        buf++;
+    }
+    return (buf - format);
+}
+
+/* Standard printf_term().
+ * Only supports the following format strings:
+ * %%  - print a literal '%' character
+ * %x  - print a number in hexadecimal
+ * %u  - print a number as an unsigned integer
+ * %d  - print a number as a signed integer
+ * %c  - print a character
+ * %s  - print a string
+ * %#x - print a number in 32-bit aligned hexadecimal, i.e.
+ *       print 8 hexadecimal digits, zero-padded on the left.
+ *       For example, the hex number "E" would be printed as
+ *       "0000000E".
+ *       Note: This is slightly different than the libc specification
+ *       for the "#" modifier (this implementation doesn't add a "0x" at
+ *       the beginning), but I think it's more flexible this way.
+ *       Also note: %x is the only conversion specifier that can use
+ *       the "#" modifier to alter output. */
+int32_t printf_key(int8_t *format, ...) {
+
+    /* Pointer to the format string */
+    int8_t* buf = format;
+
+    /* Stack pointer for the other parameters */
+    int32_t* esp = (void *)&format;
+    esp++;
+
+    while (*buf != '\0') {
+        switch (*buf) {
+            case '%':
+                {
+                    int32_t alternate = 0;
+                    buf++;
+
+format_char_switch:
+                    /* Conversion specifiers */
+                    switch (*buf) {
+                        /* Print a literal '%' character */
+                        case '%':
+                            putc_key('%');
+                            break;
+
+                        /* Use alternate formatting */
+                        case '#':
+                            alternate = 1;
+                            buf++;
+                            /* Yes, I know gotos are bad.  This is the
+                             * most elegant and general way to do this,
+                             * IMHO. */
+                            goto format_char_switch;
+
+                        /* Print a number in hexadecimal form */
+                        case 'x':
+                            {
+                                int8_t conv_buf[64];
+                                if (alternate == 0) {
+                                    itoa(*((uint32_t *)esp), conv_buf, 16);
+                                    puts_key(conv_buf);
+                                } else {
+                                    int32_t starting_index;
+                                    int32_t i;
+                                    itoa(*((uint32_t *)esp), &conv_buf[8], 16);
+                                    i = starting_index = strlen(&conv_buf[8]);
+                                    while(i < 8) {
+                                        conv_buf[i] = '0';
+                                        i++;
+                                    }
+                                    puts_key(&conv_buf[starting_index]);
+                                }
+                                esp++;
+                            }
+                            break;
+
+                        /* Print a number in unsigned int form */
+                        case 'u':
+                            {
+                                int8_t conv_buf[36];
+                                itoa(*((uint32_t *)esp), conv_buf, 10);
+                                puts_key(conv_buf);
+                                esp++;
+                            }
+                            break;
+
+                        /* Print a number in signed int form */
+                        case 'd':
+                            {
+                                int8_t conv_buf[36];
+                                int32_t value = *((int32_t *)esp);
+                                if(value < 0) {
+                                    conv_buf[0] = '-';
+                                    itoa(-value, &conv_buf[1], 10);
+                                } else {
+                                    itoa(value, conv_buf, 10);
+                                }
+                                puts_key(conv_buf);
+                                esp++;
+                            }
+                            break;
+
+                        /* Print a single character */
+                        case 'c':
+                            putc_key((uint8_t) *((int32_t *)esp));
+                            esp++;
+                            break;
+
+                        /* Print a NULL-terminated string */
+                        case 's':
+                            puts_key(*((int8_t **)esp));
+                            esp++;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                }
+                break;
+
+            default:
+                putc_key(*buf);
+                break;
+        }
+        buf++;
+    }
+    return (buf - format);
+}
+
 /* int32_t puts(int8_t* s);
  *   Inputs: int_8* s = pointer to a string of characters
  *   Return Value: Number of bytes written
@@ -177,6 +474,33 @@ int32_t puts(int8_t* s) {
     }
     return index;
 }
+
+/* int32_t puts_term(int8_t* s);
+ *   Inputs: int_8* s = pointer to a string of characters
+ *   Return Value: Number of bytes written
+ *    Function: Output a string to the console */
+int32_t puts_term(int8_t* s) {
+    register int32_t index = 0;
+    while (s[index] != '\0') {
+        putc_term(s[index]);
+        index++;
+    }
+    return index;
+}
+
+/* int32_t puts_term(int8_t* s);
+ *   Inputs: int_8* s = pointer to a string of characters
+ *   Return Value: Number of bytes written
+ *    Function: Output a string to the console */
+int32_t puts_key(int8_t* s) {
+    register int32_t index = 0;
+    while (s[index] != '\0') {
+        putc_key(s[index]);
+        index++;
+    }
+    return index;
+}
+
 
 /* void putc(uint8_t c);
  * Inputs: uint_8* c = character to print
@@ -246,6 +570,168 @@ void putc(uint8_t c) {
     
 }
 
+/* void putc(uint8_t c);
+ * Inputs: uint_8* c = character to print
+ * Return Value: void
+ *  Function: Output a character to the console, updated for scrolling */
+void putc_term(uint8_t c) {
+    int term_num = get_scheduled_term_idx();
+    /* must change screen_y and screen_x to terminal respective */
+    //terminal_array[term_num].screen_x
+    //terminal_array[term_num].screen_y
+    if ((terminal_array[term_num].active && terminal_array[term_num].scheduled)){
+            page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12;
+            //page_table_vid_mem[0].pf_addr = 0xB8000 >> 12;
+       }
+    else{
+           page_table[VIDEO_MEMORY].pf_addr = (OFFSET_1MB + (term_num) * OFFSET_4KB) >> 12;
+           //page_table_vid_mem[0].pf_addr = (OFFSET_1MB + (next_scheduled_idx) * OFFSET_4KB) >> 12;
+    }
+    flush_tlb();
+    if(c == '\n' || c == '\r') {
+        terminal_array[term_num].screen_y++;
+        if (terminal_array[term_num].screen_y == NUM_ROWS){
+            terminal_array[term_num].screen_y = NUM_ROWS - 1;
+            SCROLLING = 1;
+        }
+        else{
+            SCROLLING = 0;
+        }
+        terminal_array[term_num].screen_x = 0;
+        if(terminal_array[term_num].active) {
+            update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        }
+    } else {
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        terminal_array[term_num].screen_x++; // when x = 80, x % cols = 0, x / cols = 1
+        if (terminal_array[term_num].screen_x >= NUM_COLS ){
+            terminal_array[term_num].screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS) + 1) % NUM_ROWS;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS) + 1);
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
+                SCROLLING = 1;
+            }
+            else{
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        else{
+            terminal_array[term_num].screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS));
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
+                SCROLLING = 1;
+            }
+            else{
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        
+        if(terminal_array[term_num].active) {
+            update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        }
+
+        
+        
+    }
+    int32_t i;
+    if (SCROLLING){
+            for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+            if (i + NUM_COLS < 2000){ // goes to next row in video memory   
+                *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1));
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            else{
+                *(uint8_t *)(video_mem + (i << 1)) = ' ';
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            }
+        }
+    
+    
+}
+/* void putc_key(uint8_t c);
+ * Inputs: uint_8* c = character to print
+ * Return Value: void
+ *  Function: Output a character to the console, updated for scrolling */
+void putc_key(uint8_t c) {
+    int term_num = get_active_term();
+    /* must change screen_y and screen_x to terminal respective */
+    //terminal_array[term_num].screen_x
+    //terminal_array[term_num].screen_y
+    uint32_t saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
+    page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
+    flush_tlb();
+    if(c == '\n' || c == '\r') {
+        terminal_array[term_num].screen_y++;
+        if (terminal_array[term_num].screen_y == NUM_ROWS){
+            terminal_array[term_num].screen_y = NUM_ROWS - 1;
+            SCROLLING = 1;
+        }
+        else{
+            SCROLLING = 0;
+        }
+        terminal_array[term_num].screen_x = 0;
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+    } else {
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        terminal_array[term_num].screen_x++; // when x = 80, x % cols = 0, x / cols = 1
+        if (terminal_array[term_num].screen_x >= NUM_COLS ){
+            terminal_array[term_num].screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS) + 1) % NUM_ROWS;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS) + 1);
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
+                SCROLLING = 1;
+            }
+            else{
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        else{
+            terminal_array[term_num].screen_x %= NUM_COLS;
+            //screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+            terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS));
+            if (terminal_array[term_num].screen_y >= NUM_ROWS){
+                terminal_array[term_num].screen_y = NUM_ROWS - 1;
+                SCROLLING = 1;
+            }
+            else{
+                terminal_array[term_num].screen_y = terminal_array[term_num].screen_y % NUM_ROWS;
+                SCROLLING = 0;
+            }
+        }
+        
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+
+        
+        
+    }
+    int32_t i;
+    if (SCROLLING){
+            for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+            if (i + NUM_COLS < 2000){ // goes to next row in video memory   
+                *(uint8_t *)(video_mem + (i << 1)) = *(uint8_t *)(video_mem + ((i + NUM_COLS) << 1));
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            else{
+                *(uint8_t *)(video_mem + (i << 1)) = ' ';
+                *(uint8_t *)(video_mem + (i << 1) + 1) = ATTRIB;
+            }
+            }
+        }
+    page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+    flush_tlb();
+    
+}
+
 /* void remove();
  * Inputs: none
  * Return Value: void
@@ -266,6 +752,59 @@ void removec(uint8_t c) {
         screen_x %= NUM_COLS;
         screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
         update_cursor(screen_x, screen_y);
+    //}
+}
+
+/* void removec_term();
+ * Inputs: none
+ * Return Value: void
+ *  Function: remove a character from the console */
+void removec_term(uint8_t c) {
+    //if(c == tab) {
+        //screen_y++;
+        //screen_x = 0;
+    //} 
+    //else {
+        int term_num = get_scheduled_term_idx();
+        terminal_array[term_num].screen_x--;
+        if (terminal_array[term_num].screen_x < 0){
+            terminal_array[term_num].screen_x = 0; // make sure backspace doesn't go out of bounds
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        
+        terminal_array[term_num].screen_x %= NUM_COLS;
+        terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS)) % NUM_ROWS;
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+    //}
+}
+
+/* void removec_term();
+ * Inputs: none
+ * Return Value: void
+ *  Function: remove a character from the console */
+void removec_key(uint8_t c) {
+    //if(c == tab) {
+        //screen_y++;
+        //screen_x = 0;
+    //} 
+    //else {
+        uint32_t saved_pf_addr = page_table[VIDEO_MEMORY].pf_addr;
+        page_table[VIDEO_MEMORY].pf_addr = 0xB8000 >> 12; // set b8000 virtual to b8000 physical
+        flush_tlb();
+        int term_num = get_active_term();
+        terminal_array[term_num].screen_x--;
+        if (terminal_array[term_num].screen_x < 0){
+            terminal_array[term_num].screen_x = 0; // make sure backspace doesn't go out of bounds
+        }
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = ' ';
+        *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
+        
+        terminal_array[term_num].screen_x %= NUM_COLS;
+        terminal_array[term_num].screen_y = (terminal_array[term_num].screen_y + (terminal_array[term_num].screen_x / NUM_COLS)) % NUM_ROWS;
+        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        page_table[VIDEO_MEMORY].pf_addr = saved_pf_addr;
+        flush_tlb();
     //}
 }
 

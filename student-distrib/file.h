@@ -132,12 +132,15 @@ typedef struct process_control_block_t{
     uint32_t esp;
     uint32_t tss_esp0;
     uint32_t ebp;
+    uint32_t ebp_switch;
     uint32_t base_shell;
     //arguments for getargs
     unsigned char arguments[1024];       
     uint32_t arg_length;
 
     dentry_t cur_file_dentry;
+
+    int32_t terminal_id;
 
     /* need file discriptor array */
     file_info file_d_array[8]; //need to make it!!
@@ -150,6 +153,7 @@ typedef struct process_control_block_t{
 //process_control_block_t PCB_2;
 
 int32_t GOD;
+int32_t max_programs_flag;
 
 int32_t current_pid;
 int32_t current_parent_pid;
@@ -175,6 +179,11 @@ int32_t calculate_pcb_addr(int32_t cur_pid);
 /*function that actually does getargs*/
 int32_t getargs_helper(uint8_t* buf, int32_t nbytes);
 
+/* helper function to find next pid*/
+int32_t find_next_pid();
+
+/* helper function to check if current process is a base shell */
+int32_t is_base_shell();
 
 // extern file_info files[8];
 extern operations file_operations;

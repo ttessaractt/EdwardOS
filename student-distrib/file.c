@@ -116,15 +116,8 @@ int32_t file_write(int32_t fd, const void* buf, int32_t nbytes){
  * Function: increments dentry_index pointer 
  */
 int32_t directory_open(const uint8_t* filename){
-    // memcpy(&num_dir_entries, (int8_t*)boot_block_addr, NUM_DIR_ENTRIES_SIZE);
-    // dentry_index = dentry_index + 1;
-    // if(dentry_index == num_dir_entries) {
-    //     dentry_index = 0;
-    // }
-    // check for nulls plz
     int32_t pcb_addr = calculate_pcb_addr(current_pid);
     process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
-    //process_control_block_t* pcb_current = (process_control_block_t*) (MB_8 - (KB_8 * current_pid));
 
     if(read_dentry_by_name(filename, &(pcb_current->cur_file_dentry)) == -1){return -1;}
     dentry_index = 0; // put in pcb ?
@@ -151,14 +144,11 @@ int32_t directory_read(int32_t fd, void* buf, int32_t nbytes){
 
     int32_t pcb_addr = calculate_pcb_addr(current_pid);
     process_control_block_t* pcb_current = (process_control_block_t*) pcb_addr;
-    // process_control_block_t* pcb_current = (process_control_block_t*) (MB_8 - (KB_8 * current_pid));
 
     read_dentry_by_index(dentry_index, &(pcb_current->cur_file_dentry));
     pcb_current->cur_file_dentry.file_name[32] = '\0';
     strncpy(buf, pcb_current->cur_file_dentry.file_name, 32);
-    // int8_t* inode_addr = (int8_t*) boot_block_addr + BLOCK_LENGTH + 
-    //     (cur_dir.inode_num * BLOCK_LENGTH);
-    // memcpy(&file_size, inode_addr, LENGTH_IN_BYTES_SIZE);
+
     dentry_index = dentry_index + 1;
     if(dentry_index == num_dir_entries) {
          dentry_index = 0;
@@ -411,11 +401,12 @@ int32_t check_file_validity(uint8_t* fname, dentry_t* dentry) {
 
 }
 
+/* int32_t calculate_pcb_addr(int32_t cur_pid);
+ * Description: calculate the pcb addr given current pid index
+ * Inputs:  int32_t cur_pid = current pid index
+ * Return Value: the address of the current pid 
+ */
 int32_t calculate_pcb_addr(int32_t cur_pid) {
-
-    // if((int32_t)(MB_8 - (KB_8 * cur_pid)) > 0x80000) {
-    //     return 0x80000;
-    // }
     return (int32_t)(MB_8 - (KB_8 * cur_pid));
 }
 

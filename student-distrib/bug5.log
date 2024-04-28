@@ -1,0 +1,170 @@
+<=========================================================>
+<=================>    BUG LOG HEADER   <=================>
+<=========================================================>
+Assignment:
+    MP3
+CheckPoint:
+    CP5
+CreateTime:
+    2024.4.20
+
+<--------------------------------------------------------->
+                          BUG 1                          
+<--------------------------------------------------------->
+Time:
+    2024.4.20.
+Creator:
+    All of us
+Description:
+    Page fault when saving video memory to background buffer
+Solution:
+    Minus 1 when we didn't need to in calculating address
+
+<--------------------------------------------------------->
+                          BUG 2                          
+<--------------------------------------------------------->
+Time:
+    2024.4.20.
+Creator:
+    Elizabeth
+Description:
+    Not setting shell_exists to 1
+Solution:
+    Use single = and not double =
+
+<--------------------------------------------------------->
+                          BUG 3                          
+<--------------------------------------------------------->
+Time:
+    2024.4.22.
+Creator:
+    Elizabeth
+Description:
+    Page fault when switch terminals nearing max processes
+Solution:
+    Max program flag was set high at wrong time, need to 
+    be set high in initialize pcb when cur pid = 6
+
+<--------------------------------------------------------->
+                          BUG 4                          
+<--------------------------------------------------------->
+Time:
+    2024.4.24.
+Creator:
+    Tessa Samuels.
+Description:
+    page fault when trying to save old screen to switch terminals
+Solution:
+    we weren't initializing memory at the location we were trying to write to
+
+<--------------------------------------------------------->
+                          BUG 6                          
+<--------------------------------------------------------->
+Time:
+    2024.4.25.
+Creator:
+    Tessa Samuels & Elizabeth Shank
+Description:
+    after some changed to save ebp for switching our shell never starts
+Solution:
+    there was an if statement that returned
+
+<--------------------------------------------------------->
+                          BUG 7                          
+<--------------------------------------------------------->
+Time:
+    2024.4.25.
+Creator:
+    Tessa Samuels & Elizabeth Shank
+Description:
+    now it page faults forever
+Solution:
+    we had an or in an if statment that needed to be an and
+
+<--------------------------------------------------------->
+                          BUG 8                          
+<--------------------------------------------------------->
+Time:
+    2024.4.25.
+Creator:
+    Tessa Samuels & Elizabeth Shank
+Description:
+    it was being so weird and some stuff from terminal 1 was appearing in other terminals
+Solution:
+    it was always reading from terminal 1 becuase we never switched it from active to scheduled
+
+
+<--------------------------------------------------------->
+                          BUG ?                          
+<--------------------------------------------------------->
+Time:
+    2022.??.??.
+Creator:
+    First Last.
+Description:
+    executing shells works but running a process does not work, boot loops
+Solution:
+    we were assigning the pid wrong, added array to indicate which ones are availible or not
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    boot loop only on terminal 1 after trying to halt program
+Solution:
+    was not saving the ebp of the parent shell, changed
+    to >= 1 instead of > 1 current_pid = current_process->pid;
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    not setting current pid in halt
+Solution:
+    current_pid = current_process->pid;
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    page fault when trying to run another hello in terminal
+Solution:
+    was not resetting values in terminal array in halt
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    First Last.
+Description:
+    Fish appearing in second terminal pingpong when running fish in first
+Solution:
+    Forgot to update vid map paging address for the scheduled program
+
+<--------------------------------------------------------->
+                          BUG X                          
+<--------------------------------------------------------->
+Time:
+    2024.4.26.
+Creator:
+    Elizabeth
+Description:
+    fish would not show up on other terminals besides terminal 1
+    also would not show cursor on other terminals
+Solution:
+    if a terminal hasn't been opened, then need to clear the entire
+    video memory and reset screen x screen y

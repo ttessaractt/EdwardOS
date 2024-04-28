@@ -29,6 +29,8 @@ int ex_it = 0;
 int program_counter = 0;
 int initial_shell_flag = 0;     //flag for if shell is base shell
 int32_t GOD = 0;
+int32_t max_programs_flag = 0;
+int pid_array[7] = {1, 0, 0, 0, 0, 0, 0};       // 1 indexed
 
 /* execute_help
  * Description: attempts to load and execute a new program, hands off processor to new program until it terminates
@@ -43,7 +45,7 @@ int32_t execute_help(unsigned char* command){
     ex_it++;
     printf("Execute iteration: %d\n", ex_it);
     */
-
+    cli();
     /* check that command is not NULL */
     if (command == NULL){
         return -1;
@@ -61,22 +63,30 @@ int32_t execute_help(unsigned char* command){
     // CHECK FILE VALIDITY
     int32_t entry_addr = check_file_validity((unsigned char*)file_name, &new_dentry); /* entry_addr now stored in entry_addr */
     if(entry_addr == -1) {return -1;} /* not an executable file so return -1*/
-
-    current_parent_pid = current_pid;       //initilizes parent pid to be 1st pid
-
+    
     //check if shell being created in base shell
-    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && current_pid == 0){
+    if(!(strncmp((int8_t*)file_name, "shell\0", 6)) && ((find_next_pid() == 1) | (find_next_pid() == 2) | (find_next_pid() == 3))){
         initial_shell_flag = 1;
+        current_parent_pid = 0;
     }
-
+    else{
+        current_parent_pid = current_pid;       //initilizes parent pid
+    }
+    
     //check for maximum number of programs
-    if(current_pid == 2){
-            printf("Maximum number of programs\n");
+    int32_t get_pid = find_next_pid();
+    if(get_pid == -1){
+            printf_term("Maximum number of programs\n");
             return 0;
     }        
 
     // CREATE PCB 
     initialize_pcb();
+
+    /* update current terminal pid */
+    int term_num = get_scheduled_term_idx(); // need to change from active to schedule
+    terminal_array[term_num].cur_term_pid = current_pid;
+
 
     // set PCB entires for getargs
     //current_process->arguments[0] = arguments; //set arguments in PCB
@@ -90,6 +100,12 @@ int32_t execute_help(unsigned char* command){
 
     tss.esp0 = current_process->tss_esp0;   //set esp0 for current process
     
+    // int term_num = get_active_term();
+    // if (terminal_array[term_num].shell_exists == 0 && !(strncmp((int8_t*)file_name, "shell\0", 6))){
+    //     terminal_array[term_num].shell_exists = 1;
+    // }
+
+
     // SET UP PAGING
     allocate_tasks(current_process->pid);   // allocates memory for tasks 
 
@@ -98,16 +114,16 @@ int32_t execute_help(unsigned char* command){
 
     // SAVE EBP
     register uint32_t saved_ebp asm("ebp"); // get ebp
-    if (current_pid > 1){                   // save ebp in PCB for use later
-        int32_t parent_pcb_addr2 = calculate_pcb_addr((current_process->pid) - 1);
+    if (current_process->parent_pid >= 1){                   // save ebp in PCB for use later
+        int32_t parent_pcb_addr2 = calculate_pcb_addr((current_process->parent_pid));
         parent_pcb = (process_control_block_t*) parent_pcb_addr2;
         //parent_pcb = (process_control_block_t*) MB_8 - (KB_8 * (current_pid-1));
         parent_pcb->ebp = saved_ebp;
     }
-
+    sti();
     // CONTEXT SWITCH AND IRET
     jump_to_user(entry_addr); 
- 
+    
     return 0;
 }
 
@@ -120,13 +136,20 @@ int32_t halt_help(unsigned char status){
     // create variables
     process_control_block_t* pcb_parent;
     int b;
-
+    cli();
     // get the esp0 of the parent 
-    if (current_process->base_shell == 1){      //check if in base shell
+    if (current_process->parent_pid == 0){      //check if in base shell
         //if in base shell, restart shell
-        --current_pid;
-        current_pid = 0;
-        printf("Restarting Shell...\n");
+        //NEED TO CHANGE
+        //fjkghwrjehglrewhg;ewrg
+        //gejkghwreuighpuiwerghpqeg
+        //egweghlegleguiebguieg
+        //--current_pid;
+        //current_pid = 0;
+        printf_term("Restarting Shell...\n");
+        int32_t term = get_active_term();       //get terminal we are trying to close
+        pid_array[term+1] = 0;                  //indicate pid is free
+        sti();
         return execute_help((uint8_t*)"shell");
     }
     else{
@@ -135,6 +158,7 @@ int32_t halt_help(unsigned char status){
         //pcb_parent = (process_control_block_t*) (MB_8 - (KB_8 * (current_process->parent_pid)));
     } 
 
+    int term_num = get_scheduled_term_idx();
     // set the new esp0   
     // tss.esp0 = (MB_8 - (KB_8 * ((current_process->parent_pid)-1)));
     tss.esp0 = pcb_parent->tss_esp0;
@@ -151,8 +175,20 @@ int32_t halt_help(unsigned char status){
     }
 
     // current process becomes parent
-    current_process = pcb_parent; //decrement current_pid
-    --current_pid; 
+    current_process = pcb_parent;
+    
+    pid_array[current_pid] = 0;
+
+    current_pid = current_process->pid;
+    current_parent_pid = current_process->parent_pid;
+
+    terminal_array[term_num].cur_term_pid = current_pid; // very important !! fixes page fault
+
+    int32_t get_pid = find_next_pid();
+    if(get_pid != -1){
+        max_programs_flag = 0;
+    }
+
     // expand 8-bit input to 32-bits
     uint32_t stat = (uint32_t)status;
 
@@ -160,7 +196,7 @@ int32_t halt_help(unsigned char status){
         GOD = 0;
         stat = (uint32_t)EXCEPTION;
     }
-
+    sti();
     //call halt assembly code 
     halt_asm(pcb_parent->ebp, stat);
 
@@ -252,26 +288,41 @@ int32_t initialize_pcb(){
     // create variables
     int i;
     int j;
-    current_pid++; 
+    int term_num;
+
+    int32_t get_pid = find_next_pid();
+    if(current_pid == -1){
+        max_programs_flag = 1;
+    }
+    current_pid = get_pid;
+    pid_array[get_pid] = 1;
 
     // make new PCB
-
     int32_t pcb_addr = calculate_pcb_addr(current_pid);
     process_control_block_t* pcb_new = (process_control_block_t*) pcb_addr;
 
     // process_control_block_t* pcb_new = (process_control_block_t*) (MB_8 - (KB_8 * current_pid)); //(should be MB_8 - PID * x)
     pcb_new->pid = current_pid;                 // becomes 1 (on first time) # page fault here?
-    pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
+    
     pcb_new->tss_esp0 = (MB_8 - (KB_8 * (current_pid-1))); // first 8MB, then 8MB - 8KB
+
+    /* find the active terminal index */
+    term_num = get_active_term();
+
+    //pcb_new->terminal_id = term_num + 1;
 
     //set pcb entry if pcb being created is for the base shell
     if (initial_shell_flag == 1){
         pcb_new->base_shell = 1;
+        pcb_new->parent_pid = 0;
         initial_shell_flag = 0;
+        pcb_new->terminal_id = current_pid;
     }
     else{
         pcb_new->base_shell = 0;
         initial_shell_flag = 0;
+        pcb_new->parent_pid = current_parent_pid;   // 0 - no parent yet // current pid = 3??
+        pcb_new->terminal_id = term_num + 1;        // term_num is 0 indexed so add 1 since terminal ids are 1 indexed
     }
 
     //initilize getargs arguments to 0
@@ -429,3 +480,29 @@ int32_t getargs_helper(uint8_t* buf, int32_t nbytes){
     return 0;
 };
 
+/* find_next_pid
+ * Description: finds the next available pid spot in the pid_array
+ * Inputs: none
+ * Return Value: index of free spot in pid_array, else -1 if full
+ */
+int32_t find_next_pid(){
+    int i;
+    for (i = 0; i < 7; i++){
+        if (pid_array[i] == 0){
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* is_base_shell
+ * Description: determines if the current_process is a base shell
+ * Inputs: none
+ * Return Value: 1 if is base shell, 0 if not
+ */
+int32_t is_base_shell(){
+    if(current_process->pid == 1 || current_process->pid == 2 || current_process->pid == 3) {
+        return 1;
+    }
+    return 0;
+}

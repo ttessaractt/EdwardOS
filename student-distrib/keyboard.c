@@ -5,6 +5,7 @@
 
 #include "keyboard.h"
 #include "i8259.h"
+#include "terminal.h"
 
 #include "lib.h"
 
@@ -43,6 +44,9 @@ void keyboard_handler(){
 
     good_index = 0;
 
+    /* get active terminal index */
+    int32_t term_num = get_active_term();
+
     uint32_t key = inb(KEYBOARD_DATA); // scan code from port x60
 
     
@@ -55,6 +59,15 @@ void keyboard_handler(){
     }
     else if ((key == CTRL_BREAK)){ // x9D break
         CTRL_CHECK = 0;
+    }
+
+    if ((key == ALT_INDEX)){ // x38 = L and R control 
+        ALT_CHECK = 1;
+        //printf("alt pressed ");
+    }
+    else if ((key == ALT_BREAK)){ // xB8 break
+        ALT_CHECK = 0;
+        //printf("alt let go ");
     }
 
     
@@ -85,8 +98,28 @@ void keyboard_handler(){
 
     if (CTRL_CHECK){
         // need to clear screen if press L
-        if (key == 0x26){
-            clear_screen();
+        if (key == L_INDEX){
+            clear_screen_term();
+            send_eoi(1);
+            return;
+        }
+
+    }
+
+    if (ALT_CHECK){
+        // need to clear screen if press L
+        if (key == F1_INDEX){
+            terminal_switch(1);
+            send_eoi(1);
+            return;
+        }
+        else if (key == F2_INDEX){
+            terminal_switch(2);
+            send_eoi(1);
+            return;
+        }
+        else if (key == F3_INDEX){
+            terminal_switch(3);
             send_eoi(1);
             return;
         }
@@ -113,9 +146,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
-                        removec(p);
-                        buffer_position--;
+                    if (terminal_array[term_num].buffer_position > 0){
+                        removec_key(p);
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -137,9 +170,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
-                        removec(p);
-                        buffer_position--;
+                    if (terminal_array[term_num].buffer_position > 0){
+                        removec_key(p);
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -164,9 +197,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
-                        removec(p);
-                        buffer_position--;
+                    if (terminal_array[term_num].buffer_position > 0){
+                        removec_key(p);
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -188,9 +221,9 @@ void keyboard_handler(){
                 good_index = 1;
             }
             else if(key == BACKSP_INDEX){
-                    if (buffer_position > 0){
-                        removec(p);
-                        buffer_position--;
+                    if (terminal_array[term_num].buffer_position > 0){
+                        removec_key(p);
+                        terminal_array[term_num].buffer_position--;
                     }
             }
         }
@@ -200,42 +233,44 @@ void keyboard_handler(){
 
         if (TAB_CHECK){ // if a tab
             for (j = 0; j < 4; j++){ // print space 4 times for a tab
-                if ((buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
+                if ((terminal_array[term_num].buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
                     send_eoi(1);
                     return; 
                 }
 
-                keyboard_buffer[buffer_position] = p;
-                putc(keyboard_buffer[buffer_position]); // prints key
-                buffer_position++;
+                terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+                //while(!(terminal_array[term_num].scheduled)){}; 
+                putc_key(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+                terminal_array[term_num].buffer_position++;
         
                 if (p == '\n'){ // if pressed enter
-                    terminal_can_read = 1; // allow terminal to read
-                    buffer_position = 0; // reset buffer position to 0    
+                    terminal_array[term_num].terminal_can_read = 1; // allow terminal to read
+                    terminal_array[term_num].buffer_position = 0; // reset buffer position to 0    
                 }
                 else{
-                    terminal_can_read = 0;
+                    terminal_array[term_num].terminal_can_read = 0;
                 }
 
             }
             
         }
         else{ // not a tab
-            if ((buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
+            if ((terminal_array[term_num].buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
                 send_eoi(1);
                 return; 
             }
 
-            keyboard_buffer[buffer_position] = p;
-            putc(keyboard_buffer[buffer_position]); // prints key
-            buffer_position++;
+            terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+            //while(!(terminal_array[term_num].scheduled)){}; 
+            putc_key(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+            terminal_array[term_num].buffer_position++;
         
             if (p == '\n'){ // if pressed enter
-                terminal_can_read = 1; // allow terminal to read
-                buffer_position = 0; // reset buffer position to 0   
+                terminal_array[term_num].terminal_can_read = 1; // allow terminal to read
+                terminal_array[term_num].buffer_position = 0; // reset buffer position to 0   
             }
             else{
-                    terminal_can_read = 0;
+                    terminal_array[term_num].terminal_can_read = 0;
                 }
         }
     }
