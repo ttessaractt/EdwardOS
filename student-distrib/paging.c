@@ -230,10 +230,10 @@ void add_vid_mem_storage() {
     flush_tlb();
 }
 
-/*  add_vid_mem_storage
- *  Functionality: swaps video memory storage corresponding to a terminal number into actual video memory
- *  Arguments: terminal_number, can range from 1-3 inclusive
- *  Return: 0 for success, -1 if terminal_number out of bounds
+/*  int32_t swap_vid_mem(int32_t terminal_number);
+ *  Functionality: swaps vid mem given a terminal number
+ *  Arguments:  int32_t terminal_number = terminal we want to switch to
+ *  Return: 0 on success, -1 on invalid input
  */
 int32_t swap_vid_mem(int32_t terminal_number) {
 
@@ -264,6 +264,11 @@ int32_t swap_vid_mem(int32_t terminal_number) {
     return 0;
 }
 
+/*  
+ *  Functionality: swaps video memory storage corresponding to a terminal number into actual video memory
+ *  Arguments: terminal_number, can range from 1-3 inclusive
+ *  Return: 0 for success, -1 if terminal_number out of bounds
+ */
 int32_t* get_current_vid_mem(int32_t terminal_number) {
     int32_t* cur_vid_mem_addr;
     if(terminal_number == 1) {
@@ -279,6 +284,11 @@ int32_t* get_current_vid_mem(int32_t terminal_number) {
     return cur_vid_mem_addr;
 }
 
+/*  int32_t save_vid_mem(int32_t old_terminal_num)
+ *  Functionality: saves vid memory given a terminal number
+ *  Arguments: int32_t old_terminal_num = terminal that we want to save vid mem from
+ *  Return: 0
+ */
 int32_t save_vid_mem(int32_t old_terminal_num){
     int32_t* dest = (int32_t*) (OFFSET_1MB + ((old_terminal_num)*OFFSET_4KB));
     int32_t* src = (int32_t*) OFFSET_VID_MEM_START; 

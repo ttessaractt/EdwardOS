@@ -20,6 +20,12 @@ extern int32_t current_parent_pid;
 /*
 https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
 */
+
+/* void PIT_init();
+ * Description: initializes the programmable interval timer (pit)   
+ * Inputs: none
+ * Return Value: none
+ */
 void PIT_init(){
     //0x43 - Mode/Command register (write only, a read is ignored)
     //00110000 = 0x30
@@ -46,6 +52,13 @@ void PIT_init(){
     // currently 20 hz?
 }
 
+/* void scheduler();
+ * Description: handles scheduling by saving the context of the previous program
+                and restoring the scheduled program that becomes the actively running
+                program. gets called in PIT_handler
+ * Inputs: none
+ * Return Value: none
+ */
 void scheduler(){
     /*
     EXAMPLE:
@@ -127,32 +140,19 @@ void scheduler(){
 /*
 https://wiki.osdev.org/Programmable_Interval_Timer#Mode_0_.E2.80.93_Interrupt_On_Terminal_Count
 */
+
+/* void PIT_handler();
+ * Description: is called when a pit interrupt occurs; basically a gateway
+                to the scheduler function
+ * Inputs: none
+ * Return Value: none
+ */
 void PIT_handler(){
 
     send_eoi(0);
 
     //if an interrupt occurs, call scheduler 
     scheduler();
-}
-
-int32_t PIT_frequency(int32_t freq){
-    return -1;
-}
-
-int32_t PIT_open(const uint8_t* filename){
-    return -1;
-}
-
-int32_t PIT_read(int32_t fd, void* buf, int32_t nbytes){
-    return -1;
-}
-
-int32_t PIT_write(int32_t fd, const void* buf, int32_t nbytes){
-    return -1;
-}
-
-int32_t PIT_close(int32_t fd){
-    return -1;
 }
 
 

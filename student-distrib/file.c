@@ -401,6 +401,11 @@ int32_t check_file_validity(uint8_t* fname, dentry_t* dentry) {
 
 }
 
+/* int32_t calculate_pcb_addr(int32_t cur_pid);
+ * Description: calculate the pcb addr given current pid index
+ * Inputs:  int32_t cur_pid = current pid index
+ * Return Value: the address of the current pid 
+ */
 int32_t calculate_pcb_addr(int32_t cur_pid) {
     return (int32_t)(MB_8 - (KB_8 * cur_pid));
 }

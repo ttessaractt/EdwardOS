@@ -2,6 +2,12 @@
  * vim:ts=4 noexpandtab
  */
 
+/* ;
+ * Description:
+ * Inputs: 
+ * Return Value: 
+ */
+
 #include "terminal.h"
 #include "keyboard.h"
 #include "syscalls.h"
@@ -18,6 +24,12 @@ extern int32_t current_pid;            // initial pid = 0
 extern int32_t current_parent_pid;
 int32_t boot_flag = -1;
 
+/* int32_T terminal_init();
+ * Description: intializes the three terminals, and boots terminal 3 as the scheduled
+                terminal
+ * Inputs: none
+ * Return Value: 0
+ */
 int32_t terminal_init(){
     int i, j;
     add_vid_mem_storage();
@@ -52,7 +64,11 @@ int32_t terminal_init(){
 
 }
 
-
+/* int32_t terminal_switch(int32_t terminal_num);
+ * Description: switches terminals when alt+f1/2/3 is pressed
+ * Inputs: the terminal we want to switch to
+ * Return Value: 0 on success or the same terminal, -1 on invalid input
+ */
 int32_t terminal_switch(int32_t terminal_num){
     /* 1. save current video memory to the proper background buffer for the terminal */
     /* 2. put new terminal into video memory from its stored background buffer */
@@ -137,6 +153,12 @@ int32_t set_next_scheduled() {
     return -1;
 }
 
+/* int32_t get_active_term();
+ * Description: checks each terminal in the terminal array's active flag
+                and returns thye index of the terminal if the flag is 1
+ * Inputs: none
+ * Return Value: index of terminal, otherwise -1 (on failure)
+ */
 int32_t get_active_term(){
     int i;
     /* find the active terminal */
