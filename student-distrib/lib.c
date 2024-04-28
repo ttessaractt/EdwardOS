@@ -597,8 +597,10 @@ void putc_term(uint8_t c) {
         else{
             SCROLLING = 0;
         }
-        terminal_array[term_num].screen_x = 0;
-        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        if(terminal_array[term_num].active) {
+            terminal_array[term_num].screen_x = 0;
+            update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        }
     } else {
         *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1)) = c;
         *(uint8_t *)(video_mem + ((NUM_COLS * terminal_array[term_num].screen_y + terminal_array[term_num].screen_x) << 1) + 1) = ATTRIB;
@@ -630,7 +632,9 @@ void putc_term(uint8_t c) {
             }
         }
         
-        update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        if(terminal_array[term_num].active) {
+            update_cursor(terminal_array[term_num].screen_x, terminal_array[term_num].screen_y);
+        }
 
         
         
