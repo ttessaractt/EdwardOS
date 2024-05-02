@@ -9,6 +9,10 @@ typedef struct terminal_t{
     /* input buffer */
     char keyboard_buffer[128]; // keyboard buffer size 128
 
+    char old_buffer[128*5];
+
+    int32_t old_buffer_position;
+
     int32_t buffer_position;
 
     int32_t terminal_can_read;
