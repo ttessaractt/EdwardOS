@@ -48,12 +48,14 @@ int32_t terminal_init(){
         terminal_array[i].screen_x = 0;
         terminal_array[i].screen_y = 0;
         terminal_array[i].buffer_position = 0;
+        terminal_array[i].old_buffer_position = 0;
         terminal_array[i].terminal_can_read = 0;
         terminal_array[i].cur_term_pid = 0;
-        terminal_array[0].opened_before = 0;
+        terminal_array[i].opened_before = 0;
         //keyboard buff
         for (j = 0; j < 128; j++){
             terminal_array[i].keyboard_buffer[j] = '\0';
+            terminal_array[i].old_buffer[j] = '\0';
         }
     }
     boot_flag = 0;
@@ -206,7 +208,9 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
     }
 
     while(terminal_array[term_num].terminal_can_read == 0){}; //wait until enter pressed
-
+    for(i = 0; i < 128; i++){
+            terminal_array[term_num].old_buffer[i] = '\0';
+    }
     for(i = 0; i < nbytes; i++){
 
         if (i > (MAX_BUF_SIZE - 1)){
@@ -216,7 +220,7 @@ int32_t terminal_read(int32_t fd, void* buf, int32_t nbytes){
 
         if (terminal_array[term_num].keyboard_buffer[i] != '\n'){
             buffer[i] = terminal_array[term_num].keyboard_buffer[i];
-            //old_buffer[i] = keyboard_buffer[i];
+            terminal_array[term_num].old_buffer[i] = terminal_array[term_num].keyboard_buffer[i];
             terminal_array[term_num].keyboard_buffer[i] = '\0'; // clear keboard_buffer after a read
             terminal_array[term_num].terminal_can_read = 0;
         }

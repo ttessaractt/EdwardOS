@@ -10,6 +10,7 @@
 #include "lib.h"
 
 int terminal_can_read = 0;
+int counter = 0;
 
 /* keyboard_init
  *  Functionality: enables interrupt on IRQ1 on PIC for keyboard functionality
@@ -39,7 +40,7 @@ void keyboard_handler(){
 
     char p;
     
-    //int i;
+    int i;
     int j;
 
     good_index = 0;
@@ -85,16 +86,20 @@ void keyboard_handler(){
         TAB_CHECK = 0;
     }
 
-    // int32_t old_length = strlen(old_buffer);
+    int32_t old_length = strlen(terminal_array[term_num].old_buffer);
 
-    // if (key == 72){
-    //     for(i = 0; i < old_length; i++){
-    //         keyboard_buffer[i] = old_buffer[i];
-    //         old_buffer[i] = '\0';
-    //         putc(keyboard_buffer[i]);
-    //         buffer_position++;
-    //     }
-    // }
+    if (key == 72){
+        for(i = 0; i < old_length; i++){
+            if (terminal_array[term_num].buffer_position > 127){
+                break;
+            }
+            terminal_array[term_num].keyboard_buffer[i] = terminal_array[term_num].old_buffer[i];
+            terminal_array[term_num].old_buffer[i] = '\0';
+            putc_key(terminal_array[term_num].keyboard_buffer[i]);
+            terminal_array[term_num].buffer_position++;
+        }
+        
+    }
 
     if (CTRL_CHECK){
         // need to clear screen if press L
