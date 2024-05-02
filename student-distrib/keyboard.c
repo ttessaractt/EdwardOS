@@ -27,6 +27,8 @@ void keyboard_init(){
  *  Arguments: none
  *  Return: none
  */
+
+
 void keyboard_handler(){
 
     /* lookup tables for all characters */
@@ -34,7 +36,8 @@ void keyboard_handler(){
     static char lookup_cap[] = "..1234567890-=..QWERTYUIOP[]..ASDFGHJKL;\'`.\\ZXCVBNM,./"; // lookup table for capital letters
     static char lookup_shift[] = "..!@#$%^&*()_+..QWERTYUIOP{}..ASDFGHJKL:\"~.|ZXCVBNM<>?"; // lookup table for shift letters
     static char lookup_cap_shift[] = "..!@#$%^&*()_+..qwertyuiop{}..asdfghjkl:\"~.|zxcvbnm<>?"; // lookup table for caps then shift letters
-
+    static char names[16][33] = {"sigtest", "shell", "grep", "syserr", "rtc", "fish", "counter", "pingpong", "cat", "frame0.txt", 
+    "verylargetextwithverylongname.tx", "created.txt", "testprint", "frame1.txt", "hello"};
     char space = ' ';
 
     char p;
@@ -232,26 +235,69 @@ void keyboard_handler(){
     if (good_index){ // if key was within bounds, allow to continue
 
         if (TAB_CHECK){ // if a tab
-            for (j = 0; j < 4; j++){ // print space 4 times for a tab
-                if ((terminal_array[term_num].buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
-                    send_eoi(1);
-                    return; 
-                }
 
-                terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
-                //while(!(terminal_array[term_num].scheduled)){}; 
-                putc_key(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
-                terminal_array[term_num].buffer_position++;
-        
-                if (p == '\n'){ // if pressed enter
-                    terminal_array[term_num].terminal_can_read = 1; // allow terminal to read
-                    terminal_array[term_num].buffer_position = 0; // reset buffer position to 0    
-                }
-                else{
-                    terminal_array[term_num].terminal_can_read = 0;
-                }
+            int i;
 
+            int skiparoo = 0;
+            int double_break = 0;
+
+            char buf_check[2];
+
+            buf_check[0] = terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-2];
+            buf_check[1] = terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-1];
+
+            if(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-1] != ' ' 
+            && terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-2] != ' ') {
+                for(i = 0; i < 16; i++) {
+                    int k;
+                    for(k = 0; k < strlen(names[i]) - 1; k++) {
+                        if(strncmp(names[i] + k, buf_check, 2) == 0) {
+                            int name_length = strlen(names[i]);
+                            int j;
+                            double_break = 1;
+                            if(terminal_array[term_num].buffer_position + name_length > 127) {
+                                break;
+                            } else {
+                                for(j = k + 2; j < name_length; j++) {
+                                    putc_key(names[i][j]);
+                                    terminal_array[term_num].buffer_position++;
+                                }
+
+                                skiparoo = 1;
+                                break;
+                            }
+                        }
+                    }
+                    if(double_break) {
+                        double_break = 0;
+                        break;
+                    }
+                }
             }
+
+            if(skiparoo == 0) {
+                for (j = 0; j < 4; j++){ // print space 4 times for a tab
+                    if ((terminal_array[term_num].buffer_position == (MAX_BUF_SIZE - 1)) && (p != '\n')){ // max size
+                        send_eoi(1);
+                        return; 
+                    }
+
+                    terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = p;
+                    //while(!(terminal_array[term_num].scheduled)){}; 
+                    putc_key(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position]); // prints key
+                    terminal_array[term_num].buffer_position++;
+            
+                    if (p == '\n'){ // if pressed enter
+                        terminal_array[term_num].terminal_can_read = 1; // allow terminal to read
+                        terminal_array[term_num].buffer_position = 0; // reset buffer position to 0    
+                    }
+                    else{
+                        terminal_array[term_num].terminal_can_read = 0;
+                    }
+
+                }
+            }
+            skiparoo = 0;
             
         }
         else{ // not a tab
