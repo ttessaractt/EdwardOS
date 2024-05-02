@@ -6,6 +6,7 @@
 #include "keyboard.h"
 #include "i8259.h"
 #include "terminal.h"
+#include "file.h"
 
 #include "lib.h"
 
@@ -239,26 +240,45 @@ void keyboard_handler(){
             int i;
 
             int skiparoo = 0;
-            int double_break = 0;
+            //int double_break = 0;
 
             char buf_check[2];
+            unsigned char fake_file_name[32+1]; 
+            unsigned char file_name[32+1];
+            unsigned char arguments[128]; 
+
+            parse_arguments((unsigned char*)terminal_array[term_num].keyboard_buffer, fake_file_name, arguments);
+
+            if (arguments[0] != '\0'){
+                unsigned char fake_arguments[128];
+                for(i = 0; i < 128; i++){
+                    fake_arguments[i] = arguments[i];
+                }
+                parse_arguments(fake_arguments, fake_file_name, arguments);   
+            }
+            for(i = 0; i < 32; i++){
+                    file_name[i] = fake_file_name[i];
+            }
 
             buf_check[0] = terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-2];
             buf_check[1] = terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-1];
 
-            if(terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-1] != ' ' 
-            && terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-2] != ' ') {
+            if((terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-1] != ' ' 
+            && terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position-2] != ' ' ) && (terminal_array[term_num].buffer_position != 0)) {
                 for(i = 0; i < 16; i++) {
-                    int k;
-                    for(k = 0; k < strlen(names[i]) - 1; k++) {
-                        if(strncmp(names[i] + k, buf_check, 2) == 0) {
-                            int name_length = strlen(names[i]);
+                    //int k;
+                    int name_length = strlen(names[i]);
+                    int file_length = strlen((char*)file_name);
+                    //for(k = 0; k < strlen(names[i]) - 1; k++) {
+                        if(strncmp(names[i], (char*)file_name, file_length) == 0) {
+                            
                             int j;
-                            double_break = 1;
+                            //double_break = 1;
                             if(terminal_array[term_num].buffer_position + name_length > 127) {
                                 break;
                             } else {
-                                for(j = k + 2; j < name_length; j++) {
+                                for(j = file_length; j < name_length; j++) {
+                                    terminal_array[term_num].keyboard_buffer[terminal_array[term_num].buffer_position] = names[i][j];
                                     putc_key(names[i][j]);
                                     terminal_array[term_num].buffer_position++;
                                 }
@@ -267,11 +287,11 @@ void keyboard_handler(){
                                 break;
                             }
                         }
-                    }
-                    if(double_break) {
-                        double_break = 0;
-                        break;
-                    }
+    
+                    //if(double_break) {
+                    //    double_break = 0;
+                    //    break;
+                    //}
                 }
             }
 

@@ -4,6 +4,9 @@
         "idt.h": "c",
         "i8259.h": "c",
         "types.h": "c",
-        "file.h": "c"
+        "file.h": "c",
+        "syscalls.h": "c",
+        "keyboard.h": "c",
+        "syscall_helper.h": "c"
     }
 }
