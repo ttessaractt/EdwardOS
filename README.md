@@ -1,4 +1,26 @@
-ACADEMIC INTEGRITY
+# ECE 391 MP3 - EdwardOS
+
+## WARNING
+-----
+You SHOULD NOT copy this code or use it in any way that you are not allowed. Doing so is an academic integrity violation. The class has also changed so its no longer relevant.
+
+## Overview
+-----
+This was the courses final project, created over 2 months with 3 other students. It implements a simple IA-32 x86 Linux-like operating System.
+QEMU is required to run this project.
+'C:\qemu-1.5.0-win32-sdl\qemu-system-i386w.exe -hda "Z:\mp3_group_41\student-distrib\mp3.img" -m 256 -gdb tcp:127.0.0.1:1234 -name mp3'
+
+## Features
+-----
+The OS includes non-preemptive context switching, segmented memory protection,and a simple file system.
+- i8259 PIC interrupt handling
+- Memory paging
+- i8259 PIC interrupt handling
+- Exception handling
+- Scheduling based on Programmable Interrupt Timer
+- Keyboard input buffer
+
+## ACADEMIC INTEGRITY
 -----
 Please review the University of Illinois Student Code before starting,
 particularly all subsections of Article 1, Part 4 Academic Integrity and Procedure [here](http://studentcode.illinois.edu/article1_part4_1-401.html).
