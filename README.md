@@ -17,6 +17,19 @@ The OS includes non-preemptive context switching, segmented memory protection,an
 - Scheduling based on Programmable Interrupt Timer
 - Keyboard input buffer
 
+## Components
+| File/Directory | Description |
+|----------------|-------------|
+| `student-distrib/` | Main OS kernel source code and drivers |
+| `syscalls/` | System call interface implementations |
+| `fsdir/` | Filesystem directory structure and utilities |
+| `fish/` | Fish animation demo program |
+| `createfs` | Filesystem creation utility |
+| `elfconvert` | ELF binary conversion tool |
+| `INSTALL` | Installation and build instructions |
+| `README.md` | Project documentation |
+| `.vscode/` | VS Code configuration files |
+
 ## ACADEMIC INTEGRITY
 Please review the University of Illinois Student Code before starting,
 particularly all subsections of Article 1, Part 4 Academic Integrity and Procedure [here](http://studentcode.illinois.edu/article1_part4_1-401.html).
